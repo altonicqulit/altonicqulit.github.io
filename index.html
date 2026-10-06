@@ -394,7 +394,7 @@ APPS.forEach((app, i) => {
    ========================================================= */
 const SPACE = {
   stars:          260,       // how many stars
-  asteroidEvery:  [.8, 1.2], // seconds between asteroids (min, max)
+  asteroidEvery:  [6, 8],    // seconds between asteroids (min, max)
   maxAsteroids:   28,
   rocketEvery:    [16, 34],  // seconds between ships
   astronautEvery: [30, 50]   // seconds between astronauts
@@ -474,48 +474,102 @@ function entry(margin = 140) {
   return                 { x: rnd(0, W),   y: H + margin, vx: rnd(-.35, .35), vy: -1 };
 }
 
-/* an icosahedron, knocked out of shape, tumbling through depth */
-const ICO_V = (() => {
-  const t = (1 + Math.sqrt(5)) / 2;
-  return [[-1,t,0],[1,t,0],[-1,-t,0],[1,-t,0],[0,-1,t],[0,1,t],
-          [0,-1,-t],[0,1,-t],[t,0,-1],[t,0,1],[-t,0,-1],[-t,0,1]];
+/* a lumpy, stretched rock: an 86-vertex sphere knocked out of shape */
+const SPH = (() => {
+  const RINGS = 8, SEG = 12;
+  const base = [[0, 1, 0]], faces = [];
+  for (let i = 1; i < RINGS; i++) {
+    const phi = Math.PI * i / RINGS;
+    for (let j = 0; j < SEG; j++) {
+      const th = 2 * Math.PI * j / SEG;
+      base.push([Math.sin(phi) * Math.cos(th), Math.cos(phi), Math.sin(phi) * Math.sin(th)]);
+    }
+  }
+  base.push([0, -1, 0]);
+  const south = base.length - 1;
+  const at = (i, j) => 1 + (i - 1) * SEG + ((j % SEG) + SEG) % SEG;
+  for (let j = 0; j < SEG; j++) faces.push([0, at(1, j), at(1, j + 1)]);
+  for (let i = 1; i < RINGS - 1; i++) for (let j = 0; j < SEG; j++) {
+    faces.push([at(i, j), at(i + 1, j), at(i + 1, j + 1)]);
+    faces.push([at(i, j), at(i + 1, j + 1), at(i, j + 1)]);
+  }
+  for (let j = 0; j < SEG; j++) faces.push([south, at(RINGS - 1, j + 1), at(RINGS - 1, j)]);
+  return { base, faces };
 })();
-const ICO_F = [[0,11,5],[0,5,1],[0,1,7],[0,7,10],[0,10,11],[1,5,9],[5,11,4],
-               [11,10,2],[10,7,6],[7,1,8],[3,9,4],[3,4,2],[3,2,6],[3,6,8],
-               [3,8,9],[4,9,5],[2,4,11],[6,2,10],[8,6,7],[9,8,1]];
 const FOCAL = 620;   // smaller = stronger perspective
+
+function rockShape(r) {
+  // three wave directions give coherent ridges and hollows
+  const n = [0, 1, 2].map(() => {
+    const v = [rnd(-1, 1), rnd(-1, 1), rnd(-1, 1)];
+    const L = Math.hypot(...v) || 1;
+    return [v[0] / L, v[1] / L, v[2] / L];
+  });
+  // stretched along one axis, then tipped to a random orientation
+  const ax = 1, ay = rnd(.28, .62), az = rnd(.42, .95);
+  const A = rnd(0, 7), B = rnd(0, 7), C = rnd(0, 7);
+  const ca = Math.cos(A), sa = Math.sin(A), cb = Math.cos(B), sb = Math.sin(B), cc = Math.cos(C), sc2 = Math.sin(C);
+  return SPH.base.map(v => {
+    const f = 1
+      + .24 * Math.sin(3.1 * (v[0]*n[0][0] + v[1]*n[0][1] + v[2]*n[0][2]))
+      + .17 * Math.sin(5.3 * (v[0]*n[1][0] + v[1]*n[1][1] + v[2]*n[1][2]) + 1.7)
+      + .11 * Math.sin(8.7 * (v[0]*n[2][0] + v[1]*n[2][1] + v[2]*n[2][2]) + 3.1)
+      + rnd(-.05, .05);
+    let x = v[0] * ax * f * r, y = v[1] * ay * f * r, z = v[2] * az * f * r;
+    let y2 = y * ca - z * sa, z2 = y * sa + z * ca;          // tip it
+    let x2 = x * cb + z2 * sb; z2 = -x * sb + z2 * cb;
+    return [x2 * cc - y2 * sc2, x2 * sc2 + y2 * cc, z2];
+  });
+}
 
 function spawnAsteroid() {
   const r = rnd(104, 361);
-  // deform the sphere: every vertex pushed in or out by its own amount
-  const verts = ICO_V.map(v => {
-    const L = Math.hypot(v[0], v[1], v[2]), k = r * rnd(.62, 1.3) / L;
-    return [v[0] * k, v[1] * k, v[2] * k];
-  });
-  // a heading anywhere on the sphere: up, down, left, right,
-  // towards the screen, away from it, or any mix of those
-  const th = Math.random() * Math.PI * 2;
-  const ph = Math.acos(rnd(-1, 1));
-  const sp = rnd(70, 330);
-  const dir = [Math.sin(ph) * Math.cos(th), Math.sin(ph) * Math.sin(th), Math.cos(ph)];
-  drifters.push({
+  const verts = rockShape(r);
+  const o = {
     kind: "asteroid", verts, r,
-    wx: rnd(-W, W) * 1.3, wy: rnd(-H, H) * 1.3, z: rnd(-120, 3400),
-    vwx: dir[0] * sp, vwy: dir[1] * sp, vz: dir[2] * sp * 2.4,
     rx: Math.random() * 7, ry: Math.random() * 7, rz: Math.random() * 7,
     sx: rnd(-.5, .5), sy: rnd(-.45, .45), sz: rnd(-.35, .35),
     tint: pick([[118,126,158],[136,124,132],[104,122,150],[128,132,128]]),
     fade: 0
-  });
+  };
+
+  if (Math.random() < .25) {
+    // a quarter of them: a speck a long way off, bearing down on a corner
+    o.z = rnd(2800, 4600);
+    o.wx = rnd(-W * .25, W * .25);
+    o.wy = rnd(-H * .25, H * .25);
+    const sgx = Math.random() < .5 ? -1 : 1, sgy = Math.random() < .5 ? -1 : 1;
+    const sp = rnd(130, 280);
+    o.vwx = sgx * rnd(45, 120); o.vwy = sgy * rnd(35, 100); o.vz = -sp * 2.6;
+  } else {
+    // the rest slide in from an edge of the screen and cross it
+    o.z = rnd(150, 1050);
+    const k = FOCAL / (FOCAL + o.z);
+    const outX = (W / 2) / k + r * 1.3, outY = (H / 2) / k + r * 1.3;
+    const side = Math.floor(Math.random() * 4);
+    if (side === 0) { o.wx = -outX;              o.wy = rnd(-outY, outY); }
+    else if (side === 1) { o.wx = outX;          o.wy = rnd(-outY, outY); }
+    else if (side === 2) { o.wx = rnd(-outX, outX); o.wy = -outY; }
+    else { o.wx = rnd(-outX, outX);              o.wy = outY; }
+    const tx = rnd(-outX, outX) * .55, ty = rnd(-outY, outY) * .55;   // aim across the view
+    const dx = tx - o.wx, dy = ty - o.wy, L = Math.hypot(dx, dy) || 1;
+    const sp = rnd(80, 240);
+    o.vwx = dx / L * sp; o.vwy = dy / L * sp; o.vz = rnd(-170, 150);
+  }
+  drifters.push(o);
 }
 
 function spawnRocket() {
-  const dir = Math.random() < .5 ? 1 : -1;
+  // in at one corner, out at the opposite one
+  const sgx = Math.random() < .5 ? -1 : 1, sgy = Math.random() < .5 ? -1 : 1;
+  const x = sgx < 0 ? -380 : W + 380, y = sgy < 0 ? -260 : H + 260;
+  const tx = sgx < 0 ? W + 380 : -380, ty = sgy < 0 ? H + 260 : -260;
+  const ang = Math.atan2(ty - y, tx - x);
+  const sp = rnd(24, 44);
   drifters.push({
-    kind: "rocket", dir,
-    x: dir === 1 ? -340 : W + 340,
-    y: rnd(H * .14, H * .8),
-    vx: dir * rnd(24, 42), vy: 0,   // far away, so it crawls
+    kind: "rocket", x, y, ang,
+    vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp,   // far away, so it crawls
+    dist: Math.hypot(tx - x, ty - y), gone: 0,
     scale: rnd(.72, 1.05),
     ring: 0, t: 0, fade: 0, puffs: [],
     decided: false, hyper: false, hyperT: 0, streak: 0
@@ -554,7 +608,7 @@ function drawAsteroid(o) {
   });
 
   const L = [-.45, -.62, -.64];                                      // light direction
-  const faces = ICO_F.map(f => {
+  const faces = SPH.faces.map(f => {
     const a = P[f[0]].v, b = P[f[1]].v, c = P[f[2]].v;
     const u = [b[0]-a[0], b[1]-a[1], b[2]-a[2]];
     const w = [c[0]-a[0], c[1]-a[1], c[2]-a[2]];
@@ -566,10 +620,11 @@ function drawAsteroid(o) {
     return { f, n, z: (P[f[0]].d + P[f[1]].d + P[f[2]].d) / 3 };
   }).sort((p, q) => q.z - p.z);                                      // far faces first
 
-  // only dissolve once it is a very long way off; near ones just sweep past
+  // it only dissolves once it is a speck: under 5 px across on screen.
+  // Coming the other way it never fades — it just swallows the view and goes.
   let a = o.fade;
-  if (o.z < -140) a *= Math.max(0, (o.z + 340) / 200);
-  if (o.z > 3600) a *= Math.max(0, (4900 - o.z) / 1300);
+  const px = o.r * (FOCAL / Math.max(60, FOCAL + o.z));
+  if (px < 5) a *= Math.max(0, (px - 2) / 3);
   if (a <= .01) return;
 
   const [tr, tg, tb] = o.tint;
@@ -588,7 +643,8 @@ function drawAsteroid(o) {
 
 function drawRocket(o) {
   const sc = o.scale;
-  const back = o.x - o.dir * 132 * sc;                 // where the engines sit
+  const ca = Math.cos(o.ang), sa = Math.sin(o.ang);
+  const back = o.x - ca * 132 * sc, backY = o.y - sa * 132 * sc;   // where the engines sit
 
   // long blue exhaust trail
   cx.save();
@@ -598,27 +654,29 @@ function drawRocket(o) {
     cx.beginPath(); cx.arc(p.x, p.y, p.r, 0, 7); cx.fill();
   });
 
-  // hyperdrive streak
+  // hyperdrive streak, laid along the heading
   if (o.streak > 0) {
+    cx.save();
+    cx.translate(back, backY); cx.rotate(o.ang);
     const len = 260 + 2600 * o.streak;
-    const g = cx.createLinearGradient(back, 0, back - o.dir * len, 0);
+    const g = cx.createLinearGradient(0, 0, -len, 0);
     g.addColorStop(0, `rgba(235, 250, 255, ${.9 * (1 - o.streak * .3)})`);
     g.addColorStop(.12, `rgba(90, 190, 255, ${.7 * (1 - o.streak * .3)})`);
     g.addColorStop(1, "rgba(40, 110, 255, 0)");
     cx.fillStyle = g;
     const hh = 16 * sc * (1 - o.streak * .55) + 2;
     cx.beginPath();
-    cx.moveTo(back, o.y - hh);
-    cx.lineTo(back - o.dir * len, o.y - hh * .25);
-    cx.lineTo(back - o.dir * len, o.y + hh * .25);
-    cx.lineTo(back, o.y + hh);
+    cx.moveTo(0, -hh); cx.lineTo(-len, -hh * .25);
+    cx.lineTo(-len, hh * .25); cx.lineTo(0, hh);
     cx.closePath(); cx.fill();
+    cx.restore();
   }
   cx.restore();
 
   cx.save();
   cx.translate(o.x, o.y);
-  if (o.dir === -1) cx.scale(-1, 1);
+  cx.rotate(o.ang);
+  if (Math.cos(o.ang) < 0) cx.scale(1, -1);          // keep it the right way up
   cx.scale(sc * (1 + o.streak * 7), sc * (1 - o.streak * .35));
   cx.globalAlpha = o.fade * .9;
 
@@ -750,7 +808,11 @@ function updateDrifters(dt) {
       o.z  += o.vz  * dt;
       o.wx += o.vwx * dt; o.wy += o.vwy * dt;
       o.rx += o.sx * dt;  o.ry += o.sy * dt;  o.rz += o.sz * dt;
-      if (o.z < -350 || o.z > 4950 || Math.abs(o.wx) > W * 4 || Math.abs(o.wy) > H * 4) drifters.splice(i, 1);
+      const kk = FOCAL / Math.max(60, FOCAL + o.z);
+      const gone = o.z > 0 && o.r * kk < 2;                      // shrunk to nothing
+      const past = o.z < -o.r * 1.4 - 180;                       // swept right by the camera
+      const wide = Math.abs(o.wx * kk) > W * 1.6 + o.r * kk || Math.abs(o.wy * kk) > H * 1.6 + o.r * kk;
+      if (gone || past || wide) drifters.splice(i, 1);
       continue;
     }
 
@@ -759,29 +821,35 @@ function updateDrifters(dt) {
 
     if (o.kind === "rocket") {
       o.ring += dt * 1.5;
+      o.gone += Math.hypot(o.vx, o.vy) * dt;
 
       // halfway across, it either carries on or lights the hyperdrive
-      if (!o.decided && ((o.dir === 1 && o.x > W * .5) || (o.dir === -1 && o.x < W * .5))) {
+      if (!o.decided && o.gone > o.dist * .5) {
         o.decided = true;
         o.hyper = Math.random() < .5;
       }
       if (o.hyper) {
         o.hyperT += dt;
-        o.vx *= Math.pow(11, dt);                 // builds up fast
+        const boost = Math.pow(11, dt);           // builds up fast
+        o.vx *= boost; o.vy *= boost;
         o.streak = Math.min(1, o.hyperT * 1.7);
         if (o.hyperT > 1.5) o.fade = Math.max(0, o.fade - dt * 2.2);
       }
 
-      const bx = o.x - o.dir * 132 * o.scale;
+      const bx = o.x - Math.cos(o.ang) * 132 * o.scale;
       const puffs = o.hyper ? 3 : 1;
       for (let k = 0; k < puffs; k++) {
-        o.puffs.push({ x: bx - o.dir * k * 14, y: o.y + rnd(-3, 3), r: 5 * o.scale, life: 1 });
+        o.puffs.push({
+          x: bx - Math.cos(o.ang) * k * 14,
+          y: o.y - Math.sin(o.ang) * 132 * o.scale - Math.sin(o.ang) * k * 14 + rnd(-3, 3),
+          r: 5 * o.scale, life: 1
+        });
       }
       for (const p of o.puffs) { p.life -= dt * (o.hyper ? .34 : .18); p.r += dt * (o.hyper ? 34 : 15); }
       o.puffs = o.puffs.filter(p => p.life > 0);
       if (o.puffs.length > 260) o.puffs.splice(0, o.puffs.length - 260);
 
-      if (o.fade <= 0 || o.x < -2200 || o.x > W + 2200) { drifters.splice(i, 1); }
+      if (o.fade <= 0 || o.x < -2600 || o.x > W + 2600 || o.y < -2600 || o.y > H + 2600) { drifters.splice(i, 1); }
       continue;
     }
     const pad = 260;
