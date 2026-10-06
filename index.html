@@ -394,10 +394,10 @@ APPS.forEach((app, i) => {
    ========================================================= */
 const SPACE = {
   stars:          260,      // how many stars
-  asteroidEvery:  [14, 16],  // seconds between asteroids (min, max)
-  maxAsteroids:   10,
-  rocketEvery:    [30, 34], // seconds between rockets
-  astronautEvery: [30, 50] // seconds between astronauts
+  asteroidEvery:  [7, 16],  // seconds between asteroids (min, max)
+  maxAsteroids:   4,
+  rocketEvery:    [34, 70], // seconds between rockets
+  astronautEvery: [50, 110] // seconds between astronauts
 };
 
 const cv = document.getElementById("field");
@@ -474,23 +474,36 @@ function entry(margin = 140) {
   return                 { x: rnd(0, W),   y: H + margin, vx: rnd(-.35, .35), vy: -1 };
 }
 
+/* an icosahedron, knocked out of shape, tumbling through depth */
+const ICO_V = (() => {
+  const t = (1 + Math.sqrt(5)) / 2;
+  return [[-1,t,0],[1,t,0],[-1,-t,0],[1,-t,0],[0,-1,t],[0,1,t],
+          [0,-1,-t],[0,1,-t],[t,0,-1],[t,0,1],[-t,0,-1],[-t,0,1]];
+})();
+const ICO_F = [[0,11,5],[0,5,1],[0,1,7],[0,7,10],[0,10,11],[1,5,9],[5,11,4],
+               [11,10,2],[10,7,6],[7,1,8],[3,9,4],[3,4,2],[3,2,6],[3,6,8],
+               [3,8,9],[4,9,5],[2,4,11],[6,2,10],[8,6,7],[9,8,1]];
+const FOCAL = 620;   // smaller = stronger perspective
+
 function spawnAsteroid() {
-  const e = entry();
-  const r = rnd(9, 42);
-  const n = 9 + Math.floor(Math.random() * 5);
-  const shape = Array.from({ length: n }, (_, i) => {
-    const a = i / n * Math.PI * 2;
-    const rad = r * rnd(.68, 1.18);
-    return [Math.cos(a) * rad, Math.sin(a) * rad];
+  const r = rnd(14, 54);
+  // deform the sphere: every vertex pushed in or out by its own amount
+  const verts = ICO_V.map(v => {
+    const L = Math.hypot(v[0], v[1], v[2]), k = r * rnd(.62, 1.3) / L;
+    return [v[0] * k, v[1] * k, v[2] * k];
   });
-  const craters = Array.from({ length: 2 + Math.floor(Math.random() * 3) }, () => ({
-    x: rnd(-r * .5, r * .5), y: rnd(-r * .5, r * .5), r: rnd(r * .1, r * .26)
-  }));
-  const sp = rnd(7, 22) / (r > 26 ? 1.8 : 1);
+  const coming = Math.random() < .62;                 // most fall towards the screen
+  const z = coming ? rnd(1500, 2800) : rnd(-120, 320);
+  const spread = coming ? rnd(.25, 1.5) : rnd(.1, .7);
   drifters.push({
-    kind: "asteroid", x: e.x, y: e.y, vx: e.vx * sp, vy: e.vy * sp,
-    r, shape, craters, rot: Math.random() * 7, spin: rnd(-.25, .25),
-    depth: rnd(.35, 1), fade: 0
+    kind: "asteroid", verts, r,
+    wx: rnd(-W, W) * spread * .7, wy: rnd(-H, H) * spread * .7, z,
+    vwx: rnd(-26, 26), vwy: rnd(-26, 26),
+    vz: coming ? -rnd(55, 165) : rnd(45, 140),
+    rx: Math.random() * 7, ry: Math.random() * 7, rz: Math.random() * 7,
+    sx: rnd(-.5, .5), sy: rnd(-.45, .45), sz: rnd(-.35, .35),
+    tint: pick([[118,126,158],[136,124,132],[104,122,150],[128,132,128]]),
+    fade: 0
   });
 }
 
@@ -501,9 +514,9 @@ function spawnRocket() {
   drifters.push({
     kind: "rocket",
     x: dir === 1 ? -180 : W + 180, y,
-    vx: dir * rnd(120, 210), vy: tilt * 40,
+    vx: dir * rnd(140, 235), vy: tilt * 46,
     ang: dir === 1 ? tilt : Math.PI - tilt,
-    scale: rnd(.7, 1.15), puffs: [], t: 0, fade: 0
+    scale: rnd(1.15, 1.75), puffs: [], t: 0, fade: 0
   });
 }
 
@@ -519,20 +532,56 @@ function spawnAstronaut() {
 
 /* ---------- renderers ---------- */
 function drawAsteroid(o) {
-  cx.save();
-  cx.translate(o.x, o.y); cx.rotate(o.rot);
-  const g = cx.createLinearGradient(-o.r, -o.r, o.r, o.r);
-  g.addColorStop(0, `rgba(118, 126, 158, ${.95 * o.fade})`);
-  g.addColorStop(1, `rgba(34, 38, 60, ${.95 * o.fade})`);
-  cx.fillStyle = g;
-  cx.beginPath();
-  o.shape.forEach(([px, py], i) => i ? cx.lineTo(px, py) : cx.moveTo(px, py));
-  cx.closePath(); cx.fill();
-  cx.strokeStyle = `rgba(175, 195, 255, ${.3 * o.fade})`;
-  cx.lineWidth = 1; cx.stroke();
-  cx.fillStyle = `rgba(16, 19, 34, ${.5 * o.fade})`;
-  o.craters.forEach(c => { cx.beginPath(); cx.arc(c.x, c.y, c.r, 0, 7); cx.fill(); });
-  cx.restore();
+  const cosx = Math.cos(o.rx), sinx = Math.sin(o.rx);
+  const cosy = Math.cos(o.ry), siny = Math.sin(o.ry);
+  const cosz = Math.cos(o.rz), sinz = Math.sin(o.rz);
+
+  // tumble every vertex, then project it with its own depth
+  const P = o.verts.map(([x, y, z]) => {
+    let ya = y * cosx - z * sinx, za = y * sinx + z * cosx;          // about X
+    let xb = x * cosy + za * siny; za = -x * siny + za * cosy;       // about Y
+    const xc = xb * cosz - ya * sinz, yc = xb * sinz + ya * cosz;    // about Z
+    const depth = o.z + za;
+    const k = FOCAL / Math.max(60, FOCAL + depth);
+    return {
+      v: [xc, yc, za],
+      sx: W / 2 + (o.wx + xc) * k - mouseX * 40 * k,
+      sy: H / 2 + (o.wy + yc) * k - mouseY * 40 * k,
+      d: depth
+    };
+  });
+
+  const L = [-.45, -.62, -.64];                                      // light direction
+  const faces = ICO_F.map(f => {
+    const a = P[f[0]].v, b = P[f[1]].v, c = P[f[2]].v;
+    const u = [b[0]-a[0], b[1]-a[1], b[2]-a[2]];
+    const w = [c[0]-a[0], c[1]-a[1], c[2]-a[2]];
+    let n = [u[1]*w[2]-u[2]*w[1], u[2]*w[0]-u[0]*w[2], u[0]*w[1]-u[1]*w[0]];
+    const len = Math.hypot(n[0], n[1], n[2]) || 1;
+    n = [n[0]/len, n[1]/len, n[2]/len];
+    const mid = [(a[0]+b[0]+c[0])/3, (a[1]+b[1]+c[1])/3, (a[2]+b[2]+c[2])/3];
+    if (n[0]*mid[0] + n[1]*mid[1] + n[2]*mid[2] < 0) n = [-n[0], -n[1], -n[2]];
+    return { f, n, z: (P[f[0]].d + P[f[1]].d + P[f[2]].d) / 3 };
+  }).sort((p, q) => q.z - p.z);                                      // far faces first
+
+  // fade in on arrival, fade out as it sweeps past the camera or shrinks away
+  let a = o.fade;
+  if (o.z < 40)   a *= Math.max(0, (o.z + 330) / 370);
+  if (o.z > 2200) a *= Math.max(0, (2900 - o.z) / 700);
+  if (a <= .01) return;
+
+  const [tr, tg, tb] = o.tint;
+  for (const { f, n } of faces) {
+    const lit = Math.max(0, -(n[0]*L[0] + n[1]*L[1] + n[2]*L[2]));
+    const sh = .22 + .9 * lit;
+    const col = `rgba(${Math.round(tr*sh)}, ${Math.round(tg*sh)}, ${Math.round(tb*sh)}, ${a})`;
+    cx.fillStyle = col; cx.strokeStyle = col; cx.lineWidth = 1;
+    cx.beginPath();
+    cx.moveTo(P[f[0]].sx, P[f[0]].sy);
+    cx.lineTo(P[f[1]].sx, P[f[1]].sy);
+    cx.lineTo(P[f[2]].sx, P[f[2]].sy);
+    cx.closePath(); cx.fill(); cx.stroke();
+  }
 }
 
 function drawRocket(o) {
@@ -625,6 +674,15 @@ function updateDrifters(dt) {
     const o = drifters[i];
     o.fade = Math.min(1, o.fade + dt * 1.2);
     o.t = (o.t || 0) + dt;
+
+    if (o.kind === "asteroid") {
+      o.z  += o.vz  * dt;
+      o.wx += o.vwx * dt; o.wy += o.vwy * dt;
+      o.rx += o.sx * dt;  o.ry += o.sy * dt;  o.rz += o.sz * dt;
+      if (o.z < -340 || o.z > 2950) drifters.splice(i, 1);
+      continue;
+    }
+
     o.x += o.vx * dt; o.y += o.vy * dt;
     if (o.spin !== undefined) o.rot += o.spin * dt;
 
@@ -641,9 +699,11 @@ function updateDrifters(dt) {
 
 function drawDrifters() {
   const order = { asteroid: 0, astronaut: 1, rocket: 2 };
-  [...drifters].sort((a, b) => order[a.kind] - order[b.kind]).forEach(o => {
+  [...drifters].sort((a, b) => {
+    if (a.kind === "asteroid" && b.kind === "asteroid") return b.z - a.z;  // far first
+    return order[a.kind] - order[b.kind];
+  }).forEach(o => {
     cx.save();
-    if (o.depth) cx.globalAlpha = .35 + o.depth * .55;
     if (o.kind === "asteroid") drawAsteroid(o);
     else if (o.kind === "rocket") drawRocket(o);
     else drawAstronaut(o);
@@ -668,7 +728,7 @@ function frame(ms) {
 if (reduce) {
   drawStars(0);
   spawnAsteroid(); spawnAstronaut();
-  drifters.forEach(o => { o.fade = 1; o.x = W * rnd(.2, .8); o.y = H * rnd(.2, .8); });
+  drifters.forEach(o => { o.fade = 1; if (o.kind === 'asteroid') { o.z = 700; o.wx = W * .22; o.wy = -H * .2; } else { o.x = W * rnd(.2, .8); o.y = H * rnd(.2, .8); } });
   drawDrifters();
 } else {
   requestAnimationFrame(frame);
