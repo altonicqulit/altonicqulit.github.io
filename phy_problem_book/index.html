@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Problem Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --board:#151A26; --panel:#1B2233; --panel-2:#212A3E; --line:#2D3852;
+  --ink:#E9ECF4; --ink-2:#9AA5BE; --ink-3:#6B7593;
+  --amber:#F2B441; --cyan:#57C7E8; --magenta:#E86BA8; --mint:#68D3A7;
+  --grid:rgba(120,140,190,.10); --radius:10px; --shadow:0 14px 34px rgba(5,8,18,.45);
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+:root:not([data-theme="light"]){color-scheme:dark}
+:root[data-theme="light"]{
+  color-scheme:light;
+  --board:#F2F5FB; --panel:#FFFFFF; --panel-2:#EDF1F9; --line:#D5DCEB;
+  --ink:#171D2C; --ink-2:#56607A; --ink-3:#818CA6;
+  --amber:#B57708; --cyan:#0F7C9E; --magenta:#B8397A; --mint:#1E8A62;
+  --grid:rgba(30,60,120,.07); --shadow:0 12px 28px rgba(30,45,90,.12);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--board);color:var(--ink);
+  font-family:Archivo,"Helvetica Neue",Arial,sans-serif;font-size:15px;line-height:1.5;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:26px 26px;}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:none}
+::selection{background:var(--amber);color:#141824}
+.wrap{max-width:1240px;margin:0 auto;padding:0 20px 80px}
+header.top{padding:34px 0 18px;border-bottom:1px solid var(--line)}
+.title-row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between}
+h1{font-family:"Source Serif 4",Georgia,serif;font-weight:600;font-size:clamp(28px,4.6vw,44px);
+  line-height:1.05;margin:0;letter-spacing:-.015em}
+h1 em{font-style:italic;color:var(--amber)}
+.sub{margin:8px 0 0;color:var(--ink-2);max-width:58ch;font-size:14.5px}
+.top-actions{display:flex;gap:8px;flex-wrap:wrap}
+.strip{margin:22px 0 0}
+.strip-ticks{display:flex;gap:3px;align-items:flex-end;height:46px;flex-wrap:wrap}
+.tick{width:7px;border-radius:2px;background:var(--ink-3);opacity:.9;transform-origin:bottom;
+  transition:height .35s cubic-bezier(.2,.8,.3,1),opacity .25s}
+.tick.e{background:var(--mint)}.tick.m{background:var(--amber)}.tick.h{background:var(--magenta)}
+.tick.off{opacity:.16}
+.strip-legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;color:var(--ink-2);font-size:12.5px;align-items:center}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:-1px}
+.layout{display:grid;grid-template-columns:238px 1fr;gap:30px;margin-top:26px;align-items:start}
+@media(max-width:900px){.layout{grid-template-columns:1fr;gap:18px}}
+.side{position:sticky;top:calc(14px + env(safe-area-inset-top,0px));max-height:calc(100dvh - 40px);overflow:auto}
+@media(max-width:900px){.side{position:static;max-height:none}}
+.side h2{font-size:12.5px;font-weight:600;color:var(--ink-3);margin:0 0 10px}
+.chapters{display:flex;flex-direction:column;gap:2px}
+@media(max-width:900px){.chapters{flex-direction:row;overflow-x:auto;padding-bottom:6px;gap:6px}}
+.chap{display:flex;align-items:center;gap:9px;width:100%;text-align:left;padding:8px 10px;border-radius:8px;
+  border:1px solid transparent;color:var(--ink-2);transition:background .18s,color .18s,border-color .18s;white-space:nowrap}
+.chap:hover{background:var(--panel);color:var(--ink)}
+.chap.active{background:var(--panel-2);color:var(--ink);border-color:var(--line)}
+.chap .bar{width:3px;height:16px;border-radius:2px;background:var(--line);flex:none;transition:background .2s}
+.chap.active .bar{background:var(--amber)}
+.chap .nm{flex:1;font-size:13.5px;overflow:hidden;text-overflow:ellipsis}
+.chap .ct{font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.chap[draggable="true"]{cursor:grab}
+.side-foot{margin-top:14px;display:flex;gap:6px;flex-wrap:wrap}
+.controls{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:16px}
+.ctl-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.ctl-row+.ctl-row{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line)}
+.search{flex:1 1 230px;position:relative;display:flex;align-items:center}
+.search input{width:100%;background:var(--board);border:1px solid var(--line);border-radius:8px;
+  padding:9px 11px 9px 32px;font-size:14px;transition:border-color .18s,box-shadow .18s}
+.search input:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 3px rgba(242,180,65,.16)}
+.search svg{position:absolute;left:10px;opacity:.5;pointer-events:none}
+select{background:var(--board);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13.5px}
+select:focus{outline:none;border-color:var(--amber)}
+.chip{padding:6px 11px;border-radius:999px;border:1px solid var(--line);background:transparent;
+  color:var(--ink-2);font-size:12.5px;font-weight:500;transition:all .18s}
+.chip:hover{color:var(--ink);border-color:var(--ink-3)}
+.chip.on{color:#141824;font-weight:600;border-color:transparent}
+.chip.on.e{background:var(--mint)}.chip.on.m{background:var(--amber)}.chip.on.h{background:var(--magenta)}
+.chip.on.plain{background:var(--ink);color:var(--board)}
+:root[data-theme="light"] .chip.on{color:#fff}
+.btn{padding:8px 13px;border-radius:8px;border:1px solid var(--line);color:var(--ink-2);font-size:13px;font-weight:500;transition:all .18s}
+.btn:hover{color:var(--ink);border-color:var(--ink-3);background:var(--panel-2)}
+.btn.primary{background:var(--amber);color:#181C28;border-color:transparent;font-weight:600}
+.btn.primary:hover{filter:brightness(1.08);background:var(--amber);color:#181C28}
+.btn.danger:hover{color:var(--magenta);border-color:var(--magenta)}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:2px;border-radius:6px}
+.count{color:var(--ink-3);font-size:13px;margin-left:auto;font-variant-numeric:tabular-nums}
+.group{margin-bottom:26px}
+.group-head{display:flex;align-items:baseline;gap:10px;margin:0 0 10px;padding-bottom:7px;border-bottom:1px solid var(--line)}
+.group-head h3{font-family:"Source Serif 4",serif;font-size:19px;font-weight:600;margin:0;letter-spacing:-.01em}
+.group-head span{color:var(--ink-3);font-size:12.5px;font-variant-numeric:tabular-nums}
+.list{display:flex;flex-direction:column;gap:8px}
+.card{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--ink-3);border-radius:var(--radius);
+  padding:12px 14px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start;
+  animation:in .3s cubic-bezier(.2,.8,.3,1) both;transition:border-color .18s,transform .18s}
+.card.e{border-left-color:var(--mint)}.card.m{border-left-color:var(--amber)}.card.h{border-left-color:var(--magenta)}
+.card:hover{border-top-color:var(--ink-3);border-right-color:var(--ink-3);border-bottom-color:var(--ink-3)}
+.card.dragging{opacity:.35}
+.card.drop-into{border-top:2px solid var(--amber)}
+.card.flash{animation:flash .9s ease}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes flash{0%{background:rgba(242,180,65,.22)}100%{background:var(--panel)}}
+.grip{color:var(--ink-3);cursor:grab;padding-top:2px;line-height:1;user-select:none;font-size:15px}
+.num{font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums;min-width:22px;text-align:center}
+.card-main{min-width:0;cursor:pointer}
+.q-title{font-weight:600;font-size:14.5px;margin:0;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.q-title .star{color:var(--amber)}
+.q-text{font-family:"Source Serif 4",Georgia,serif;font-size:15px;line-height:1.62;color:var(--ink-2);
+  margin:6px 0 0;max-width:78ch;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px;align-items:center}
+.pill{font-size:11.5px;padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--ink-3)}
+.pill.d{font-weight:600;border-color:transparent}
+.pill.d.e{background:rgba(104,211,167,.16);color:var(--mint)}
+.pill.d.m{background:rgba(242,180,65,.16);color:var(--amber)}
+.pill.d.h{background:rgba(232,107,168,.16);color:var(--magenta)}
+.pill.src{color:var(--cyan);border-color:rgba(87,199,232,.3)}
+.pill.fig{color:var(--ink-2)}
+.acts{display:flex;gap:3px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.icon{width:29px;height:29px;display:grid;place-items:center;border-radius:7px;color:var(--ink-3);
+  transition:background .16s,color .16s,transform .16s}
+.icon:hover{background:var(--panel-2);color:var(--ink);transform:translateY(-1px)}
+.icon.on{color:var(--amber)}
+.icon.del:hover{color:var(--magenta)}
+.empty{text-align:center;padding:60px 20px;color:var(--ink-3)}
+.empty strong{display:block;color:var(--ink);font-size:17px;margin-bottom:6px;font-family:"Source Serif 4",serif}
+/* figures */
+.fig{stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;
+  width:100%;height:auto;max-width:440px;color:var(--ink-2)}
+.fig text{font-family:"Source Serif 4",serif;font-style:italic;font-size:11px;fill:var(--ink-2);stroke:none}
+.fig .acc{stroke:var(--amber)}
+.fig text.acc{fill:var(--amber);stroke:none}
+.fig .fill{fill:var(--panel-2);stroke:currentColor}
+.fig .dash{stroke-dasharray:4 3;opacity:.6}
+.figbox{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;justify-content:center}
+/* detail page */
+.detail{animation:in .28s cubic-bezier(.2,.8,.3,1) both;max-width:820px}
+.crumbs{display:flex;align-items:center;gap:10px;margin:22px 0 14px;flex-wrap:wrap}
+.detail h2{font-family:"Source Serif 4",serif;font-size:clamp(22px,3.4vw,30px);font-weight:600;margin:0 0 8px;letter-spacing:-.015em}
+.statement{font-family:"Source Serif 4",Georgia,serif;font-size:17px;line-height:1.7;max-width:70ch;margin:16px 0 20px}
+.block{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px}
+.block h4{margin:0 0 10px;font-size:13px;font-weight:600;color:var(--ink-3)}
+.block textarea{width:100%;min-height:150px;background:var(--board);border:1px solid var(--line);border-radius:8px;
+  padding:12px;font-family:"Source Serif 4",serif;font-size:15.5px;line-height:1.65;resize:vertical}
+.block textarea:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 3px rgba(242,180,65,.14)}
+.saved{font-size:12px;color:var(--mint);opacity:0;transition:opacity .3s}
+.saved.on{opacity:1}
+.shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:12px}
+.shot{position:relative;border-radius:8px;overflow:hidden;border:1px solid var(--line);background:var(--board)}
+.shot img{display:block;width:100%;height:120px;object-fit:cover;cursor:zoom-in}
+.shot button{position:absolute;top:5px;right:5px;background:rgba(10,14,24,.78);color:#fff;border-radius:6px;
+  width:24px;height:24px;display:grid;place-items:center;font-size:13px}
+.drop{border:1.5px dashed var(--line);border-radius:9px;padding:18px;text-align:center;color:var(--ink-3);font-size:13.5px;
+  transition:border-color .18s,background .18s;cursor:pointer}
+.drop:hover,.drop.over{border-color:var(--amber);background:var(--panel-2);color:var(--ink-2)}
+.sol{overflow:hidden}
+.sol-body{font-family:"Source Serif 4",serif;font-size:16px;line-height:1.7;white-space:pre-wrap;
+  animation:reveal .4s cubic-bezier(.2,.8,.3,1) both;border-left:2px solid var(--amber);padding-left:14px;margin-top:4px}
+@keyframes reveal{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.veil{display:flex;align-items:center;gap:14px;flex-wrap:wrap;color:var(--ink-3);font-size:13.5px}
+.scrim{position:fixed;inset:0;background:rgba(8,11,20,.62);backdrop-filter:blur(3px);display:grid;place-items:center;
+  padding:18px;z-index:50;animation:fade .18s ease both}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);
+  width:min(620px,100%);max-height:86dvh;overflow:auto;padding:20px;animation:pop .22s cubic-bezier(.2,.9,.3,1) both}
+@keyframes pop{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:none}}
+.modal h2{font-family:"Source Serif 4",serif;font-size:21px;margin:0 0 16px;font-weight:600}
+.modal img.big{max-width:100%;max-height:78dvh;border-radius:10px;display:block}
+.field{margin-bottom:13px}
+.field label{display:block;font-size:12.5px;color:var(--ink-3);margin-bottom:5px}
+.field input,.field textarea,.field select{width:100%;background:var(--board);border:1px solid var(--line);
+  border-radius:8px;padding:9px 11px;font-size:14px}
+.field textarea{font-family:"Source Serif 4",serif;line-height:1.6;min-height:120px;resize:vertical}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 3px rgba(242,180,65,.14)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:520px){.two{grid-template-columns:1fr}}
+.modal-foot{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
+.toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);
+  background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:10px 14px;display:flex;gap:12px;
+  align-items:center;box-shadow:var(--shadow);z-index:60;font-size:13.5px;animation:rise .2s cubic-bezier(.2,.9,.3,1) both;max-width:92vw}
+@keyframes rise{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+.toast button{color:var(--amber);font-weight:600;font-size:13.5px}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="title-row">
+      <div>
+        <h1>The <em>problem board</em></h1>
+        <p class="sub">Every question from the tutorial sheets and time-bound tests, sorted by chapter. Open one to keep notes, pin a photo of your work, and reveal the solution only when you want it.</p>
+      </div>
+      <div class="top-actions">
+        <button class="btn" id="themeBtn">Light mode</button>
+        <button class="btn" id="exportBtn">Export</button>
+        <button class="btn" id="importBtn">Import</button>
+        <button class="btn primary" id="addBtn">Add problem</button>
+      </div>
+    </div>
+    <div class="strip">
+      <div class="strip-ticks" id="strip" aria-hidden="true"></div>
+      <div class="strip-legend">
+        <span><span class="dot" style="background:var(--mint)"></span>Easy <b id="cE">0</b></span>
+        <span><span class="dot" style="background:var(--amber)"></span>Medium <b id="cM">0</b></span>
+        <span><span class="dot" style="background:var(--magenta)"></span>Hard <b id="cH">0</b></span>
+        <span style="color:var(--ink-3)">Each tick is one problem; dimmed ticks are filtered out.</span>
+      </div>
+    </div>
+  </header>
+  <div id="app"></div>
+</div>
+
+<script>
+/* ===================== figures ===================== */
+const F={
+balls:'<svg class="fig" viewBox="0 0 250 95"><line x1="8" y1="76" x2="242" y2="76"/><circle cx="55" cy="66" r="10"/><circle cx="185" cy="66" r="10"/><line x1="65" y1="66" x2="175" y2="66"/><path class="acc" d="M185 50V16"/><path class="acc" d="m179 22 6-6 6 6"/><text x="36" y="60">A</text><text x="200" y="72">B</text><text x="192" y="24" class="acc">u</text><text x="105" y="58">l</text></svg>',
+rods:'<svg class="fig" viewBox="0 0 250 150"><circle cx="125" cy="80" r="4" class="fill"/><line x1="125" y1="80" x2="125" y2="22"/><line x1="125" y1="80" x2="75" y2="115"/><line x1="125" y1="80" x2="175" y2="115"/><circle cx="125" cy="20" r="5" class="fill"/><circle cx="73" cy="117" r="5" class="fill"/><circle cx="177" cy="117" r="5" class="fill"/><text x="131" y="18">B (2m)</text><text x="34" y="124">A (m)</text><text x="186" y="118">C (3m)</text><path class="acc" d="M186 126l16 18"/><path class="acc" d="m196 144 6 1 0-7"/><text x="205" y="140" class="acc">u</text><path class="dash" d="M125 55a28 28 0 0 0-24 14"/><text x="88" y="70">120°</text><text x="106" y="100">l</text></svg>',
+discCyl:'<svg class="fig" viewBox="0 0 250 120"><rect x="14" y="16" width="222" height="88" rx="6" class="dash"/><circle cx="90" cy="60" r="14"/><ellipse cx="90" cy="60" rx="14" ry="5" class="dash"/><line x1="104" y1="60" x2="198" y2="60"/><circle cx="200" cy="60" r="4" class="fill"/><text x="60" y="52">r</text><text x="140" y="52">l</text><text x="196" y="80">D</text><path class="acc" d="M200 56V24"/><path class="acc" d="m194 30 6-6 6 6"/><text x="207" y="30" class="acc">u</text></svg>',
+cord:'<svg class="fig" viewBox="0 0 250 150"><line x1="20" y1="132" x2="230" y2="132"/><rect x="100" y="112" width="44" height="20" class="fill"/><path d="M122 112V48" stroke-dasharray="0"/><path d="M118 104h8m-8-10h8m-8-10h8m-8-10h8m-8-10h8m-8-10h8"/><circle cx="122" cy="40" r="5"/><text x="132" y="40">hand</text><line class="acc" x1="104" y1="86" x2="140" y2="86"/><text x="146" y="90" class="acc">P</text><text x="60" y="80">l</text><text x="70" y="94">0.8l</text><path class="dash" d="M96 132v-46"/></svg>',
+spiral:'<svg class="fig" viewBox="0 0 250 150"><line x1="20" y1="80" x2="235" y2="80" class="dash"/><line x1="110" y1="12" x2="110" y2="146" class="dash"/><path d="M110 80c0-10 10-16 20-10 14 9 12 32-4 42-22 14-52 6-62-18-12-30 6-64 38-74 40-13 82 12 92 52"/><text x="228" y="74">x</text><text x="116" y="20">y</text><text x="160" y="46" class="acc">r = r₀e^θ</text><path class="acc" d="M110 80 173 52"/><text x="140" y="74" class="acc">r</text></svg>',
+circles45:'<svg class="fig" viewBox="0 0 250 150"><line x1="10" y1="100" x2="240" y2="100" class="dash"/><line x1="86" y1="10" x2="86" y2="145" class="dash"/><circle cx="86" cy="100" r="34"/><circle cx="134" cy="72" r="17"/><circle cx="158" cy="58" r="9"/><circle cx="171" cy="51" r="5" class="dash"/><line class="acc" x1="86" y1="100" x2="186" y2="42"/><text x="52" y="120">R₀</text><text x="130" y="108">45°</text><text x="60" y="66">C₁</text><text x="128" y="44">C₂</text><text x="152" y="38">C₃</text></svg>',
+fieldPaths:'<svg class="fig" viewBox="0 0 250 150"><line x1="30" y1="126" x2="238" y2="126"/><line x1="40" y1="10" x2="40" y2="140"/><path d="M76 46h70v70Z" transform="translate(0,0)"/><path d="M76 46 146 46 146 116Z"/><text x="70" y="40">A(3,5)</text><text x="150" y="42">B(5,5)</text><text x="150" y="122">C(3,3)</text><circle cx="196" cy="126" r="18"/><text x="188" y="118">(5,0)</text><path d="M62 108h14v-18"/><text x="46" y="106">N(1,1)</text><text x="60" y="140">M(1,0)</text><text x="12" y="106">Q(0,1)</text></svg>',
+twoCircles:'<svg class="fig" viewBox="0 0 250 130"><line x1="14" y1="108" x2="238" y2="108"/><line x1="30" y1="10" x2="30" y2="122"/><circle cx="92" cy="60" r="34"/><circle cx="184" cy="60" r="34"/><circle cx="92" cy="60" r="2.5" class="fill"/><circle cx="184" cy="60" r="2.5" class="fill"/><text x="66" y="24">C₁(1,2)</text><text x="160" y="24">C₂(5,2)</text><circle cx="115" cy="82" r="3" class="acc"/><text x="118" y="96" class="acc">(2,1)</text></svg>',
+ellipse:'<svg class="fig" viewBox="0 0 250 130"><line x1="14" y1="70" x2="238" y2="70" class="dash"/><line x1="125" y1="6" x2="125" y2="124" class="dash"/><ellipse cx="125" cy="70" rx="100" ry="46"/><ellipse cx="125" cy="70" rx="92" ry="39" class="dash"/><circle cx="125" cy="24" r="4" class="acc"/><text x="132" y="20" class="acc">B</text><path class="acc" d="M118 24H86"/><path class="acc" d="m92 18-6 6 6 6"/><text x="176" y="104">4 km</text><text x="78" y="62">2 km</text></svg>',
+tangent:'<svg class="fig" viewBox="0 0 250 130"><line x1="24" y1="26" x2="236" y2="26"/><circle cx="96" cy="76" r="50"/><circle cx="96" cy="76" r="2.5" class="fill"/><line class="dash" x1="96" y1="76" x2="96" y2="26"/><line class="acc" x1="96" y1="76" x2="176" y2="26"/><circle cx="176" cy="26" r="4" class="acc"/><circle cx="130" cy="55" r="4"/><text x="180" y="20" class="acc">A</text><text x="136" y="50">B</text><text x="104" y="60">θ</text><text x="64" y="90">r</text><path class="acc" d="M176 18h26"/><path class="acc" d="m196 12 6 6-6 6"/><text x="204" y="14" class="acc">u</text></svg>',
+incline:'<svg class="fig" viewBox="0 0 250 140"><path d="M28 118 196 118 120 40Z"/><text x="176" y="112">α</text><circle cx="120" cy="72" r="5" class="fill"/><path class="acc" d="M120 72 78 60"/><path class="acc" d="m84 54-6 6 7 5"/><text x="66" y="52" class="acc">v₀</text><path class="dash" d="M120 72c-18 18-30 34-36 46"/><text x="126" y="86">θ</text><text x="40" y="112">μ = tan α</text></svg>',
+box:'<svg class="fig" viewBox="0 0 250 140"><line x1="12" y1="124" x2="238" y2="124"/><g transform="rotate(-28 90 118)"><path d="M56 118V46"/><path d="M56 118h78"/><path d="M134 118V46"/></g><text x="96" y="118">θ</text><path class="acc" d="M74 96 104 66"/><path class="acc" d="m98 64 7-1-1 8"/><text x="106" y="60" class="acc">u</text><text x="40" y="76">h</text></svg>',
+hill:'<svg class="fig" viewBox="0 0 250 120"><path d="M6 104h58c18 0 26-22 46-44s44-40 74-44h60v88Z" class="fill"/><circle cx="60" cy="56" r="4"/><text x="40" y="52">A</text><line class="dash" x1="60" y1="56" x2="120" y2="56"/><line class="acc" x1="60" y1="56" x2="186" y2="20"/><circle cx="188" cy="20" r="4" class="acc"/><text x="194" y="16" class="acc">B</text><text x="82" y="68">φ</text><text x="118" y="30" class="acc">d</text></svg>',
+drone:'<svg class="fig" viewBox="0 0 250 140"><g transform="translate(92,16)"><ellipse cx="18" cy="8" rx="16" ry="5"/><line x1="4" y1="8" x2="-6" y2="2"/><line x1="32" y1="8" x2="42" y2="2"/></g><path class="acc" d="M128 24h74"/><path class="acc" d="m196 18 6 6-6 6"/><text x="206" y="22" class="acc">u</text><line class="dash" x1="110" y1="28" x2="110" y2="112"/><text x="90" y="72">d</text><ellipse cx="110" cy="116" rx="18" ry="6" class="fill"/><text x="118" y="132">charging pad</text><path d="M176 48v36" class="acc"/><path class="acc" d="m170 78 6 6 6-6"/><text x="182" y="70" class="acc">g</text></svg>',
+merry:'<svg class="fig" viewBox="0 0 250 130"><circle cx="86" cy="66" r="46"/><circle cx="86" cy="66" r="2.5" class="fill"/><line class="dash" x1="86" y1="66" x2="206" y2="42"/><line class="dash" x1="86" y1="66" x2="110" y2="105"/><circle cx="110" cy="105" r="5" class="fill"/><circle cx="208" cy="42" r="4"/><text x="214" y="38">Virat</text><text x="76" y="120">Anushka</text><text x="150" y="44">12 m</text><text x="82" y="96">6 m</text><path class="acc" d="M114 100 148 88"/><path class="acc" d="m142 84 7 4-5 6"/><text x="152" y="76" class="acc">1 m/s</text></svg>',
+belt:'<svg class="fig" viewBox="0 0 250 120"><path d="M56 96 100 36 236 36 192 96Z" class="fill"/><path class="acc" d="M150 66h56"/><path class="acc" d="m200 60 6 6-6 6"/><text x="208" y="62" class="acc">v_b</text><circle cx="96" cy="86" r="5" class="fill"/><path class="acc" d="M96 86 122 50"/><path class="acc" d="m116 48 7-1-1 8"/><text x="124" y="46" class="acc">v₀</text><text x="30" y="96">μ = 0.5</text></svg>',
+stGraph:'<svg class="fig" viewBox="0 0 250 140"><line x1="46" y1="122" x2="238" y2="122"/><line x1="46" y1="10" x2="46" y2="122"/><path d="M52 18C64 70 78 104 92 104s22-30 32-30 18 30 32 30 26-40 44-86"/><line class="dash" x1="46" y1="18" x2="200" y2="18"/><line class="dash" x1="46" y1="74" x2="124" y2="74"/><line class="dash" x1="46" y1="104" x2="92" y2="104"/><text x="6" y="22">s₁=6√5</text><text x="14" y="78">s₂=10</text><text x="20" y="108">s₃=6</text><text x="228" y="136">t</text></svg>',
+wax:'<svg class="fig" viewBox="0 0 250 120"><line x1="10" y1="104" x2="240" y2="104"/><line x1="216" y1="8" x2="216" y2="104"/><path d="M60 104 160 104 60 40Z" class="fill"/><rect x="112" y="52" width="104" height="18" class="fill"/><text x="150" y="66">B</text><text x="140" y="100">37°</text><path class="acc" d="M238 62h-18"/><path class="acc" d="m226 56-6 6 6 6"/><text x="222" y="42" class="acc">heat</text><path class="acc" d="M90 26h30"/><path class="acc" d="m114 20 6 6-6 6"/><text x="92" y="20" class="acc">0.5 mm/s²</text></svg>',
+bead:'<svg class="fig" viewBox="0 0 250 80"><rect x="30" y="34" width="190" height="14" rx="7"/><circle cx="34" cy="41" r="4" class="fill"/><circle cx="130" cy="41" r="13" class="fill"/><text x="24" y="66">O</text><path class="dash" d="M34 22h96"/><text x="78" y="18">l</text><text x="146" y="30">μ</text></svg>',
+atwood:'<svg class="fig" viewBox="0 0 250 150"><line x1="70" y1="12" x2="140" y2="12"/><circle cx="105" cy="24" r="11"/><line x1="94" y1="24" x2="94" y2="52"/><rect x="87" y="52" width="16" height="12" class="fill"/><text x="70" y="62">m</text><circle cx="116" cy="44" r="10"/><line x1="106" y1="44" x2="106" y2="70"/><rect x="99" y="70" width="16" height="12" class="fill"/><text x="82" y="80">m</text><circle cx="127" cy="62" r="9"/><line x1="118" y1="62" x2="118" y2="88"/><rect x="111" y="88" width="16" height="12" class="fill"/><text x="94" y="98">m</text><text x="136" y="110">⋮</text></svg>',
+pulleyM2M:'<svg class="fig" viewBox="0 0 250 140"><line x1="40" y1="34" x2="220" y2="34"/><circle cx="52" cy="34" r="9"/><circle cx="132" cy="34" r="9"/><circle cx="132" cy="58" r="9"/><rect x="66" y="34" width="52" height="34" class="fill"/><rect x="152" y="34" width="52" height="34" class="fill"/><text x="86" y="56">M</text><text x="168" y="56">2M</text><line x1="40" y1="68" x2="220" y2="68"/><line x1="40" y1="68" x2="40" y2="110"/><line x1="43" y1="34" x2="43" y2="110"/><rect x="34" y="110" width="18" height="14" class="fill"/><text x="18" y="122">m</text></svg>',
+pulleyEq:'<svg class="fig" viewBox="0 0 250 160"><line x1="88" y1="10" x2="162" y2="10"/><circle cx="125" cy="24" r="13"/><line x1="112" y1="24" x2="112" y2="66"/><line x1="138" y1="24" x2="138" y2="56"/><circle cx="112" cy="76" r="11"/><circle cx="138" cy="66" r="9"/><line x1="101" y1="76" x2="101" y2="108"/><line x1="147" y1="66" x2="147" y2="108"/><circle cx="124" cy="118" r="13"/><rect x="117" y="132" width="16" height="12" class="fill"/><rect x="117" y="144" width="16" height="12" class="fill"/><text x="70" y="60">2T</text><text x="152" y="40">2T</text><text x="150" y="126">4T</text></svg>',
+pulleyStack:'<svg class="fig" viewBox="0 0 250 160"><line x1="88" y1="10" x2="162" y2="10"/><circle cx="125" cy="24" r="13"/><line x1="112" y1="24" x2="112" y2="52"/><rect x="105" y="52" width="14" height="12" class="fill"/><line x1="138" y1="24" x2="138" y2="46"/><circle cx="138" cy="56" r="10"/><circle cx="112" cy="80" r="11"/><line x1="128" y1="56" x2="128" y2="74"/><rect x="121" y="74" width="14" height="12" class="fill"/><line x1="101" y1="80" x2="101" y2="112"/><line x1="123" y1="80" x2="123" y2="112"/><circle cx="112" cy="122" r="13"/><rect x="105" y="136" width="14" height="14" class="fill"/><text x="62" y="44">x₁</text><text x="146" y="92">x₂</text><text x="62" y="140">x₃</text></svg>',
+wedgePuck:'<svg class="fig" viewBox="0 0 250 120"><line x1="18" y1="100" x2="238" y2="100"/><line x1="18" y1="36" x2="18" y2="100"/><circle cx="34" cy="44" r="9"/><circle cx="96" cy="40" r="7"/><path d="M96 100 214 100 96 40Z" class="fill"/><rect x="150" y="60" width="22" height="11" class="fill" transform="rotate(27 161 65)"/><line x1="43" y1="40" x2="89" y2="38"/><line x1="102" y1="45" x2="152" y2="70"/><text x="196" y="94">α</text><text x="222" y="72">h</text><text x="150" y="116">d</text></svg>',
+barIncl:'<svg class="fig" viewBox="0 0 250 110"><path d="M30 92 212 92 212 34Z" class="fill"/><path d="M30 92 212 34" stroke-width="3"/><path d="M104 70 212 34" stroke-width="5" class="acc"/><rect x="92" y="46" width="66" height="9" transform="rotate(-18 125 50)"/><text x="52" y="86">θ</text><text x="120" y="34">rough (μ)</text><text x="36" y="66">smooth</text></svg>',
+rope:'<svg class="fig" viewBox="0 0 250 80"><line x1="14" y1="58" x2="238" y2="58"/><path d="M60 46h120c14 0 14 12 0 12H84"/><circle cx="182" cy="52" r="3.5" class="fill"/><text x="188" y="46">O</text><path class="acc" d="M96 30h46"/><path class="acc" d="m136 24 6 6-6 6"/><text x="106" y="24" class="acc">V</text><text x="30" y="74">λ, length l</text></svg>',
+fricMm:'<svg class="fig" viewBox="0 0 250 130"><line x1="30" y1="108" x2="230" y2="108"/><rect x="62" y="28" width="86" height="80" class="fill"/><text x="96" y="74">M</text><circle cx="156" cy="32" r="7"/><circle cx="156" cy="100" r="7"/><rect x="150" y="54" width="14" height="24" class="fill"/><text x="170" y="70">m</text><line x1="148" y1="32" x2="157" y2="52"/><line x1="163" y1="40" x2="163" y2="94"/><line x1="148" y1="104" x2="200" y2="104"/><text x="40" y="124">μ = 0.2</text></svg>',
+beltBlocks:'<svg class="fig" viewBox="0 0 250 130"><line x1="70" y1="62" x2="232" y2="62"/><line x1="70" y1="74" x2="232" y2="74"/><circle cx="66" cy="68" r="12"/><rect x="108" y="46" width="30" height="16" class="fill"/><rect x="150" y="46" width="30" height="16" class="fill"/><text x="86" y="42">B</text><text x="188" y="58">C</text><text x="104" y="40">30kg</text><text x="184" y="42">30kg</text><line x1="54" y1="68" x2="54" y2="104"/><rect x="40" y="104" width="28" height="16" class="fill"/><text x="6" y="116">40kg</text><line x1="78" y1="80" x2="78" y2="122"/><line x1="78" y1="122" x2="232" y2="122"/><text x="120" y="40">2 m</text></svg>',
+ruler:'<svg class="fig" viewBox="0 0 250 120"><g transform="rotate(-20 125 70)"><rect x="40" y="56" width="180" height="26" rx="4"/><rect x="66" y="36" width="34" height="20" class="fill"/><text x="74" y="32">C</text></g><path class="acc" d="M118 44v-26"/><path class="acc" d="m112 24 6-6 6 6"/><text x="126" y="24" class="acc">H</text><text x="100" y="52">α</text><text x="30" y="104">μ</text></svg>',
+fricAB:'<svg class="fig" viewBox="0 0 250 110"><line x1="10" y1="90" x2="240" y2="90"/><rect x="128" y="34" width="72" height="56" class="fill"/><text x="154" y="68">A</text><circle cx="128" cy="30" r="7"/><circle cx="200" cy="30" r="7"/><circle cx="208" cy="84" r="7"/><line x1="128" y1="23" x2="200" y2="23"/><line x1="121" y1="30" x2="121" y2="72"/><line x1="207" y1="30" x2="207" y2="77"/><circle cx="110" cy="72" r="7"/><rect x="58" y="62" width="36" height="24" class="fill"/><text x="70" y="80">B</text><path class="acc" d="M56 74H26"/><path class="acc" d="m32 68-6 6 6 6"/><text x="16" y="66" class="acc">F</text><line x1="94" y1="68" x2="104" y2="70"/><line x1="215" y1="84" x2="232" y2="84"/></svg>',
+stack3:'<svg class="fig" viewBox="0 0 250 110"><line x1="20" y1="94" x2="232" y2="94"/><rect x="58" y="72" width="136" height="22" class="fill"/><rect x="74" y="52" width="104" height="20" class="fill"/><rect x="88" y="30" width="80" height="22" class="fill"/><text x="122" y="46">A</text><text x="122" y="68">B</text><text x="122" y="88">C</text><path class="acc" d="M170 40h44"/><path class="acc" d="m208 34 6 6-6 6"/><text x="220" y="44" class="acc">P</text></svg>',
+platform:'<svg class="fig" viewBox="0 0 250 120"><line x1="10" y1="100" x2="240" y2="100"/><line x1="228" y1="14" x2="228" y2="100"/><path d="M40 84 200 84 200 40 176 40 176 84"/><rect x="62" y="72" width="26" height="12" class="fill"/><text x="66" y="68">m</text><circle cx="176" cy="36" r="5"/><line x1="88" y1="76" x2="172" y2="38"/><line x1="181" y1="36" x2="228" y2="36"/><text x="140" y="66">α</text><text x="208" y="68">h</text><path class="acc" d="M36 92H8"/><path class="acc" d="m14 86-6 6 6 6"/><text x="16" y="82" class="acc">F, v</text></svg>',
+pursuit:'<svg class="fig" viewBox="0 0 250 130"><line x1="30" y1="34" x2="238" y2="34"/><line x1="46" y1="10" x2="46" y2="122"/><circle cx="140" cy="34" r="4" class="fill"/><text x="136" y="24">B</text><path class="acc" d="M148 34h34"/><path class="acc" d="m176 28 6 6-6 6"/><text x="186" y="30" class="acc">u</text><circle cx="46" cy="106" r="4" class="fill"/><text x="30" y="118">A</text><path class="acc" d="M52 100 86 72"/><path class="acc" d="m80 70 7-1-1 8"/><text x="88" y="66" class="acc">u</text><line class="dash" x1="46" y1="106" x2="140" y2="34"/><text x="86" y="26">3a</text><text x="24" y="74">4a</text></svg>',
+channel:'<svg class="fig" viewBox="0 0 250 120"><line x1="30" y1="22" x2="220" y2="22"/><line x1="30" y1="100" x2="220" y2="100"/><path class="acc" d="M62 62h44"/><path class="acc" d="m100 56 6 6-6 6"/><text x="70" y="56" class="acc">u</text><circle cx="150" cy="100" r="4" class="fill"/><circle cx="150" cy="22" r="4" class="fill"/><text x="156" y="18">dock</text><path class="dash" d="M150 100c14-22 10-54 0-78"/><text x="20" y="66">b</text><text x="112" y="114">start</text></svg>',
+ravine:'<svg class="fig" viewBox="0 0 250 110"><path d="M20 30h68c10 20 12 42 12 66"/><path d="M230 30h-68c-10 20-12 42-12 66"/><line class="dash" x1="100" y1="30" x2="150" y2="30"/><circle cx="100" cy="30" r="4" class="fill"/><circle cx="150" cy="30" r="4" class="fill"/><path class="acc" d="M100 30 78 4"/><path class="acc" d="M150 30 172 4"/><text x="118" y="46">L</text></svg>',
+bowl:'<svg class="fig" viewBox="0 0 250 110"><path d="M70 14a58 58 0 1 0 110 0"/><ellipse cx="125" cy="14" rx="55" ry="10" class="dash"/><line class="dash" x1="86" y1="52" x2="164" y2="52"/><circle cx="86" cy="52" r="3.5" class="fill"/><circle cx="164" cy="52" r="3.5" class="fill"/><path class="dash" d="M86 52c14-16 24-16 39-16s25 0 39 16"/><text x="118" y="8">O</text><text x="100" y="74">T₁, T₂</text></svg>',
+wallPO:'<svg class="fig" viewBox="0 0 250 120"><line x1="22" y1="96" x2="238" y2="96"/><line x1="30" y1="12" x2="30" y2="108"/><path d="M40 96c18 0 20-34 34-34s16 26 30 26 22-36 40-36 24 44 46 44" class="fill"/><text x="118" y="88">y(x)?</text><path class="acc" d="M62 30H34"/><path class="acc" d="m40 24-6 6 6 6"/><text x="66" y="28" class="acc">u</text><path class="acc" d="M40 112h34"/><path class="acc" d="m68 106 6 6-6 6"/><text x="80" y="116" class="acc">v</text></svg>',
+leopold:'<svg class="fig" viewBox="0 0 250 120"><line x1="10" y1="98" x2="240" y2="98"/><path d="M150 62 186 34 222 62v36h-72Z" class="fill"/><circle cx="186" cy="26" r="5"/><rect x="24" y="80" width="30" height="18" class="fill"/><path class="dash" d="M46 82C80 22 140 22 172 56"/><path class="dash" d="M46 82C86 40 138 34 172 56"/><text x="72" y="34">t₁</text><text x="106" y="52">t₂</text><text x="112" y="84">s</text><line class="dash" x1="46" y1="88" x2="170" y2="60"/></svg>',
+tunnel:'<svg class="fig" viewBox="0 0 250 110"><path d="M14 94h40V52h18v42h164" class="fill"/><circle cx="40" cy="44" r="7"/><line x1="46" y1="40" x2="62" y2="32"/><path class="dash" d="M62 34c30-20 70 6 96 58"/><path class="dash" d="M62 34c46-28 110 8 146 58"/><rect x="140" y="82" width="22" height="12" class="fill"/><rect x="196" y="82" width="22" height="12" class="fill"/><text x="108" y="106">x</text><text x="164" y="106">y</text></svg>',
+parabola:'<svg class="fig" viewBox="0 0 250 120"><path d="M40 108C96 108 140 70 186 14"/><circle cx="120" cy="82" r="4" class="fill"/><path class="acc" d="M124 78 158 52"/><path class="acc" d="m152 50 7-1-1 8"/><text x="160" y="46" class="acc">v</text><text x="60" y="40">y = 4x² + 8x + 10</text><path class="dash" d="M120 82 96 48"/><text x="86" y="44">a</text></svg>',
+spring:'<svg class="fig" viewBox="0 0 250 150"><line x1="30" y1="14" x2="220" y2="14"/><path d="M70 14v10l8 5-16 5 16 5-16 5 16 5-8 5v10"/><path d="M180 14v10l8 5-16 5 16 5-16 5 16 5-8 5v10"/><circle cx="125" cy="64" r="11"/><line x1="70" y1="64" x2="180" y2="64"/><line x1="125" y1="75" x2="125" y2="92"/><path d="M125 92v8l8 5-16 5 16 5-16 5 16 5-8 5v6"/><rect x="108" y="126" width="34" height="18" class="fill"/><text x="116" y="140">m</text></svg>',
+ring:'<svg class="fig" viewBox="0 0 250 150"><circle cx="125" cy="75" r="60"/><circle cx="125" cy="75" r="2.5" class="fill"/><line class="dash" x1="125" y1="75" x2="181" y2="53"/><circle cx="181" cy="53" r="4" class="fill"/><text x="188" y="48">P</text><path class="acc" d="M181 53 122 29"/><path class="acc" d="m127 24-6 5 6 6"/><text x="146" y="32" class="acc">u</text><text x="160" y="70">α</text><path class="dash" d="M122 29 74 102 181 53"/><text x="70" y="124">two reflections</text></svg>',
+wall:'<svg class="fig" viewBox="0 0 250 140"><line x1="12" y1="112" x2="238" y2="112"/><line x1="216" y1="112" x2="216" y2="22"/><circle cx="40" cy="88" r="4" class="fill"/><text x="12" y="82">boy</text><path class="acc" d="M40 88Q130 26 216 50"/><path class="dash" d="M216 50Q150 70 72 112"/><path class="dash" d="M72 112Q56 96 40 88"/><text x="186" y="44">3 m</text><text x="16" y="104">1.4 m</text><text x="118" y="136">6 m</text><text x="54" y="128">d</text><path class="dash" d="M40 120h32"/><path class="dash" d="M40 130h176"/></svg>',
+collide:'<svg class="fig" viewBox="0 0 250 150"><circle cx="64" cy="22" r="14"/><circle cx="112" cy="22" r="14"/><path class="acc" d="M26 16h16"/><path class="acc" d="m38 11 5 5-5 5"/><text x="22" y="8" class="acc">u₁</text><path class="acc" d="M86 16h12"/><path class="acc" d="m94 11 5 5-5 5"/><text x="84" y="8" class="acc">u₂</text><g transform="translate(0,48)"><circle cx="78" cy="22" r="14"/><circle cx="104" cy="22" r="14"/><text x="128" y="26">common v: maximum deformation</text></g><g transform="translate(0,98)"><circle cx="60" cy="22" r="14"/><circle cx="118" cy="22" r="14"/><path class="acc" d="M26 16h14"/><path class="acc" d="m36 11 5 5-5 5"/><text x="22" y="8" class="acc">v₁</text><path class="acc" d="M138 16h22"/><path class="acc" d="m154 11 5 5-5 5"/><text x="152" y="8" class="acc">v₂</text></g></svg>',
+deflect:'<svg class="fig" viewBox="0 0 250 120"><line x1="30" y1="62" x2="190" y2="62"/><circle cx="152" cy="62" r="34" class="dash"/><circle cx="152" cy="62" r="2.5" class="fill"/><path class="acc" d="M30 62 178 40"/><path class="acc" d="m170 34 9 6-7 7"/><line class="dash" x1="152" y1="62" x2="178" y2="40"/><text x="96" y="36" class="acc">m₁v₁</text><text x="46" y="56">θ</text><text x="150" y="110">radius ∝ m₂</text></svg>',
+cordBlocks:'<svg class="fig" viewBox="0 0 250 80"><line x1="10" y1="62" x2="240" y2="62"/><rect x="40" y="42" width="34" height="20" class="fill"/><rect x="166" y="42" width="34" height="20" class="fill"/><text x="50" y="36">B</text><text x="176" y="36">A</text><path d="M74 52q6-7 12 0t12 0 12 0 12 0 12 0 12 0 12 0 12 0"/><path class="acc" d="M206 52h26"/><path class="acc" d="m226 47 6 5-6 5"/><text x="224" y="40" class="acc">u</text></svg>',
+cylRoom:'<svg class="fig" viewBox="0 0 250 130"><ellipse cx="125" cy="34" rx="78" ry="20"/><ellipse cx="125" cy="98" rx="78" ry="20" class="dash"/><path d="M47 34v64"/><path d="M203 34v64"/><circle cx="125" cy="98" r="3" class="fill"/><path class="acc" d="M125 98 182 56"/><path class="acc" d="m175 55 8-2-1 8"/><text x="132" y="92">θ</text><text x="118" y="122">r</text><path class="dash" d="M125 98h78"/></svg>',
+tRod:'<svg class="fig" viewBox="0 0 250 130"><line x1="18" y1="112" x2="232" y2="112"/><rect x="112" y="18" width="26" height="78" class="fill"/><path d="M40 40h66M144 40h66"/><path d="M40 56h66M144 56h66"/><text x="46" y="52">support</text><text x="152" y="52">support</text><path d="M62 96 112 96 112 62Z" class="fill"/><path d="M188 96 138 96 188 48Z" class="fill"/><text x="42" y="88">m₁</text><text x="196" y="88">m₂</text><text x="84" y="92">θ₁</text><text x="150" y="92">θ₂</text><text x="142" y="78">m₀</text></svg>',
+planks:'<svg class="fig" viewBox="0 0 250 130"><line x1="8" y1="62" x2="150" y2="62"/><rect x="14" y="48" width="54" height="14" class="fill"/><rect x="96" y="48" width="50" height="14" class="fill"/><line x1="68" y1="55" x2="96" y2="55"/><circle cx="30" cy="38" r="4"/><path d="M30 42v8m-4 6 4-6 4 6M26 46h8"/><text x="22" y="74">A</text><text x="106" y="74">B</text><g transform="translate(160,8)"><line x1="6" y1="70" x2="86" y2="70"/><line x1="6" y1="8" x2="6" y2="70"/><path class="acc" d="M6 70 26 34h24l16 36"/><line class="dash" x1="6" y1="34" x2="50" y2="34"/><text x="-18" y="36">2 m/s</text><text x="20" y="84">1 2 3 4 s</text></g></svg>',
+ropeArc:'<svg class="fig" viewBox="0 0 250 140"><rect x="118" y="14" width="10" height="68" class="fill"/><path d="M114 14v68"/><text x="104" y="16">A</text><text x="102" y="86">B</text><path d="M124 82a58 58 0 0 0 116 0"/><text x="178" y="130">C</text><text x="244" y="84">D</text><circle cx="123" cy="82" r="5"/></svg>',
+Ltube:'<svg class="fig" viewBox="0 0 250 120"><path d="M100 10h44"/><rect x="112" y="14" width="18" height="18" class="fill"/><path d="M48 34h150v10"/><path d="M48 48h142"/><rect x="54" y="34" width="26" height="14" class="fill"/><text x="60" y="30">A</text><circle cx="198" cy="40" r="6"/><path d="M80 41h112"/><path d="M204 40v42"/><rect x="194" y="82" width="20" height="16" class="fill"/><text x="200" y="112">B</text><text x="148" y="26">tube M</text></svg>',
+cmPath:'<svg class="fig" viewBox="0 0 250 100"><line x1="14" y1="86" x2="236" y2="86"/><path class="dash" d="M40 86C70 30 104 14 125 14"/><path class="dash" d="M125 14C150 16 172 40 196 86" class="acc"/><text x="60" y="26">before</text><text x="176" y="34" class="acc">after A lands</text></svg>',
+conveyor:'<svg class="fig" viewBox="0 0 250 120"><g transform="rotate(-27 125 70)"><rect x="46" y="58" width="158" height="12" rx="6"/><circle cx="52" cy="64" r="9"/><circle cx="198" cy="64" r="9"/></g><path class="acc" d="M186 14v18"/><path class="acc" d="m180 26 6 6 6-6"/><text x="192" y="22" class="acc">sand</text><text x="66" y="104">θ</text><text x="120" y="56">l</text></svg>',
+ringRod:'<svg class="fig" viewBox="0 0 250 100"><path d="M40 28v44M210 28v44"/><line x1="40" y1="50" x2="210" y2="50"/><rect x="52" y="40" width="22" height="20" rx="4" class="fill"/><text x="48" y="32">R</text><line class="acc" x1="68" y1="56" x2="176" y2="56"/><rect x="170" y="56" width="22" height="14" class="fill"/><text x="176" y="84">B</text><text x="44" y="44">x</text><text x="196" y="44">y</text><text x="112" y="50">l</text></svg>',
+circTri:'<svg class="fig" viewBox="0 0 250 130"><circle cx="125" cy="66" r="52"/><path d="M73 66 125 14 177 66Z" class="fill"/><circle cx="125" cy="66" r="2.5" class="fill"/><text x="130" y="78">O</text><text x="96" y="80">a</text><text x="146" y="80">a</text><line class="dash" x1="73" y1="66" x2="177" y2="66"/></svg>',
+wind:'<svg class="fig" viewBox="0 0 250 140"><line x1="40" y1="92" x2="238" y2="92"/><line x1="46" y1="10" x2="46" y2="136"/><path d="M46 92c16-40 44-62 72-56s28 48 4 72-58 22-76-8"/><circle cx="96" cy="44" r="3" class="fill"/><text x="86" y="38">A</text><circle cx="126" cy="104" r="3" class="fill"/><text x="130" y="116">B</text><circle cx="70" cy="56" r="3" class="fill"/><text x="56" y="50">P</text><circle cx="140" cy="62" r="3" class="fill"/><text x="146" y="58">Q</text><circle cx="120" cy="92" r="3" class="fill"/><text x="112" y="86">N</text><circle cx="46" cy="128" r="3" class="fill"/><text x="30" y="134">M</text><text x="56" y="80">30°</text></svg>'
+};
+
+/* ===================== chapters + seed ===================== */
+const CH=[["kin","Kinematics — 1D & 2D motion"],["proj","Projectile motion"],["rel","Relative motion"],
+["circ","Circular motion"],["nlm","Newton's laws & constraints"],["fric","Friction"],
+["wpe","Work, power & energy"],["com","Centre of mass & momentum"],
+["coll","Collisions, impulse & restitution"]];
+
+const SEED=[
+{t:"The shared bicycle",ch:"kin",d:"Medium",src:"26 Jul test",tg:["MCQ"],
+x:"Two tourists are 40 km from their camp and must reach it together in the shortest possible time. They have one bicycle, which they use in turn. One starts walking at 5 km/h while the other rides at 15 km/h. They agree to leave the bicycle at intermediate points, where one walks and the other rides. How long does the bicycle remain unused? (A) 5 hr 20 min (B) 2 hr 40 min (C) 1 hr 10 min (D) 55 min",
+s:"The bicycle only ever moves forward and ends at the camp, so the two riding distances add to 40 km. For the shortest common time both must do the same thing: each rides 20 km and walks 20 km.\nTotal time T = 20/5 + 20/15 = 5 h 20 min.\nThe bicycle is in motion only 40/15 = 2 h 40 min.\nIdle time = 5 h 20 min − 2 h 40 min = 2 h 40 min → (B)."},
+{t:"Ball thrown up: s–t graph",ch:"kin",d:"Hard",src:"26 Jul test",tg:["graph","MCQ"],fig:"stGraph",
+x:"A ball is thrown vertically upwards. Its distance s from a fixed point varies with time t as shown in the graph, with s₁ = 6√5 m, s₂ = 10 m and s₃ = 6 m. Calculate the velocity of projection of the ball. (A) 10 m/s (B) 20 m/s (C) 30 m/s (D) 50 m/s",
+s:"The fixed point is off the line of flight: at horizontal distance d and height h, s² = d² + (y−h)².\nThe two minima (s₃ = 6) occur when y = h, so d = 6 m.\nThe local maximum s₂ = 10 is at the top: 36 + (H−h)² = 100 → H − h = 8.\nAt t = 0, s₁ = 6√5: 36 + h² = 180 → h = 12, so H = 20 m.\nu = √(2gH) = 20 m/s → (B)."},
+{t:"Melting wax bar on a wedge",ch:"kin",d:"Hard",src:"26 Jul test",tg:["multi-correct","constraint"],fig:"wax",
+x:"A horizontal wax bar B rests between a wedge and a vertical wall. The wedge starts moving towards the wall with constant acceleration 0.5 mm/s². The moment the wedge starts moving, heat from the wall begins melting 1.0 mm length of the bar per second. The bar always stays horizontal (wedge angle 37°). Which conclusions can you make? (a) The bar first moves down then up. (b) The bar stops for a moment 2.0 s after the start. (c) Modulus of displacement in the first 4 s is 1.5 mm. (d) Distance travelled in the first 4 s is 1.5 mm.",
+s:"Measure from the wall. The wedge advances ¼t² mm while the bar shortens by t mm, so the contact point moves along the slope by (¼t² − t) mm and the bar's height changes by y = (¼t² − t)tan37° = 0.75(¼t² − t).\ndy/dt = 0.75(½t − 1) = 0 at t = 2 s: the bar descends, stops at 2 s, then rises — (a) and (b) are true.\ny(2) = −0.75 mm, y(4) = 0. So displacement in 4 s is 0 but the distance is 2 × 0.75 = 1.5 mm.\nCorrect: (a), (b), (d)."},
+{t:"Bead on a released rod",ch:"kin",d:"Hard",src:"9 Jul",tg:["MCQ","limiting case"],fig:"bead",
+x:"A massive bead is threaded on a long light rod, one end of which is pivoted at a fixed point O. Initially the rod is held horizontally and the bead is at a distance l from the pivot. The coefficient of friction between rod and bead is μ. Which statements correctly describe the relation between the angle θ the rod makes with the horizontal after release and time t? (a) If μ is negligible, θ → tan⁻¹(gt²/2l). (b) If μ is finite, θ → tan⁻¹(gt²/2l). (c) If μ is finite, θ is smaller than tan⁻¹(gt²/2l) by a finite amount. (d) None.",
+s:"Take torques about O for the massless rod. The only force the bead exerts with a moment arm is the normal force N (friction acts along the rod, straight through O).\nA massless rod needs zero net torque, so N·r = 0 ⇒ N = 0, hence friction μN = 0 as well, whatever μ is.\nThe bead is therefore in free fall: it stays at horizontal distance l while falling gt²/2.\nθ = tan⁻¹(gt²/2l) in both cases → (a) and (b)."},
+
+{t:"Two trajectories to the same point",ch:"proj",d:"Medium",src:"9 Jul",tg:["subjective"],
+x:"P(80 m, 60 m) is a point in the XY vertical plane with gravity along −Y. For a given launch speed u, the projectile thrown reaches P in 4 s. Prove that another trajectory with the same launch speed u but a different launch direction also reaches P, and find the time duration for the second trajectory. Take g = 10 SI units.",
+s:"Eliminate θ from x = u cosθ·t and y = u sinθ·t − ½gt²:\nx² + y² + g²t⁴/4 + g y t² = u²t².\nThis is a quadratic in t², so a given u generally gives two flight times to the same point.\nWith x = 80, y = 60, t = 4: 6400 + 3600 + 400 + 9600 = 16u² → u = 31.6 m/s (u² = 1000).\nPut u² = 1000 back: 25t⁴ + (600 − 1000)t² + 10000 = 0 → t⁴ − 16t² + 400/... solving gives t² = 16 or 25.\nSo the second trajectory takes t = 5 s."},
+{t:"Minimum speed through a given point",ch:"proj",d:"Medium",src:"9 Jul",tg:["subjective","optimisation"],
+x:"A particle is projected from the origin in such a way that it passes through a given point P(a, b). Assuming acceleration due to gravity g acts in the negative y-direction, what is the minimum required speed to do so?",
+s:"Use the trajectory equation with T = tanθ: b = aT − (ga²/2u²)(1 + T²).\nRearranged: (ga²/2u²)T² − aT + b + ga²/2u² = 0. A real launch angle needs a non-negative discriminant:\na² − 4(ga²/2u²)(b + ga²/2u²) ≥ 0 ⟹ u⁴ − 2gb·u² − g²a² ≥ 0.\nSolving the quadratic in u²: u²_min = g(b + √(a² + b²)).\nSo u_min = √(g(b + √(a² + b²))), and at that speed tan2θ... the launch direction bisects the vertical and OP — the final velocity is then perpendicular to the initial one."},
+{t:"Shell exploding near a bunker",ch:"proj",d:"Hard",src:"WoW tutorial",tg:["subjective","optimisation"],fig:"hill",
+x:"A cannon installed at the top of a hill can fire shells in all directions. There is an enemy bunker at an angle of elevation φ and a distance d from the cannon. All the shells fired explode in air a time T before they reach the bunker. At what angle to the horizontal should a shell be fired with speed u to explode closest to the bunker? Acceleration due to gravity is g.",
+s:"At the moment of explosion the displacement is s = u T + ½g T². The term ½gT² is a fixed vector (downward, magnitude ½gT²), while uT is a vector of fixed length uT and free direction — the explosion points lie on a circle of radius uT centred at ½gT² below the cannon.\nThe closest point of that circle to B lies on the line joining B to the circle's centre, so the shell must be aimed so that uT points from the centre towards B.\ntanθ = (d sinφ + ½gT²)/(d cosφ)."},
+{t:"Grasshopper in a tilted box",ch:"proj",d:"Hard",src:"1 Aug",tg:["subjective","optimisation"],fig:"box",
+x:"A grasshopper on the bottom of a cubical box has to jump out of the box. If each side of the box is h = 52 cm and the grasshopper can jump with a maximum initial velocity u = 3 m/s, what should the minimum tilt angle θ of the box be so that the grasshopper can jump out? Acceleration due to gravity is g = 10 m/s².",
+s:"It must clear the far top corner. That corner is a distance d = h√2 = 0.735 m away, at elevation β = 45° − θ above the horizontal once the box is tilted by θ.\nThe least speed needed to reach a point at distance d and elevation β is u² = gd(1 + sinβ).\nSo 9 = 10(0.735)(1 + sin(45° − θ)) ⟹ sin(45° − θ) = 0.224 ⟹ 45° − θ = 12.9°.\nθ_min ≈ 32°."},
+{t:"Clearing a wall with least speed",ch:"proj",d:"Medium",src:"26 Jul test",tg:["integer"],
+x:"A child throws a ball so as to clear a wall of height h located at a horizontal distance x from the point of projection. Find the minimum speed required for clearing the wall. If v_min = √(g(ah + √(bh² + cx²))), then find a + b + c.",
+s:"Same optimisation as the 'minimum speed through a point' problem, with the point (x, h):\nv_min = √(g(h + √(h² + x²))).\nComparing, a = b = c = 1, so a + b + c = 3."},
+{t:"Wind-blown projectile: match the column",ch:"proj",d:"Hard",src:"26 Jul test",tg:["matrix-match"],fig:"wind",
+x:"A particle is projected from the origin with speed u = 50 m/s at 30° to the X-axis. Due to wind it acquires an extra acceleration a = 6 m/s² in the −x direction. On its path A and B have the same x-coordinate, P and Q the same y-coordinate, N lies on the X-axis and M on the Y-axis. With t₁, t₂, t₃, t₄ the times from O to P, O to Q, O to A and O to B, match (A) t₁+t₂, (B) t₃+t₄, (C) length ON, (D) length OM with (P) 625/√3·(5/√3 − 1), (Q) 25√3(5−√3), (R) 5, (S) 25/√3, (T) none.",
+s:"uₓ = 25√3, u_y = 25, aₓ = −6, a_y = −10.\nSame y ⇒ t₁ + t₂ = 2u_y/g = 5 s → (A)→(R).\nSame x ⇒ t₃ + t₄ = 2uₓ/|aₓ| = 50√3/6 = 25/√3 → (B)→(S).\nN: y = 0 at t = 5 s, so ON = 25√3(5) − 3(25) = 25√3(5 − √3) → (C)→(Q).\nM: x = 0 at t = 25/√3·… = 25√3/3 s, giving |OM| = 625/√3(5/√3 − 1) → (D)→(P).\nHence option (C)."},
+{t:"Time up versus time down from a height",ch:"proj",d:"Easy",src:"WoW tutorial",tg:["subjective"],
+x:"A projectile is launched from a height h above the ground and its total time of flight is T. Find the difference between the time taken to reach the top of its path and the time it takes to move from the top to the ground.",
+s:"Let t₁ = launch → top and t₂ = top → ground, so t₁ + t₂ = T.\nHeight of top above launch H − h = ½g t₁², height above ground H = ½g t₂².\nSubtracting: t₂² − t₁² = 2h/g.\nt₂ − t₁ = (t₂² − t₁²)/(t₂ + t₁) = 2h/(gT)."},
+{t:"Cannon above a tunnel exit",ch:"proj",d:"Hard",src:"WoW tutorial",tg:["subjective","olympiad"],fig:"tunnel",
+x:"On a hill above the tunnel exit stands a cannon that can fire at any angle to the horizon; the muzzle velocity can vary. Cars drive out of the tunnel at speed V₀ and the cannon fires at a car the exact moment it emerges. The cars that are hit lie in the interval from x to y from the tunnel. Determine the height of the cannon above the road and the maximum speed with which the projectiles can be fired. Hit cars stop instantly and the projectiles hit precisely the cars aimed at.",
+s:"A projectile launched with vertical component u_y from height H lands after t = [u_y + √(u_y² + 2gH)]/g. A car at distance s is hit when V₀t = s, so the reachable distances run between the extreme flight times.\nt_max − t_min = 2u_y/g for the two signs of u_y, and V₀(t_max − t_min) = y − x.\nWorking the two conditions through:\nH = xyg/(2V₀²),  u_max = √((y−x)²g²/(4V₀²) + V₀²)."},
+{t:"Ball bouncing inside a spherical bowl",ch:"proj",d:"Hard",src:"WoW tutorial",tg:["olympiad"],fig:"bowl",
+x:"A small ball bounces inside a spherical bowl, elastically colliding with its walls at two points located on the same horizontal level. The time intervals between impacts when moving in opposite directions are equal to T₁ and T₂ respectively. Determine the radius of the bowl.",
+s:"Both flights start and end at the same height, so each is a symmetric projectile with horizontal range equal to the chord 2R sinα (α = half-angle of the chord at the centre).\nElastic bounces off the sphere reverse the normal component, which fixes the launch angle relative to the radius; combining the two chords traced in times T₁ and T₂ with the range–time relation R_chord = ½g t₁t₂ for a common chord gives\nR = gT₁T₂/(2√2)."},
+{t:"Wall profile for catching every ball",ch:"proj",d:"Hard",src:"WoW tutorial",tg:["olympiad","subjective"],fig:"wallPO",
+x:"Peter and Oleg simultaneously begin to walk parallel to the Ox axis with constant speeds v and u respectively, on opposite sides of a thin vertical wall and close to it. Peter throws balls over the wall at random moments; each ball crosses the wall at the minimum possible height and flies perpendicular to the x-axis in the wall's frame. At what wall profile y(x) will Oleg be able to catch all the balls? Both start at the origin.",
+s:"At time t Peter is at vt; the ball just clears the wall at that point, i.e. it crosses the top of the wall moving horizontally (its apex is at the wall).\nAfter the apex the ball needs the time of a free fall from y to reach Oleg, who is at ut: τ = √(2y/g), and the horizontal gap it must close is (v − u)t.\nAlso, at the apex the ball's horizontal speed in the ground frame equals Peter's throwing speed component, fixed by the requirement that it crosses perpendicular to the wall in the wall frame.\nEliminating t with x = vt gives\ny = gx²(v − u)²/(8u²v²)."},
+{t:"Maximum range on an incline",ch:"proj",d:"Medium",src:"WoW tutorial",tg:["proof"],
+x:"For projectile motion launched from the foot of an inclined plane, show that when the range along the incline is maximum, the final velocity is perpendicular to the initial velocity, and that the launch direction bisects the angle between the vertical and the incline.",
+s:"With the incline at angle β, R = (2u²cosθ sin(θ−β))/(g cos²β) where θ is measured from the horizontal. Maximising over θ gives cos(2θ − β) = 0 ⇒ θ = 45° + β/2, i.e. the launch direction bisects the vertical and the incline.\nFor the perpendicularity: if u·v ≠ 0 at landing, a slightly smaller launch speed could still cover the same range (reverse the trajectory — a reversed path landing with a speed less than u), contradicting maximality. Hence u·v = 0 at the maximum range."},
+{t:"Leopold the cat and the mice",ch:"proj",d:"Hard",src:"WoW tutorial",tg:["olympiad"],fig:"leopold",
+x:"Leopold the Cat was standing near the edge of a barn roof. Two mice shot at him with a slingshot. The stone, having described an arc, after t₁ = 1.2 s elastically bounced off the inclined slope of the barn roof right at the cat's paws, and after t₂ = 1.0 s hit the paw of the mouse that fired it. At what distance s from the mice was Leopold the Cat?",
+s:"Take axes along and perpendicular to the roof is unnecessary — use axes along the line mice→cat and perpendicular to it. Because the bounce is elastic off the roof and the stone returns to its launch point, the displacement components satisfy\nSₓ = uₓt + ½gₓt², S_y = u_yt + ½g_yt², with the same u reversed at the bounce.\nThat gives t₁t₂ = −Sₓ/(½gₓ) = −S_y/(½g_y), hence Sₓ² + S_y² = ¼(gₓ² + g_y²)(t₁t₂)².\nSo s = ½g t₁t₂ = ½(10)(1.2)(1.0) = 6 m."},
+{t:"Two balls from one catapult",ch:"proj",d:"Hard",src:"Relative-motion tut",tg:["olympiad"],
+x:"A toy catapult can fire two small balls simultaneously, launching them with initial velocities of equal magnitude v₀ but directed at different angles to the horizontal. The angle at which one of the balls is launched can be changed arbitrarily. The design is such that after being fired from a horizontal plane, both balls land at the exact same point on this plane. After many trials, the maximum possible distance between the balls while both were in the air reached L = 19 m. Determine v₀. Take g = 10 m/s².",
+s:"Equal speeds landing at the same point means complementary angles α and 90° − α... on a horizontal plane the pair is (α, 90° − α), i.e. symmetric about 45°.\nIn the frame of ball 1 the other ball moves in a straight line at constant relative speed 2v₀ sinα (the difference of the launch velocities), so the separation grows until the first ball lands, at t₁ = 2v₀ sin(45° − α)/g.\nl = 2v₀ sinα · 2v₀ sin(45°−α)/g. Maximising over α gives α = 45°/2 = 22.5°.\nSetting l = 19 m gives v₀ = 18 m/s."},
+{t:"Two stones across a ravine",ch:"proj",d:"Hard",src:"Relative-motion tut",tg:["olympiad"],fig:"ravine",
+x:"From two sides of a ravine of width L = 20 m, two small stones are thrown simultaneously. The initial velocities of the stones are equal and directed perpendicular to each other; the launch points lie on the same horizontal line. It turned out that the velocities of the stones were once again perpendicular to each other precisely at the moment in time when the distance between them was minimal. Find the magnitude of the initial velocity. g ≈ 10 m/s²; neglect air resistance.",
+s:"In the relative frame gravity cancels, so one stone moves uniformly relative to the other with relative velocity v_rel = v₁ − v₂ of magnitude v√2. The minimum separation occurs when the relative displacement is perpendicular to v_rel.\nImposing that the velocities v₁ = (v cosα, −gt) and v₂ = (−v sinα, −gt) are again perpendicular at that same instant gives (v cosα î − gt ĵ)·(−v sinα î − gt ĵ) = 0.\nWorking the two conditions together gives the clean result v = √(gL/2) = √(10·20/2) = 10 m/s."},
+{t:"Drone diving to a charging pad",ch:"proj",d:"Hard",src:"WoW tutorial",tg:["subjective","optimisation"],fig:"drone",
+x:"A drone is flying horizontally with a constant speed u. When it reaches point P it detects a stationary charging pad located vertically below it at point O, a distance d away. From that instant the drone can produce a maximum net acceleration of magnitude a₀ in any direction and tries to reach the charging pad in the shortest possible time. Find the minimum time required.",
+s:"Work in the frame that moves with the drone's initial velocity u (an inertial frame). In that frame the drone starts at rest and the pad moves backwards at u, so after time T the required displacement is uT horizontally and d vertically.\nWith the full acceleration a₀ used in a fixed direction: ½a₀T² = √(u²T² + d²).\n¼a₀²T⁴ − u²T² − d² = 0 ⟹ T² = 2[u² + √(u⁴ + a₀²d²)]/a₀².\nT_min = (1/a₀)√(2[u² + √(u⁴ + a₀²d²)])."},
+
+{t:"Pursuit along the x-axis",ch:"rel",d:"Hard",src:"Relative-motion tut",tg:["integer","pursuit"],fig:"pursuit",
+x:"From the configuration shown, B is a particle which moves with constant velocity along the x axis. A is a particle that moves with the same speed as B but has its velocity always directed towards B. At t = 0, B is at (3a, 0) and A is at (0, −4a). The final distance between A and B is found to be constant and equal to x·a. Find x.",
+s:"Let r be the A–B distance and Δx the x-separation. Then\ndr/dt = −u + u cosθ and d(Δx)/dt = u − u cosθ, so r + Δx is a constant of the motion.\nInitially r = 5a and Δx = 3a, so r + Δx = 8a always.\nFinally A trails directly behind B, so r = Δx ⟹ 2r = 8a ⟹ r = 4a.\nx = 4."},
+{t:"Pointing method across a channel",ch:"rel",d:"Hard",src:"Relative-motion tut",tg:["MCQ","pursuit"],fig:"channel",
+x:"Suppose you are anchored near the shore of a channel in which there is a steady current, and you are going to run your (motor) boat at constant throttle to a dock directly across the channel on the opposite shore. In the pointing method the nose of the boat is kept pointed directly at the dock. The boat's speed with respect to water is v, the water's speed is u and the width of the channel is b. The time taken by the boat to reach the dock is: (A) bv/(v²−u²) (B) b/√(v²−u²) (C) bu/v² (D) bv/u²",
+s:"This is the classic pursuit problem. With r the distance to the dock and θ the angle between the boat's heading and the current,\ndr/dt = −v + u cosθ  and  d(component along the current)/dt = u − v cosθ.\nAdding the two suitably gives the invariant r·v + u·(along-current coordinate) — integrating from start (r = b) to finish (r = 0) gives\nt = bv/(v² − u²) → (A)."},
+{t:"Fox chasing a rabbit with a lead",ch:"rel",d:"Hard",src:"Relative-motion tut",tg:["pursuit"],
+x:"A rabbit is running along a straight road at a constant speed v₀. There is a fox at a distance L from the road. At the moment when the rabbit is closest to the fox, she notices him and gives chase. The speed of the fox is the same as that of the rabbit, but the fox runs with a 'lead' — the fox's speed vector is directed all the time to the point located in front of the rabbit at a distance d from him. Find the minimum distance between the race participants.",
+s:"The fox is in an equal-speed pursuit of the virtual point that runs d ahead of the rabbit.\nFor equal-speed pursuit the quantity r + (separation measured along the prey's velocity) is conserved, where r is the fox-to-target distance.\nInitially r₀ = √(L² + d²) and the along-road separation is d, so the invariant is √(L²+d²) + d.\nFinally the fox trails the virtual point directly, so 2r∞ = √(L²+d²) + d.\nThe distance to the rabbit itself is r∞ − d = (√(L² + d²) − d)/2."},
+{t:"Particle C between two approaching particles",ch:"rel",d:"Medium",src:"9 Jul",tg:["MCQ","paragraph"],
+x:"Two particles A and B are moving towards each other on a straight line with equal speeds 5 m/s. At t = 0 the distance between them is 100 m. It is desired to move another particle C always maintaining a distance 40 m from A and 30 m from B. When and for how long can the particle C fulfil the given condition? (a) 3 ≤ t ≤ 9 s (b) 9 ≤ t ≤ 11 s (c) 11 ≤ t ≤ 17 s (d) 3 ≤ t ≤ 17 s",
+s:"The separation is AB = 100 − 10t. A triangle with sides 40, 30 and AB exists only when\n|40 − 30| ≤ AB ≤ 40 + 30, i.e. 10 ≤ 100 − 10t ≤ 70.\nThat gives 3 s ≤ t ≤ 9 s → (a)."},
+{t:"Speed of particle C at t = 5 s",ch:"rel",d:"Medium",src:"9 Jul",tg:["MCQ","paragraph"],
+x:"For the same configuration — A and B approaching each other at 5 m/s from 100 m apart, with C always 40 m from A and 30 m from B — what is the speed of the particle C at the instant t = 5 s? (a) 3.5 m/s (b) 4.8 m/s (c) 5 m/s (d) 6 m/s",
+s:"Put A at 5t and B at 100 − 5t, so D = AB = 100 − 10t and Ḋ = −10.\nThe foot of C from A is p = (40² + D² − 30²)/(2D) = 350/D + D/2 and its height y = √(1600 − p²).\nAt t = 5: D = 50, p = 32, y = 24 (the 30-40-50 triangle).\nṗ = (−350/D² + ½)Ḋ = −3.6, so ẋ_C = 5 + ṗ = 1.4 and ẏ_C = −pṗ/y = 4.8.\nSpeed = √(1.4² + 4.8²) = 5 m/s → (c)."},
+{t:"Acceleration of particle C at t = 5 s",ch:"rel",d:"Hard",src:"9 Jul",tg:["MCQ","paragraph"],
+x:"For the same configuration — A and B approaching each other at 5 m/s from 100 m apart, with C always 40 m from A and 30 m from B — what is the modulus of the acceleration of the particle C at t = 5 s? (a) 2.3 m/s² (b) 0.58 m/s² (c) 0.90 m/s² (d) 3.30 m/s²",
+s:"Differentiate the same expressions once more (D̈ = 0):\np̈ = (700/D³)Ḋ² = (700/125000)(100) = 0.56, so ẍ_C = 0.56.\nFrom y² = 1600 − p²: ÿ = −[(ṗ² + p p̈) − ẏ²]/y = −2.25 (using p = 32, ṗ = −3.6, y = 24, ẏ = 4.8).\n|a| = √(0.56² + 2.25²) ≈ 2.3 m/s² → (a)."},
+{t:"Anushka on the merry-go-round",ch:"rel",d:"Hard",src:"1 Aug",tg:["multi-correct","rotating frame"],fig:"merry",
+x:"Anushka is sitting on the edge of a horizontal merry-go-round of radius 6 m that is rotating steadily. Virat stands still on the ground 12 m from the centre; their line of sight is horizontal. At one instant Virat observes Anushka moving directly towards him at 1 m/s, with no component of velocity perpendicular to the line joining them. At the same moment Anushka observes Virat moving at √n m/s, the distance between them decreasing at √m m/s, and Virat's velocity perpendicular to the line joining them equal to √p m/s. Choose the correct options. (A) m = 1 (B) n = 4 (C) p = 3 (D) The acceleration of Anushka as observed by Virat is constant.",
+s:"Rate of change of separation is frame independent: √m = 1 ⟹ m = 1 — (A) correct.\nAnushka's frame rotates with ω = v/r. Since her velocity is entirely along the line of sight and the line of sight makes 90° at the tangent point, the geometry gives r = 6√3 for the line-of-sight length and ω = 1/6 rad/s.\nIn her (rotating) frame Virat picks up the extra term ω × r: v⊥ = ω(6√3) = √3 ⟹ p = 3 — (C) correct.\nSpeed² = 1² + (√3)² = 4 ⟹ n = 4 — (B) correct.\n(D) is false: her acceleration is centripetal of constant magnitude but continuously changing direction.\nCorrect: (A), (B), (C)."},
+{t:"Disc on a conveyor belt: the path",ch:"rel",d:"Medium",src:"26 Jul test",tg:["MCQ","paragraph"],fig:"belt",
+x:"A horizontal conveyor belt is running at a constant speed v_b = 3.0 m/s. A small disc enters the belt moving horizontally with a velocity v₀ = 4.0 m/s that is perpendicular to the velocity of the belt. The coefficient of friction between the disc and the belt is 0.50. What can you predict regarding the path of the disc? (a) Parabola relative to the belt (b) Straight line relative to the belt (c) Parabola relative to the ground (d) Both (b) and (c).",
+s:"Relative to the belt the disc starts with velocity (−3, 4) and friction acts opposite to the relative velocity, so the relative motion is a straight line with constant deceleration μg = 5 m/s² — (b) is true.\nIn the ground frame the acceleration is that same constant vector while sliding lasts, and the initial velocity (0, 4) is not parallel to it, so the ground path is a parabola — (c) is true.\nAnswer (d)."},
+{t:"Disc on a conveyor belt: belt width",ch:"rel",d:"Hard",src:"26 Jul test",tg:["MCQ","paragraph"],fig:"belt",
+x:"For the same conveyor belt (v_b = 3.0 m/s, disc entering at v₀ = 4.0 m/s perpendicular to it, μ = 0.50), what should the minimum width of the belt be so that the disc always remains on the belt? (a) 0.9 m (b) 1.6 m (c) 2.0 m (d) 2.5 m",
+s:"Relative speed at entry = √(3² + 4²) = 5 m/s, deceleration μg = 5 m/s².\nThe relative displacement before slipping stops = 5²/(2×5) = 2.5 m, along the fixed direction (−3, 4)/5.\nIts component across the belt (the v₀ direction) = 2.5 × 4/5 = 2.0 m.\nMinimum width 2.0 m → (c)."},
+{t:"Disc on a conveyor belt: minimum speed",ch:"rel",d:"Medium",src:"26 Jul test",tg:["MCQ","paragraph"],fig:"belt",
+x:"For the same conveyor belt (v_b = 3.0 m/s, disc entering at v₀ = 4.0 m/s perpendicular to it, μ = 0.50), what is the minimum speed of the disc relative to the ground? (a) 0.0 m/s (b) 1.8 m/s (c) 2.4 m/s (d) 3.0 m/s",
+s:"Ground velocity = belt velocity + relative velocity = (3, 0) + s(−0.6, 0.8) with s running from 5 down to 0.\nThis traces a straight line in velocity space; the minimum |v| is the perpendicular distance from the origin to that line.\nMinimising: s = 1.8 gives v = (1.92, 1.44), |v| = 2.4 m/s → (c)."},
+{t:"Boat, rafts and the river current",ch:"rel",d:"Medium",src:"26 Jul test",tg:["integer"],
+x:"A motor-boat travelling upstream met rafts floating downstream. One hour after this, the engine of the boat stalled. It took 30 minutes to repair it, and during this time the boat freely floated downstream. When the engine was repaired, the boat travelled downstream with the same speed relative to the current as before and overtook the rafts at a distance s = 7.5 km from the point where they had first met. Determine the velocity of the river current, assuming it to be constant.",
+s:"Work in the water frame: the rafts are at rest there, and the boat moves away at its constant relative speed for 1 h, is motionless during the 30 min repair, and then comes back — taking another 1 h to undo the 1 h of separation.\nSo the total time between meeting and overtaking is 1 + 0.5 + 1 = 2.5 h.\nIn the ground frame the rafts drifted the full 7.5 km in that time.\nv_current = 7.5/2.5 = 3 km/h ≈ 0.83 m/s."},
+
+{t:"Driver on an elliptical track",ch:"circ",d:"Medium",src:"2 Aug",tg:["subjective","radius of curvature"],fig:"ellipse",
+x:"The racing car travels with a constant speed of 240 km/h around the elliptical race track x²/16 + y²/4 = 1 (axes in km). Determine the acceleration experienced by the driver at B, the end of the minor axis.",
+s:"Constant speed ⇒ only the normal component survives: a = v²/ρ.\nFor x²/a² + y²/b² = 1 the radius of curvature at the end of the minor axis (0, b) is ρ = a²/b = 16/2 = 8 km.\na = 240²/8 = 7200 km/h² ≈ 0.56 m/s², directed towards the centre of curvature.\n(You can also get it by differentiating the ellipse twice: x v_x = −4y v_y, then set v_y = 0 and a_x = 0 at B.)"},
+{t:"Same point, twice the speed",ch:"circ",d:"Medium",src:"2 Aug",tg:["subjective","radius of curvature"],fig:"parabola",
+x:"A particle is moving along the parabola y = 4x² + 8x + 10. At a certain point its speed is a constant 10 m/s and its acceleration is 5 m/s². If at the same point the particle instead moves with a constant speed of 20 m/s, what is its acceleration there?",
+s:"The radius of curvature is a purely geometric property of the path, so it is the same in both cases.\nConstant speed ⇒ a = a⊥ = v²/ρ. From the first case ρ = 10²/5 = 20 m.\nWith v = 20 m/s: a = 20²/20 = 20 m/s², directed along the normal."},
+{t:"Point kept collinear on a circular track",ch:"circ",d:"Hard",src:"2 Aug",tg:["subjective"],fig:"tangent",
+x:"A straight track is tangent to a circular track of radius r. Two material points A and B start simultaneously from the common point of the tracks. The point A moves with uniform velocity u on the straight track whereas the point B on the circular track always keeps itself collinear with the centre of the circular track and the point A. Find a suitable expression for the magnitude of acceleration of the point B when it is at angular position θ.",
+s:"With the tangent point as origin, A is at distance ut and tanθ = ut/r, so θ̇ = (u/r)cos²θ.\nDifferentiating: θ̈ = −2(u²/r²)cos³θ sinθ.\nB moves on the circle, so a⊥ = rθ̈ and a_c = rθ̇².\na = r√(θ̈² + θ̇⁴) = (u²/r)cos³θ·√(1 + 3sin²θ)."},
+{t:"Disc on an incline with μ = tan α",ch:"circ",d:"Hard",src:"2 Aug",tg:["Irodov","subjective"],fig:"incline",
+x:"A small disc A is placed on an inclined plane forming an angle α with the horizontal and is imparted an initial velocity v₀. Find how the velocity of the disc depends on the angle θ shown in the figure, if the friction coefficient μ = tan α and at the initial moment θ = π/2.",
+s:"Along the path, the tangential equation is dv/dt = g sinα cosθ − μg cosα = g sinα(cosθ − 1).\nPerpendicular to the path, the normal equation gives v dθ/dt = −g sinα sinθ.\nDividing the two: dv/v = (cosθ − 1)/(−sinθ) dθ, which integrates to\nv(1 + cosθ) = constant.\nWith v = v₀ at θ = π/2: v = v₀/(1 + cosθ)... note that as θ → 0 the speed tends to v₀/2."},
+{t:"Chaser starting from the centre",ch:"circ",d:"Hard",src:"2 Aug",tg:["subjective"],
+x:"Starting from the centre of a circular path of radius R, a particle P chases another particle Q that is moving with a uniform speed v on the circular path. The chaser P moves with a constant speed u and always remains collinear with the centre and the location of the chased Q. (a) On which path will P eventually move and how long will it take to reach this path? Consider u < v, u = v and u > v. (b) If v = 4 m/s, u = 8 m/s and R = 84 m, how long will P take to reach Q? Use π = 22/7.",
+s:"At radius r, P's tangential speed is forced to be ωr = vr/R, so its radial speed is ṙ = √(u² − v²r²/R²).\nt = ∫₀^r dr/√(u² − v²r²/R²) = (R/v)·sin⁻¹(vr/Ru).\n(a) If u > v, P reaches the circle (r = R) at t = (R/v)sin⁻¹(v/u). If u = v it approaches r = R asymptotically (t = πR/2v as a limit). If u < v it can never exceed r = Ru/v and finally moves on that smaller circle.\n(b) t = (84/4)sin⁻¹(1/2) = 21 × π/6 = 11 s — and since P is collinear with Q, arriving at the circle means arriving at Q."},
+
+{t:"M and 2M on a table, block m below",ch:"nlm",d:"Medium",src:"NLM tutorial",tg:["pulley","constraint"],fig:"pulleyM2M",
+x:"In the system (see figure) the thread is very light and inextensible. Loads whose masses are M and 2M are first held and then released. With what acceleration will the load of mass m begin to move? There is no friction in the system.",
+s:"Constraint from the string: 2x₁ + 2x₂ − x₃ = 0 ⟹ 2(a₁ + a₂) = a₃.\nEquations of motion: 2T = 2Ma₁, 2T = Ma₂, mg − T = ma₃.\nSubstituting a₁ = T/M and a₂ = 2T/M into the constraint:\n2(T/M + 2T/M) = g − T/m ⟹ 6T/M = g − T/m ⟹ T = g/(6/M + 1/m).\nHence a₃ = g/(1 + M/6m)."},
+{t:"Three equal weights on light pulleys",ch:"nlm",d:"Hard",src:"NLM tutorial",tg:["pulley","constraint"],fig:"pulleyEq",
+x:"In the system shown in the figure the weights have equal masses, the pulleys and strings are very light and the strings are inextensible, with their free pieces vertical. Find the accelerations of the pulleys. The axis of the top pulley is fixed.",
+s:"String constraint: x₁ + (x₁ − x₂) + x₂ + (x₃ − x₂) + (x₃ − x₁) = l ⟹ x₁ − x₂ + 2x₃ = const ⟹ a₁ − a₂ + 2a₃ = 0.\nNewton for each body: 2T − (T + mg) = ma₂ for the middle pulley, 2T + mg − T = mb₂, and 2mg − 4T = 2ma₃ for the bottom pulley, with a₁ + b₂ = 2a₃ linking them.\nSolving the set gives a₁ = −0.6g, a₂ = −g, a₃ = 0.2g (negative = upward)."},
+{t:"Second pulley stack",ch:"nlm",d:"Hard",src:"NLM tutorial",tg:["pulley","constraint"],fig:"pulleyStack",
+x:"For the pulley arrangement shown, the virtual-work relation for the strings reads −T x₁ + T x₂ − 4T x₃ = 0. Set up the constraint and the equations of motion and find the accelerations of the blocks and the tension in the string.",
+s:"The virtual-work relation gives the constraint directly: x₁ + 4x₃ = x₂, so a₁ + 4a₃ = a₂.\nWrite Newton's law for each hanging body with tensions T, 2T and 4T (each movable pulley doubles the tension carried):\nmg − T = ma₁, mg − 2T = ma₂, mg − 4T = ma₃ (signs to be fixed from the chosen positive direction).\nSubstituting into the constraint gives one equation in T; solving it and back-substituting gives all three accelerations."},
+{t:"Wedge tied to its own puck",ch:"nlm",d:"Hard",src:"NLM tutorial",tg:["olympiad","constraint"],fig:"wedgePuck",
+x:"On a smooth horizontal surface there is a wedge with a height of h = 30 cm and a base width of d = 40 cm. On its smooth inclined plane sits a small puck, which is connected to the wedge by a weightless, inextensible string passed over two pulleys (see figure). The pulleys are weightless and rotate without friction. The mass of the wedge is n = 8 times greater than the mass of the puck. With what acceleration will the wedge begin to move after being released? Take g ≈ 9.8 m/s². The motion of the wedge is translational.",
+s:"String constraint: 2x₁ + x₂ = l, so the puck's acceleration relative to the wedge is a₂ = 2a₁.\nSystem equation along the horizontal: 2T = na₁m + m(a₁ − a₂cosα), and along the incline for the puck: mg sinα + ... − T = ma₂.\nEliminating T gives\nA = g·2sinα/(n + 5 − 4cosα).\nWith tanα = 30/40 ⇒ sinα = 0.6, cosα = 0.8 and n = 8: A = 6g/49 = 1.2 m/s²."},
+{t:"Infinite Atwood's machine",ch:"nlm",d:"Hard",src:"9 Jul",tg:["infinite series"],fig:"atwood",
+x:"Consider the infinite Atwood's machine shown below. A string passes over each pulley, with one end attached to a mass and the other end attached to another pulley. All the masses are equal to m, and all the pulleys and strings are massless. The masses are held fixed and then simultaneously released. What is the acceleration of the top mass?",
+s:"Effective-mass method: an Atwood machine with m on one side and effective mass M on the other presents an effective mass 4mM/(m+M) to its support. The machine below the first pulley is a copy of the whole machine, so\nM = 4mM/(m + M) ⟹ M = 3m.\nThe top mass then hangs opposite an effective 3m:\na = (3m − m)g/(3m + m) = g/2, directed upward.\n(Equivalently, ΣTᵢaᵢ = 0 with Tₙ = T/2ⁿ⁻¹ gives 2Tg = (4/3)T²/m ⟹ T = 3mg/2 ⟹ a = g/2 up. If instead the masses are m, 2m, 4m, … the same method gives T = 7mg/4 and a = 3g/4 up.)"},
+{t:"Bar sliding across a friction boundary",ch:"nlm",d:"Hard",src:"22 Jul",tg:["continuous body","subjective"],fig:"barIncl",
+x:"A homogeneous bar of mass m is released from rest on a fixed inclined plane of inclination θ above the horizontal. The upper part of the plane is not frictionless and the lower part is frictionless. The coefficient of friction between the bar and the upper part of the plane is μ. What will be the maximum tensile force in the bar while it is sliding on the plane? Acceleration of free fall is g.",
+s:"Let a fraction of the bar of mass m₁ be on the rough part and m₂ = m − m₁ on the smooth part.\nWhole bar: a = [mg sinθ − μm₁g cosθ]/m.\nFor the smooth-side piece: m₂g sinθ − T = m₂a ⟹ T = μ m₁m₂ g cosθ/m.\nThis is maximum when m₁ = m₂ = m/2, i.e. the junction is at the middle of the bar, and the tension is always largest at the junction itself.\nT_max = μmg cosθ/4."},
+{t:"Rope pulled off the ground at one end",ch:"nlm",d:"Hard",src:"27 Aug",tg:["subjective","variable mass"],fig:"rope",
+x:"A homogeneous rope of mass per unit length λ and length l is kept on the ground with one end of the rope fixed to the ground at O. The left end of the rope (with respect to the fixed end) is pulled by an external agent which imparts a constant velocity V to it. Find the rate at which the length of the moving part is increasing, and the work done by the force in moving that end from the extreme left to the extreme right side.",
+s:"If the pulled end is at x and the fold at x − y, the rope length condition is 2x − y = l, so 2ẋ = ẏ: the fold advances at V/2 and the moving portion grows at V/2 (the moving part travels at V/2 while the pulled end moves at V).\nMomentum of the moving part: p = λ(x − y)·V/… differentiating, F = dp/dt = λV²/2, a constant.\nThe pulled end travels 2l, so W = F × 2l = λV²l.\nNote ½(λl)V² ≠ W: the difference is the energy lost in picking the rope up at the fold, so the naive energy method fails here."},
+
+{t:"No slipping anywhere: which masses?",ch:"fric",d:"Medium",src:"Friction tut",tg:["multi-correct"],fig:"fricMm",
+x:"In the system shown, the coefficient of static friction between all the surfaces in contact is 0.2. For which sets of values of masses M and m is there no slipping anywhere? (A) 4 kg and 1 kg (B) 4 kg and 2 kg (C) 3 kg and 1 kg (D) 10 kg and 2 kg",
+s:"For the hanging block, T = mg. For the big block M, the string pulls it while the ground presses with N = Mg + T.\nNo slipping needs T ≤ μ_s(Mg + T):\nmg(1 − μ_s) ≤ μ_s Mg ⟹ m ≤ μ_sM/(1 − μ_s) = M/4.\nCheck: (A) 1 ≤ 1 ✓ (B) 2 ≤ 1 ✗ (C) 1 ≤ 0.75 ✗ (D) 2 ≤ 2.5 ✓.\nAnswer: (A) and (D)."},
+{t:"Blocks on a massless belt",ch:"fric",d:"Hard",src:"Friction tut",tg:["MCQ"],fig:"beltBlocks",
+x:"Two 30 kg blocks rest on a massless belt which passes over a fixed pulley and is attached to a 40 kg block. If the coefficient of friction between the belt and the table as well as between the belt and the blocks B and C is μ and the system is released from rest from the position shown, the speed with which the block B falls off the belt is: (A) 2√2 m/s if μ = 0.2 (B) √2 m/s if μ = 0.2 (C) 4 m/s if μ = 0.5 (D) 2.5 m/s if μ = 0.5",
+s:"If the blocks do not slip on the belt, the whole 100 kg moves together against the table friction under the 30+30 kg load:\na = [400 − μ(600)]/100 = 4 − 6μ.\nFor block B not to slip, the friction needed, 30(4 − 6μ), must not exceed μ(300): 4 − 6μ ≤ 10μ ⟹ μ ≥ ¼.\nSo for μ = 0.2 the blocks do slip; the belt slides under B, which is dragged by friction with a = μg = 2 m/s² and falls off after 2 m: v = √(2×2×2) = 2√2 m/s → (A)."},
+{t:"Eraser dragged by a ruler",ch:"fric",d:"Hard",src:"Friction tut",tg:["subjective"],fig:"ruler",
+x:"A long ruler AB and an eraser C lie on a horizontal rough table. The ruler is moved evenly and progressively in the direction shown by the arrow in the figure (top view) and moved a distance H. The angle between the ruler and this direction is equal to α. Find the magnitude and direction of the eraser's movement relative to the table. The coefficient of friction between the eraser and the ruler is μ.",
+s:"The ruler pushes the eraser with a normal force N perpendicular to the ruler and a friction μN along it, so the total force on the eraser makes an angle β = tan⁻¹μ with the ruler's normal. The eraser slides steadily in that direction.\nIf μ > cot α the eraser is simply carried along with the ruler and moves H.\nIf μ < cot α the eraser slips along the ruler and its displacement is\nL = H sinα√(1 + μ²), directed at angle β = tan⁻¹μ from the normal to the ruler."},
+{t:"Force on A through the pulley train",ch:"fric",d:"Hard",src:"Friction tut-2",tg:["matrix-match"],fig:"fricAB",
+x:"In the shown diagram A is of mass 50 kg, B is of mass 5 kg. The coefficient of friction between A and the ground is 0.2 and friction is absent between B and the ground. A horizontal force F is applied on B. With f₁ the friction force between A and the ground, a₁ the acceleration of A and a₂ that of B, match Column I — (A) F = 100 N, (B) F = 125 N, (C) F = 192.5 N, (D) F = 80 N — with Column II — (P) f₁ = 80 N, (Q) a₁ = 0, (R) f₁ = 125 N, (S) a₁ = 1 m/s², (T) a₂ = 1 m/s².",
+s:"The pulley arrangement gives the string tension T on A a vertical component, so the normal reaction on A is N = 500 + T and A only moves when\nT > μN = 0.2(500 + T) ⟹ 0.8T > 100 ⟹ T > 125 N.\nBelow that threshold nothing moves and the friction is purely static, f₁ = T.\nAbove it, F − T = 5a and T − 0.2(500 + T) = 50a.\nAnswer: (A)→(Q); (B)→(Q,R); (C)→(S,T); (D)→(P,Q)."},
+{t:"Least force to start a three-block stack",ch:"fric",d:"Medium",src:"Friction tut-2",tg:["MCQ"],fig:"stack3",
+x:"Find the least horizontal force P to start motion of any part of the system of the three blocks resting upon one another as shown in figure. The weight of blocks are A = 300 N, B = 100 N and C = 200 N. Between A and B, μ = 0.3. Between B and C, μ = 0.2. Between C and the ground, μ = 0.1. (A) 90 N (B) 60 N (C) 80 N (D) 100 N",
+s:"Limiting friction at each surface:\nA on B: 0.3 × 300 = 90 N.\nB on C: 0.2 × 400 = 80 N.\nC on ground: 0.1 × 600 = 60 N.\nP has to overcome whichever of these blocks first, and the whole stack slides on the ground once P exceeds 60 N — the smallest of the three.\nLeast P = 60 N → (B)."},
+{t:"Where does slipping start first?",ch:"fric",d:"Medium",src:"Friction tut-2",tg:["proof"],
+x:"As the applied force F on a stack of blocks is increased, is it true that slipping first occurs at the surface with the least limiting friction (f_s)max? Prove or disprove.",
+s:"Disprove — the claim compares the wrong pair of numbers. What matters is which surface first has its *required* friction exceed its *own* limit, and the required friction at each surface depends on the mass that surface has to accelerate.\nIn the three-block problem above, the required frictions while everything moves together with a = (P − 60)/60 are different fractions of P at each interface; the ground surface, with the smallest limit, is the first to give way only because its required force also grows fastest.\nA counterexample is easy to build: give the top interface a small limit but almost no mass above it, and it will never be the first to slip."},
+{t:"Pulling the platform with a protrusion",ch:"fric",d:"Hard",src:"Friction tut-2",tg:["olympiad","subjective"],fig:"platform",
+x:"A small body of mass m lies on a platform with a rectangular protrusion of height h. One end of a weightless, inextensible string is attached to it, passing over an ideal pulley mounted on the protrusion of the platform. The second end of the string is fixed to a vertical wall so that the section of the string between the pulley and the wall is horizontal. The platform is moved away from the wall at a constant speed v. With what force F must the platform be pulled at the moment when the section of the string above the platform makes an angle α with the horizontal? The force F is horizontal and in the plane of the drawing. The coefficient of friction between body and platform is μ; there is no friction between the platform and the floor.",
+s:"Geometry: the body is at horizontal distance x = h cot α from the pulley, and the string length from wall to pulley grows at v, so the body approaches the pulley along the string at rate v.\nHence the body's speed relative to the platform is u = v/cosα, and differentiating x = h cotα with the string condition gives its relative acceleration and thus α̇.\nWrite Newton's law for the body (tension T at angle α, weight, normal N, kinetic friction μN) and for the platform (F, the pulley reactions, the reaction to N and friction).\nEliminating T and N between the two sets gives F; the key intermediate results are α̇ = (v sin²α)/(h cos α)·… and N = mg − T sinα."},
+
+{t:"Disc winding onto a cylinder, with friction",ch:"wpe",d:"Hard",src:"27 Aug",tg:["subjective"],fig:"discCyl",
+x:"A disc placed on a large horizontal floor is connected to a vertical cylinder of radius r fixed on the floor with the help of a light inextensible cord of length l as shown in the figure. The coefficient of friction between the disc and the floor is μ. The disc is given a velocity u parallel to the floor and perpendicular to the cord. How long will the disc slide on the floor before it hits the cylinder?",
+s:"The cord stays perpendicular to the velocity as it winds, so the tension does no work and only friction decelerates the disc: dv/dt = −μg, a constant.\nPath length to the cylinder: with free length L, dL = −r dφ and ds = L dφ = −L dL/r, so s = ∫₀^l L dL/r = l²/2r.\nIf u² > 2μg·(l²/2r) = μgl²/r the disc reaches the cylinder at\nt = [u − √(u² − μgl²/r)]/(μg);\notherwise it stops first, at t = u/(μg)."},
+{t:"Frictionless winding (Irodov 1.138)",ch:"wpe",d:"Medium",src:"27 Aug",tg:["Irodov"],fig:"discCyl",
+x:"A horizontal plane supports a stationary vertical cylinder of radius R and a disc A attached to the cylinder by a horizontal thread AB of length l₀. An initial velocity v₀ is imparted to the disc as shown in the figure. How long will it move along the plane until it strikes against the cylinder? The friction is assumed to be absent.",
+s:"The tension is always perpendicular to the velocity, so the speed stays v₀ throughout.\nWith free thread length L, a turn dφ shortens it by dL = −R dφ and the disc travels ds = L dφ.\ns = ∫₀^{l₀} L dL/R = l₀²/2R.\nt = s/v₀ = l₀²/(2Rv₀)."},
+{t:"Spring network released from rest",ch:"wpe",d:"Hard",src:"27 Aug",tg:["energy","springs"],fig:"spring",
+x:"All springs in the arrangement are initially unstretched and the block is then released from rest. Find the maximum downward displacement of the block.",
+s:"Reduce the network to a single equivalent spring k_eff by combining the springs in series and parallel (equal tensions in series, equal extensions in parallel; here the pulley-linked springs share the load in the ratio the string constraint dictates).\nOnce that is done, energy conservation from rest to rest gives\nmg·x = ½k_eff x² ⟹ x_max = 2mg/k_eff,\nexactly twice the static equilibrium extension. (In this sheet's network the reduction works out to k_eff = k/33, giving x_max = 66mg/k — recheck the reduction against your own figure.)"},
+{t:"Elastic cord lifted by hand",ch:"wpe",d:"Medium",src:"27 Aug",tg:["MCQ","springs"],fig:"cord",
+x:"One end of an elastic cord is attached to a block of mass m and the other end is held keeping the cord relaxed and vertical. The relaxed length of the cord is l and there is a mark P at a height 0.8l from the lower end. If the upper end is slowly raised, the block leaves the ground when the mark P reaches the point where the upper end of the relaxed cord initially was. Expression for the work done by the force applied by the hand is (a) mgl/16 (b) mgl/8 (c) mgl/5 (d) mgl/4",
+s:"When the cord is stretched by x, a point originally at height y from the bottom rises by (y/l)x. The mark P moves up by (0.8l/l)x = 0.8x, and it has to travel 0.2l:\n0.2l = 0.8x ⟹ x = l/4.\nThe block leaves the ground when kx = mg, so k = 4mg/l.\nThe hand's work equals the elastic energy stored (the block hasn't moved yet):\nW = ½kx² = ½(mg)(l/4) = mgl/8 → (b)."},
+{t:"Tangential force on a spiral path",ch:"wpe",d:"Hard",src:"18 Aug",tg:["subjective","line integral"],fig:"spiral",
+x:"A particle moves along the spiral r = r₀e^θ. There exists a tangential force F = F₀[1 + kS] t̂, where k is a positive constant and S is the distance travelled by the particle. What is the work done by the force till the particle crosses the x-axis for the first time?",
+s:"Arc length on the spiral: ds = √((r dθ)² + dr²) and dr = r dθ, so ds = √2 r dθ.\nS₀ = √2∫₀^{2π} r₀e^θ dθ = √2 r₀(e^{2π} − 1).\nThe force is purely tangential, so\nW = ∫₀^{S₀} F₀(1 + kS) dS = F₀S₀ + ½kF₀S₀²,\nwith S₀ = √2 r₀(e^{2π} − 1)."},
+{t:"Work by a rotational field on nested circles",ch:"wpe",d:"Hard",src:"18 Aug",tg:["series","line integral"],fig:"circles45",
+x:"A particle is moving under the influence of a force F = k(−y î + x ĵ) along with many other forces. There exist a set of infinite circles C₁, C₂, C₃, …, ∞ as shown, each of half the radius of the previous one, arranged along a 45° line. If the work done by this force in completing the circular path in each circle is W₁, W₂, W₃, …, W∞, and the particle moves anticlockwise in every circle, find the value of W₁ + W₂ + W₃ + … + W∞.",
+s:"F = k(−y î + x ĵ) is tangential with magnitude kr about the origin, and its curl is 2k (uniform).\nFor any closed anticlockwise loop, W = ∮F·ds = 2k × (area enclosed) — independent of where the loop sits.\nSo Wₙ = 2πkRₙ² with Rₙ = R₀/2ⁿ⁻¹.\nΣW = 2πkR₀²Σ(1/4)ⁿ⁻¹ = 2πkR₀²(4/3) = 8πkR₀²/3."},
+{t:"Which statements about F = (y î − x ĵ)/(x²+y²) are wrong?",ch:"wpe",d:"Hard",src:"18 Aug",tg:["multi-correct","line integral"],fig:"fieldPaths",
+x:"A particle is moving in the x–y plane; let F = (y î − x ĵ)/(x² + y²) be one of the forces acting on it. All coordinates are in SI units. Which of the following options is/are incorrect? (A) Work done by this F when the particle moves in the triangular loop ABCA is zero. (B) Work done by this force in the open path MNQ is π/2. (C) Work done by this force when the particle moves on the circle of radius 1 m centred at (5, 0) is zero.",
+s:"Write F in polar form: F = −θ̂/r, so F·ds = −r dθ/r = −dθ.\nThe work along any path is simply −Δθ, minus the angle swept about the origin.\n(A) The triangle ABCA does not enclose the origin, so Δθ = 0 and W = 0 — correct.\n(B) MNQ runs from M(1,0) to Q(0,1), sweeping +π/2, so W = −π/2, not +π/2 — incorrect.\n(C) The circle at (5,0) of radius 1 does not enclose the origin, so W = 0 — correct.\nThe incorrect statement is (B)."},
+{t:"Matching work done around two circles",ch:"wpe",d:"Hard",src:"18 Aug",tg:["matrix-match","line integral"],fig:"twoCircles",
+x:"In the x–y plane there exist 2 circles C₁: (x−1)² + (y−2)² = 4 and C₂: (x−5)² + (y−2)² = 4. In the region there exist two variable forces F₁ = k{(1−y)î + (x−2)ĵ} and F₂ = k{(1−y)î + (x−2)ĵ}/[(1−y)² + (x−2)²]. Let W_ij represent the work done by F_i in a complete anticlockwise rotation along circle C_j. Match (P) W₁₁, (Q) W₁₂, (R) W₂₁, (S) W₂₂ with (1) 2πk (2) 4πk (3) 8πk (4) 16πk (5) 0.",
+s:"Both fields circulate about the point (2, 1).\nF₁ has uniform curl 2k, so W = 2k × area = 2k(π·2²) = 8πk for either circle: P→3, Q→3.\nF₂ is the vortex field k θ̂/ρ about (2,1): its circulation is 2πk if the loop encloses (2,1) and 0 otherwise.\nDistance from (2,1) to C₁'s centre (1,2) is √2 < 2 — enclosed, so W₂₁ = 2πk: R→1.\nDistance to C₂'s centre (5,2) is √10 > 2 — not enclosed, so W₂₂ = 0: S→5.\nAnswer: (B) P−3, Q−3, R−1, S−5."},
+
+{t:"Lifting a ball off the floor through a cord",ch:"com",d:"Hard",src:"23 Sep",tg:["subjective","C-frame"],fig:"balls",
+x:"Two identical small balls A and B each of mass m connected by a light inextensible cord of length l are placed on a frictionless horizontal floor. With what velocity u must the ball B be projected vertically upwards so that the ball A leaves the floor? Acceleration of free fall is g.",
+s:"Once the cord goes taut the pair moves as one; work in the centre-of-mass frame. At the moment A is about to lift off, with the cord at angle θ to the floor:\nT sinθ = mg (vertical equilibrium of A).\nEnergy: ½mu² = mv² + mv_cm² + mgl sinθ with v_cm = v cosθ, giving u² = 2(v² + v_cm²) + 2gl sinθ.\nUsing the circular motion of B about the centre of mass, the condition reduces to\nu² = gl[2/sinθ + sinθ].\nThe bracket is a decreasing function of sinθ on (0,1], so it is least at sinθ = 1 (θ = 90°):\nu² = 3gl ⟹ u ≥ √(3gl)."},
+{t:"Three rods: relation between the accelerations",ch:"com",d:"Medium",src:"23 Sep",tg:["MCQ","C-frame"],fig:"rods",
+x:"Ends of three light identical rods each of length l are connected to a light pivot that enables them to rotate in any direction. At the other ends of the rods, three particles A, B and C of masses m, 2m and 3m respectively are affixed. Initially the rods are coplanar, the angle between any two adjacent rods is 120° and the particles are at rest. Now the particle C is given a velocity u perpendicular to the rod connected to it and in the plane of the rods. Ignore gravitational interaction between the particles. Denoting the acceleration vectors by a_A, a_B and a_C, which conclusion can you make? (a) a_A + a_B + a_C = 0 (b) 3a_A + 2a_B + a_C = 0 (c) a_A + 2a_B + 3a_C = 0 (d) None",
+s:"All the forces are internal (rod forces and the massless pivot), so the centre of mass has zero acceleration:\nm a_A + 2m a_B + 3m a_C = 0 ⟹ a_A + 2a_B + 3a_C = 0.\nAnswer (c)."},
+{t:"Three rods: moduli of the accelerations",ch:"com",d:"Hard",src:"23 Sep",tg:["MCQ","C-frame"],fig:"rods",
+x:"For the same three-rod system — particles m, 2m and 3m on light rods of length l at 120°, with C given a velocity u perpendicular to its rod — what are the moduli of the acceleration vectors of the particles A, B and C immediately after the particle C is given velocity u? (a) All equal to u²/l (b) 3u²/l, 3u²/2l and u²/l (c) 6u²/11l, 3u²/11l and 2u²/11l (d) 12u²/13l, 6u²/13l and 4u²/13l",
+s:"The pivot is massless, so the three rod forces balance: T_A û_A + T_B û_B + T_C û_C = 0. With 120° between the rods, T_A = T_B = T_C = T.\nEach particle: aᵢ = −(T/mᵢ)ûᵢ. The rods are rigid, so the radial relative acceleration of particle i is −v_rel²/l:\n(aᵢ − a_P)·ûᵢ = −vᵢ²/l.\nA and B are at rest, C has speed u. Adding the three projections and using û_A + û_B + û_C = 0:\nT(1 + ½ + ⅓)/m = u²/l ⟹ T = 6mu²/11l.\na_A = 6u²/11l, a_B = 3u²/11l, a_C = 2u²/11l → (c)."},
+
+{t:"Particle returning inside a ring after two bounces",ch:"coll",d:"Hard",src:"Tutorial 15",tg:["subjective","restitution"],fig:"ring",
+x:"A smooth ring is kept on a smooth horizontal surface. From a point P of the ring a particle is projected at an angle α to the radius vector at P. If ½ is the coefficient of restitution between the ring and the particle, the particle will return to the point of projection after two reflections if α = ?",
+s:"At a smooth surface the tangential velocity survives and the normal component is multiplied by e, so an impact turns an incidence angle θ (from the normal) into tanφ = tanθ/e.\nThe three chords P→Q→R→P subtend angles 2α, 2β, 2γ at the centre, and they must close the circle: 2(α + β + γ) = π, i.e. α + β + γ = π/2.\nThen tan(α+β+γ) is undefined, which forces its denominator to vanish:\n1 − tanα tanβ − tanβ tanγ − tanγ tanα = 0.\nWith e = ½, tanβ = 2tanα and tanγ = 2tanβ = 4tanα:\n1 − 2tan²α − 8tan²α − 4tan²α = 0 ⟹ 14tan²α = 1.\nα = tan⁻¹(1/√14)."},
+{t:"Ball off a wall and back to the hand",ch:"coll",d:"Medium",src:"Tutorial 15",tg:["subjective","elastic"],fig:"wall",
+x:"A small boy is throwing a ball towards a wall 6 m in front of him. He releases the ball at a height of 1.4 m from the ground. The ball bounces from the wall at a height of 3 m, rebounds from the ground and reaches the boy's hand exactly at the point of release. Assuming the two bounces (one from the wall and the other from the ground) to be perfectly elastic, how far ahead of the boy did the ball bounce from the ground?",
+s:"Both bounces are elastic, so unfold them: reflect the path in the wall and in the ground, and the whole flight becomes a single projectile that starts and ends at the release height, with horizontal range R = 2 × 6 = 12 m.\nUse y = x tanθ(1 − x/R) measured from the launch point of the unfolded parabola. If the ground bounce is a distance d ahead of the boy,\n1.4 = d tanθ(1 − d/12)   …(1)\n3 = (6 + d) tanθ(1 − (6+d)/12)   …(2)\nDividing (1) by (2) eliminates tanθ:\n1.4/3 = d(1 − d/12)/[(6+d)(1 − (6+d)/12)].\nSolving gives d = 1.5 m."},
+{t:"Maximum deflection of the heavier ball",ch:"coll",d:"Hard",src:"Tutorial 15",tg:["Irodov","elastic"],fig:"deflect",
+x:"A particle of mass m₁ collides elastically with a stationary particle of mass m₂ (m₁ > m₂). Find the maximum angle through which the striking particle may deviate as a result of the collision. (Equivalently: a mass M collides elastically with a stationary mass m; if M < m it can bounce straight back, but if M > m there is a maximum deflection angle for M — find it.)",
+s:"Go to the centre-of-mass frame. There the elastic collision only rotates each velocity: m₁ keeps the speed m₂u/(m₁+m₂) and its direction is free.\nTransforming back, the lab velocity of m₁ is the fixed vector v_cm = m₁u/(m₁+m₂) plus a vector of constant length m₂u/(m₁+m₂) pointing anywhere — the tip lies on a circle of radius m₂u/(m₁+m₂) centred at distance m₁u/(m₁+m₂) from the origin.\nSince m₁ > m₂ the origin lies outside the circle, so the deflection is bounded by the tangent line from the origin:\nsinθ_max = [m₂u/(m₁+m₂)] / [m₁u/(m₁+m₂)] = m₂/m₁.\nθ_max = sin⁻¹(m₂/m₁)."},
+{t:"Restitution from the deformation and restitution impulses",ch:"coll",d:"Medium",src:"Tutorial 15",tg:["proof","restitution"],fig:"collide",
+x:"Two particles of masses m₁ and m₂ approach along a line with speeds u₁ > u₂ and separate with speeds v₁ and v₂. Splitting the collision at the instant of maximum deformation (common velocity v), let I_D be the impulse of deformation and I_R the impulse of restitution. Show that I_R/I_D equals the coefficient of restitution (v₂ − v₁)/(u₁ − u₂).",
+s:"At maximum deformation both bodies share the common velocity v = (m₁u₁ + m₂u₂)/(m₁ + m₂) by conservation of momentum.\nFor body 1, deformation phase: I_D = m₁v − m₁u₁; restitution phase: I_R = m₁v₁ − m₁v.\nTherefore\nI_R/I_D = (v₁ − v)/(v − u₁).\nSubstituting v = (m₁u₁ + m₂u₂)/(m₁+m₂) makes the m₂/(m₁+m₂) factors cancel top and bottom:\nI_R/I_D = (v₂ − v₁)/(u₁ − u₂) = e.\nSo the usual restitution rule is just the statement that the restitution impulse is e times the deformation impulse."},
+{t:"Jerk through an almost inextensible cord",ch:"coll",d:"Hard",src:"Tutorial 15",tg:["subjective","restitution"],fig:"cordBlocks",
+x:"Two blocks A and B of masses m_A and m_B placed on a frictionless horizontal floor are connected by a light, almost inextensible cord. The block A is given a velocity u away from the block B. If the coefficient of restitution defined for the cord has a value e, find the velocity with which block B begins to move.",
+s:"The cord goes taut and jerks the blocks exactly like a collision: the 'deformation' phase is the cord stretching to its maximum, the 'restitution' phase is it pulling back.\nAt maximum stretch both blocks move with the common velocity\nv = m_A u/(m_A + m_B).\nFor block B: I_D = m_B v − 0 and I_R = m_B v_B − m_B v.\nSetting I_R/I_D = e:\n(m_B v_B − m_B v)/(m_B v) = e ⟹ v_B = (1 + e)v.\nv_B = (1 + e)m_A u/(m_A + m_B).\n(With e = 0, a truly inextensible cord, both move together at v, as expected.)"},
+
+{t:"Projectile inside a cylindrical room",ch:"proj",d:"Medium",src:"Surprise test",tg:["MCQ","elastic"],fig:"cylRoom",
+x:"Q1. A particle projected at an angle θ with the horizontal from the centre of the floor of a cylindrical room of radius r returns to the point of projection after three elastic collisions with the walls and the ceiling. If the particle remains in air for time T, find the speed of projection. (a) 3r/(T cosθ) (b) 4r/(T cosθ) (c) 2√(gr/sin2θ) (d) > 2√(gr/sin2θ)",
+s:"Elastic bounces off the vertical wall reverse only the horizontal velocity; the ceiling bounce reverses only the vertical one. So the horizontal speed u cosθ never changes in magnitude.\nThe three collisions are wall → ceiling → opposite wall. Horizontally the particle goes centre → wall (r) → opposite wall (2r) → centre (r), a total path of 4r.\n4r = (u cosθ)T ⟹ u = 4r/(T cosθ) → (b).\n(Option (d) is also a true statement — the ceiling bounce shortens the flight, so u must exceed the free-flight value — but (b) is the answer in terms of T.)"},
+{t:"Shell bursting into three fragments: energy released",ch:"com",d:"Medium",src:"Surprise test",tg:["MCQ","paragraph"],
+x:"Q2. A 30 kg shell in free space explodes into three identical fragments. After the explosion the fragments rush apart; the forces of mutual interaction between them are long-range attractive conservative forces. Immediately after the explosion, the velocities of the fragments relative to an inertial frame are (3î + 2ĵ) m/s, −2î m/s and (5î − 5ĵ) m/s. If the entire energy released in the explosion is converted into kinetic energy of the fragments, how much energy has been released? (a) 260 J (b) 290 J (c) 335 J (d) 410 J",
+s:"Each fragment is 10 kg.\nKE just after = ½(10)(13 + 4 + 50) = 335 J.\nThe shell's own velocity before the burst follows from momentum: 10(3,2) + 10(−2,0) + 10(5,−5) = (60, −30), so v_shell = (2, −1) m/s and KE before = ½(30)(5) = 75 J.\nEnergy released = 335 − 75 = 260 J → (a)."},
+{t:"Shell fragments: minimum kinetic energy later",ch:"com",d:"Medium",src:"Surprise test",tg:["MCQ","paragraph"],
+x:"Q3. For the same 30 kg shell bursting into three 10 kg fragments with velocities (3î + 2ĵ), −2î and (5î − 5ĵ) m/s: after a sufficiently long time, when the forces of mutual interaction cease to act, what can be the minimum total kinetic energy of all the fragments? (a) 15 J (b) 45 J (c) 75 J (d) More information required",
+s:"Split the kinetic energy as KE = KE_cm + KE(relative to the centre of mass). The attractive internal forces can drain the internal part but never the KE of the centre of mass, which is conserved because there is no external force.\nv_cm = (2, −1) m/s, so KE_cm = ½(30)(2² + 1²) = 75 J.\nThe least possible total is therefore 75 J, reached when the fragments end up moving together → (c)."},
+{t:"T-shaped rod between two wedges",ch:"nlm",d:"Hard",src:"Surprise test",tg:["MCQ","constraint"],fig:"tRod",
+x:"Q4. Figure shows an inverted 'T' shaped rod of mass m₀ constrained to move only in the vertical direction by two rigid supports. The rod touches two triangular wedges at its lower end, of masses m₁ and m₂ with base angles θ₁ and θ₂. The wedges can move horizontally, all contacts are smooth, and the system is released from rest. If the downward acceleration of the rod is a, the net force applied by the rigid supports on the rod is (A) (m₁cotθ₁ − m₂cotθ₂)a (B) (m₁tanθ₁ − m₂tanθ₂)a (C) (m₁cosθ₁ − m₂cosθ₂)a (D) zero",
+s:"Wedge contact constraint: if the rod descends with a, wedge i slides outward with horizontal acceleration a cotθᵢ.\nTake the whole system. Horizontally the only external force is the one the supports apply to the rod (the floor is smooth), so\nF = Σ mᵢ aᵢₓ = −m₁a cotθ₁ + m₂a cotθ₂.\nIts magnitude is (m₁cotθ₁ − m₂cotθ₂)a → (A).\nNote it is not zero in general: the two wedges are pushed apart with different accelerations, and the supports supply the imbalance."},
+{t:"Propelling a car with thrown baseballs",ch:"com",d:"Hard",src:"Surprise test",tg:["MCQ","variable mass"],
+x:"Q5. For some odd reason, you decide to throw baseballs at a car of mass M, which is free to move frictionlessly on the ground. You throw the balls at the back of the car at speed u and at a mass rate of σ kg/s (assume the rate is continuous). If the car starts at rest, find its speed as a function of time, assuming the back window is open so that the balls collect inside the car. (A) uσt/(M+σt) (B) u(1 − 1/√(1+σt/M)) (C) u(1 − 1/√(1+2σt/M)) (D) u(1 − 1/(1+2σt/M))",
+s:"Momentum over the interval in which a mass dm enters the car:\n(dm)u + mv = (m + dm)(v + dv) ⟹ dm(u − v) = m dv.\nIntegrating from M to m and 0 to v gives m = Mu/(u − v) — note m → ∞ as v → u, as it must.\nMass arrives at the rate dm/dt = σ(u − v)/u, since the balls close on the car only at relative speed (u − v). Substituting m:\n∫₀^v dv/(u−v)³ = ∫₀^t σ dt/(Mu²) ⟹ 1/[2(u−v)²] − 1/(2u²) = σt/(Mu²).\nv(t) = u(1 − 1/√(1 + 2σt/M)) → (C).\nIntegrating once more, x(t) = ut − (Mu/σ)√(1 + 2σt/M) + Mu/σ: the car's speed tends to u, yet it falls arbitrarily far behind a ball that keeps moving at u."},
+{t:"What is true in the centre-of-mass frame",ch:"com",d:"Easy",src:"Surprise test",tg:["multi-correct","C-frame"],
+x:"Q6. Consider a system of particles observed relative to the centre-of-mass frame of reference. (A) Net force on the system is zero (B) Work done by all the forces is zero (C) Total momentum is zero (D) Work done by internal forces is zero",
+s:"In the C-frame a_cm = 0 and v_cm = 0 by definition.\nF_net = M_total a_cm = 0 → (A) is correct.\nP_cm = M_total v_cm = 0 → (C) is correct.\n(B) is false: the total work equals the change in the system's kinetic energy measured in this frame, which is generally non-zero.\n(D) is false: internal forces do work whenever the separations change — that is exactly how a spring or an explosion transfers energy.\nCorrect: (A) and (C)."},
+{t:"Particles converging on the origin",ch:"com",d:"Medium",src:"Surprise test",tg:["multi-correct","C-frame"],
+x:"Q7. Initially all the particles of a system are situated at a distance R from the origin and each particle is moving towards the origin with some random speeds (equal or unequal). Then for this moment: (A) The distance of the centre of mass from the origin is R (B) The distance of the centre of mass from the origin is less than or equal to R (C) Velocity of the centre of mass is towards the origin (D) Speed of the centre of mass is zero",
+s:"All the particles lie on a sphere of radius R, and the centre of mass is a weighted average of points on that sphere — which lies inside or on it. So its distance from the origin is ≤ R, with equality only if every particle sits at the same point: (B) is correct and (A) is not.\nThe velocities all point towards the origin but from different directions, and the speeds are random, so their mass-weighted sum has no fixed direction and no reason to vanish — (C) and (D) are both false.\nCorrect: (B)."},
+{t:"Person walking across two roped planks",ch:"com",d:"Hard",src:"Surprise test",tg:["multi-correct","graph"],fig:"planks",
+x:"Q8. Two long planks each of mass 60 kg are connected by a long massless string and placed on a smooth horizontal surface. A person of mass 60 kg stands on one end of plank A. Initially both planks are at rest. The person starts to move from one end of plank A towards plank B (taken as the positive direction) such that the velocity of the person relative to the ground rises linearly to 2 m/s in 1 s, stays at 2 m/s until 3 s, and falls linearly to zero at 4 s. During 0 to 4 s: (A) Displacement of the centre of mass of (plank A + plank B + person) is zero (B) Displacement of the centre of mass of (plank A + plank B) is −3 m (C) Displacement of plank A is −3 m (D) Displacement of plank B is −3.5 m",
+s:"No external horizontal force, so the centre of mass of the whole system never moves — (A) is correct.\n0–1 s: the person pulls both planks, so they move together. 60(1) + 120(−x₁) = 0 ⟹ x₁ = 0.5 m back, and the planks reach 1 m/s backwards.\n1–3 s: 60(4) + 120(−x₂) = 0 ⟹ x₂ = 2 m back.\n3–4 s: the person retards, so he pushes the planks; the string can pull but not push, so only plank A is affected. Plank B carries on at 1 m/s and moves 1 m; the person moves 1 m, and 60(1) + 60(−1) + 60(−x₃) = 0 gives x₃ = 0.\nTotals: plank A 2.5 m back, plank B 3.5 m back, person 6 m forward.\nSo (C) is wrong (A moves −2.5 m), (D) is right, and the two planks' centre of mass moves (2.5+3.5)/2 = 3 m back → (B) right.\nCorrect: (A), (B), (D)."},
+{t:"Rope sliding onto a semicircular surface",ch:"com",d:"Hard",src:"Surprise test",tg:["multi-correct","continuous body"],fig:"ropeArc",
+x:"Q9. A vertical surface AB is connected smoothly at B to a semicircular surface BCD in a vertical plane. A uniform rope of mass M and length πR is released on the vertical surface when its lower end is touching point B. At the moment the rope is completely on the semicircular part: (A) Speed of the rope is √(2gR(π/2 + 2/π)) (B) Resultant of all the normal forces on the rope by the surface is Mg(3 + 8/π²) (C) Momentum of the rope is (2M/π)√(2gR(π/2 + 2/π)) (D) Net force on the rope is Mg(3 + π)",
+s:"Energy: the rope's centre of mass falls from πR/2 above B to 2R/π below the level of B, so Mg(πR/2 + 2R/π) = ½Mv² ⟹ v = √(2gR(π/2 + 2/π)) — (A) correct.\nω_cm = v/R, and the centre of mass moves on a circle of radius 2R/π, so\na_cm = ω²(2R/π) = 2g(1 + 4/π²), directed upward.\nNewton: N − Mg = Ma_cm ⟹ N = Mg(3 + 8/π²) — (B) correct.\nP = Mv_cm = Mω(2R/π) = (2M/π)√(2gR(π/2 + 2/π)) — (C) correct.\nNet force = Ma_cm = 2Mg(1 + 4/π²) ≠ Mg(3 + π) — (D) wrong.\nCorrect: (A), (B), (C)."},
+{t:"Filling a cubical box with water",ch:"com",d:"Hard",src:"Surprise test",tg:["multi-correct","optimisation"],
+x:"Q10. Consider a uniform cubical box of mass 1000 kg and edge length 1 m with one of its faces horizontal; the walls are of negligible thickness. Water of density 1000 kg/m³ is slowly added inside such that the level rises with a small but constant velocity. During the process from the box being empty to the water completely filling it, mark the correct option regarding the centre of mass of (box + water): (A) The centre of mass continuously rises (B) The total displacement of the centre of mass is zero (C) The maximum displacement of the centre of mass is (√2 − 1) m (D) The maximum displacement of the centre of mass is (√3 − √2) m",
+s:"Take the base as origin. With water to height h, the masses are 1000 kg of box at 0.5 m and 1000h kg of water at h/2:\ny_cm = 0.5(1 + h²)/(1 + h).\nSetting dy_cm/dh = 0: h² + 2h − 1 = 0 ⟹ h = √2 − 1 m, where y_cm = √2 − 1 ≈ 0.414 m — a minimum, so the centre of mass first falls and then rises: (A) is false.\nAt h = 0 and h = 1 the centre of mass is at 0.5 m, so over the whole process its net displacement is zero → (B) correct.\nThe largest excursion is 0.5 − (√2 − 1) = 1.5 − √2 ≈ 0.086 m, which matches neither (C) nor (D).\nCorrect: (B)."},
+{t:"L-shaped tube with two blocks",ch:"com",d:"Hard",src:"Surprise test",tg:["multi-correct","constraint"],fig:"Ltube",
+x:"Q11. Figure shows an 'L' shaped tube of mass M, free to move horizontally inside a cylindrical handle rigidly fixed to the ceiling. Two blocks of the same mass m are connected with a massless string passing over a massless pulley attached to the tube. The blocks exactly fit inside the tube, all contact surfaces are smooth, and the system is released from rest. After block B descends by height h: (A) The horizontal displacement of A has magnitude mh/(2m+M) (B) The horizontal displacement of B has magnitude (m+M)h/(2m+M) (C) The horizontal displacement of the pipe has magnitude (m+M)h/(2m+M) (D) The horizontal displacement of the centre of mass of the complete system is zero",
+s:"Let the pipe move x to the left; block B sits in the vertical arm so it moves x to the left as well, and let A move y to the right.\nNo horizontal external force, so the centre of mass cannot move horizontally — (D) is correct, and it gives\nmy − (m + M)x = 0 ⟹ y = x(m + M)/m.\nThe string constraint (B descends h as A slides along the tube) gives x + y = h, so\nx = mh/(2m + M)  and  y = (m + M)h/(2m + M).\nSo the pipe and B each move mh/(2m+M) and A moves (m+M)h/(2m+M) — which is the opposite assignment to what (A), (B) and (C) claim.\nCorrect: (D)."},
+{t:"Diya on a thali during aarti",ch:"circ",d:"Hard",src:"Surprise test",tg:["multi-correct","friction"],
+x:"Q12. During an aarti, a thali (a horizontal disc) performs circular motion of constant angular velocity in a vertical plane, the plane of the thali always remaining horizontal. A diya (a small block) of mass m rests on the thali, the radius of its circular motion being r and the constant angular velocity ω₀. Mark the correct option. (A) The minimum normal force on the diya is m(g − ω₀²r) (B) The maximum frictional force between diya and thali is mω₀²r (C) Minimum coefficient of friction for no slipping is ω₀²r/(g − ω₀²r) (D) Minimum coefficient of friction for no slipping is √(ω₀²r/(g² − (ω₀²r)²))",
+s:"Every point of the thali has the same acceleration ω₀²r, whose direction sweeps right round the vertical plane while the thali stays horizontal.\nVertically: N − mg = m(vertical component of ω₀²r), which ranges over ±ω₀²r, so N_min = m(g − ω₀²r) → (A) correct.\nHorizontally the friction must supply the horizontal component, at most mω₀²r → (B) correct.\nFor no slipping at every instant the required friction must stay inside μN. The worst case occurs when the acceleration vector is tilted, giving\nmω₀²r ≤ μmg/√(1 + μ²) ⟹ (ω₀²r)²/(g² − (ω₀²r)²) ≤ μ²,\nwhich is the form printed in (D), not (C).\nCorrect: (A), (B), (D)."},
+{t:"Object breaking at the top of its flight",ch:"com",d:"Hard",src:"Surprise test",tg:["multi-correct"],fig:"cmPath",
+x:"Q13. An object is projected in air. As it reaches its topmost point it breaks into two unequal parts A and B. The lighter part A moves downwards with non-zero speed just after breaking. Assuming the parts do not rebound after colliding with the ground, mark the correct option(s). (A) The acceleration of the centre of mass just after the break is g vertically downwards (B) The acceleration of the centre of mass just before B strikes the ground is g vertically downwards (C) The centre of mass lands where the unbroken object would have landed (D) The path of the centre of mass while it is in air is the kinked dotted curve shown",
+s:"Just after the break both parts are in free flight, so a_cm = g → (A) correct.\nA is thrown downwards, so it lands first; once it is on the ground the normal force acts on the system and a_cm < g. So (B) is false.\nThe centre of mass therefore stops following the original parabola from the instant A lands — it does not land at the undisturbed landing point, so (C) is false, and its path shows an abrupt change of curvature at that moment, as the figure shows → (D) correct.\nCorrect: (A) and (D)."},
+{t:"Sand falling onto an inclined conveyor belt",ch:"com",d:"Hard",src:"Surprise test",tg:["integer","variable mass"],fig:"conveyor",
+x:"Q14. A conveyor belt is inclined at an angle θ with the horizontal. The length of a straight portion of the belt is l, resistive forces in the belt mechanism are negligible and the radii of the end cylinders are negligible compared to l. Sand falls on the belt with negligible speed at a constant rate at the top and leaves at the bottom. Friction between belt and sand is high enough to stop sliding of sand particles almost in no time. The inertia of the belt mechanism is negligible compared to that of the total sand on it. Find the steady speed acquired by the belt. Take l = 20 m, θ = 30° and g = 10 m/s².",
+s:"Let the sand arrive at rate q kg/s and the belt run at steady speed v. The sand on the belt at any moment is m = q(l/v), since each grain spends l/v on the belt.\nThe belt mechanism has negligible inertia and no resistive force, so the force driving it (the component of the sand's weight along the incline) must exactly equal the thrust needed to bring the newly arriving sand up to speed v:\nmg sinθ = qv ⟹ (ql/v)g sinθ = qv ⟹ v² = gl sinθ.\nv = √(10 × 20 × 0.5) = 10 m/s.\n(Note the paper lists this in the single-digit integer section, so check the intended rounding or units against the key.)"},
+{t:"Point on the string that moves in a straight line",ch:"com",d:"Hard",src:"Surprise test",tg:["integer"],fig:"ringRod",
+x:"Q15. The ring R in the arrangement shown has mass 2m and can slide along a smooth fixed horizontal rod x-y. It is attached to a block B of mass m by a light string of length l. The block is released from rest with the string horizontal. It is observed that a point P on the string follows a straight-line path as the block descends. The distance of point P from the ring is nl/6. The value of n is",
+s:"There is no horizontal external force, so the horizontal position of the centre of mass of (ring + block) never moves. The point that stays on a fixed vertical line is therefore the centre of mass itself — and because the string stays straight, that point lies on the string.\nMeasuring from the ring, x_cm = [2m(0) + m(l)]/3m = l/3 = 2l/6.\nn = 2."},
+{t:"Circle with an inscribed right triangle removed",ch:"com",d:"Medium",src:"Surprise test",tg:["integer"],fig:"circTri",
+x:"Q16. From a circle of radius a, an isosceles right-angled triangle with the hypotenuse as the diameter of the circle is removed. The distance of the centre of mass of the remaining portion from the centre of the circle is a/(xπ − y). Find the value of (x + y).",
+s:"The triangle has legs a√2, so its area is a² and its centroid lies a/3 from the centre, on the side the triangle occupies.\nTaking σ as the mass per unit area and the centre of the circle as origin with the triangle on the +y side:\ny_cm = [σ(πa²)(0) − σ(a²)(a/3)]/[σ(πa²) − σ(a²)] = −a/(3(π − 1)).\nSo the distance is a/(3π − 3), giving x = 3 and y = 3.\nx + y = 6."},
+{t:"Power of a wind-powered generator",ch:"com",d:"Easy",src:"Surprise test",tg:["integer","variable mass"],
+x:"Q17. A wind-powered generator converts wind energy into electrical energy. Assume that the generator converts a fixed fraction of the wind energy intercepted by its blades into electrical energy. For wind speed v, the electrical power output will be proportional to vⁿ. Calculate n.",
+s:"Mass flux through the blades of area A: dm/dt = ρ(dV/dt) = ρAv.\nThe thrust is F = v(dm/dt) = ρAv².\nPower P = Fv = ρAv³.\nSo P ∝ v³ and n = 3."},
+{t:"Force between the halves of a spinning sphere",ch:"com",d:"Hard",src:"Surprise test",tg:["integer"],
+x:"Q18. In gravity-free space, a uniform solid sphere of mass M and radius R is rotating about its diameter with constant angular velocity ω₀. An imaginary plane containing the axis of rotation separates the sphere into two identical hemispheres. The force applied by one hemisphere on the other is (k/32)Mω₀²R. Find the value of k.",
+s:"The centre of mass of a solid hemisphere lies 3R/8 from the flat face's centre, and it travels in a circle of that radius with angular velocity ω₀.\nApplying Newton's second law to one hemisphere, of mass M/2:\nF_net = (M/2)ω₀²(3R/8) = (3/16)Mω₀²R.\nThis net force is supplied entirely by the other hemisphere, and (3/16) = 6/32.\nk = 6."}
+];
+
+/* ===================== state ===================== */
+const KEY="prob-board-v5";
+const uid=()=>Math.random().toString(36).slice(2,9);
+/* dates of the sheets the problems came from; the undated sheets sort last */
+const DATES={"9 Jul":"2026-07-09","22 Jul":"2026-07-22","26 Jul test":"2026-07-26",
+  "1 Aug":"2026-08-01","2 Aug":"2026-08-02","18 Aug":"2026-08-18","27 Aug":"2026-08-27",
+  "23 Sep":"2026-09-23","Tutorial 15":"2026-10-04","Surprise test":"2026-10-04"};
+function seedState(){
+  return {chapters:CH.map(([id,name])=>({id,name})),
+    questions:SEED.map(q=>({id:uid(),title:q.t,text:q.x,ch:q.ch,diff:q.d,src:q.src,date:DATES[q.src]||"",tags:q.tg||[],
+      fig:q.fig||"",sol:q.s||"",notes:"",imgs:[],star:false,done:false}))};
+}
+function load(){
+  try{const raw=localStorage.getItem(KEY);if(raw){const p=JSON.parse(raw);if(p&&p.questions&&p.chapters)return p;}}catch(e){}
+  return seedState();
+}
+let state=load();
+function save(){
+  try{localStorage.setItem(KEY,JSON.stringify(state));return true;}
+  catch(e){toast("Out of browser storage — try removing a photo or two");return false;}
+}
+let filters={q:"",diffs:new Set(),tag:"",chapter:"all",star:false,todo:false,sort:"custom"};
+let openId=null;      // detail page
+let solShown=false;   // per-visit
+
+/* ===================== helpers ===================== */
+const $=s=>document.querySelector(s);
+const el=(t,c,txt)=>{const n=document.createElement(t);if(c)n.className=c;if(txt!=null)n.textContent=txt;return n;};
+const dc=d=>d==="Easy"?"e":d==="Medium"?"m":"h";
+const chName=id=>(state.chapters.find(c=>c.id===id)||{name:"Unsorted"}).name;
+const esc=s=>String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+const allTags=()=>[...new Set(state.questions.flatMap(q=>q.tags))].sort();
+function matches(q){
+  if(filters.chapter==="__un"){if(state.chapters.some(c=>c.id===q.ch))return false;}
+  else if(filters.chapter!=="all"&&q.ch!==filters.chapter)return false;
+  if(filters.diffs.size&&!filters.diffs.has(q.diff))return false;
+  if(filters.tag&&!q.tags.includes(filters.tag))return false;
+  if(filters.star&&!q.star)return false;
+  if(filters.todo&&q.done)return false;
+  if(filters.q){
+    const s=(q.title+" "+q.text+" "+q.tags.join(" ")+" "+chName(q.ch)).toLowerCase();
+    if(!filters.q.toLowerCase().split(/\s+/).every(w=>s.includes(w)))return false;
+  }
+  return true;
+}
+function fmtDate(d){
+  if(!d)return "";
+  const p=d.split("-");if(p.length!==3)return d;
+  const M=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return (+p[2])+" "+M[(+p[1])-1]+" "+p[0];
+}
+function sorted(list){
+  const rank={Easy:0,Medium:1,Hard:2};const l=[...list];
+  if(filters.sort==="hard")l.sort((a,b)=>rank[b.diff]-rank[a.diff]);
+  else if(filters.sort==="easy")l.sort((a,b)=>rank[a.diff]-rank[b.diff]);
+  else if(filters.sort==="az")l.sort((a,b)=>a.title.localeCompare(b.title));
+  else if(filters.sort==="new"||filters.sort==="old"){
+    const dir=filters.sort==="new"?-1:1;
+    l.sort((a,b)=>{
+      if(!a.date&&!b.date)return 0;
+      if(!a.date)return 1;           /* undated always last */
+      if(!b.date)return -1;
+      return a.date<b.date?dir:a.date>b.date?-dir:0;
+    });
+  }
+  return l;
+}
+function toast(msg,undoFn){
+  document.querySelectorAll(".toast").forEach(t=>t.remove());
+  const t=el("div","toast");t.appendChild(el("span",null,msg));
+  if(undoFn){const b=el("button",null,"Undo");b.onclick=()=>{undoFn();t.remove();};t.appendChild(b);}
+  document.body.appendChild(t);setTimeout(()=>t.remove(),undoFn?6500:2600);
+}
+
+/* ===================== strip ===================== */
+function renderStrip(){
+  const s=$("#strip");s.innerHTML="";
+  const c={Easy:0,Medium:0,Hard:0};
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  state.questions.forEach((q,i)=>{
+    c[q.diff]=(c[q.diff]||0)+1;
+    const t=el("div","tick "+dc(q.diff)+((openId||matches(q))?"":" off"));
+    const h=q.diff==="Easy"?18:q.diff==="Medium"?30:44;
+    t.style.height=reduce?h+"px":"0px";t.title=q.title;
+    t.onclick=()=>{openId=q.id;solShown=false;render();window.scrollTo({top:0,behavior:"smooth"});};
+    t.style.cursor="pointer";
+    s.appendChild(t);
+    if(!reduce)setTimeout(()=>t.style.height=h+"px",i*8);
+  });
+  $("#cE").textContent=c.Easy;$("#cM").textContent=c.Medium;$("#cH").textContent=c.Hard;
+}
+
+/* ===================== board page ===================== */
+function boardPage(){
+  const root=el("div","layout");
+  /* sidebar */
+  const side=el("aside","side");
+  side.appendChild(el("h2",null,"Chapters"));
+  const box=el("div","chapters");
+  const mk=(id,name,count)=>{
+    const b=el("button","chap"+(filters.chapter===id?" active":""));
+    b.appendChild(el("span","bar"));b.appendChild(el("span","nm",name));b.appendChild(el("span","ct",String(count)));
+    b.onclick=()=>{filters.chapter=id;render();};
+    if(id!=="all"&&id!=="__un"){
+      b.draggable=true;b.title="Double-click to rename · drag to reorder";
+      b.ondblclick=()=>renameChapter(id);
+      b.ondragstart=e=>{e.dataTransfer.setData("chap",id);e.dataTransfer.effectAllowed="move";};
+      b.ondragover=e=>{if(e.dataTransfer.types.includes("chap")||e.dataTransfer.types.includes("q")){e.preventDefault();b.style.background="var(--panel-2)";}};
+      b.ondragleave=()=>{b.style.background="";};
+      b.ondrop=e=>{
+        e.preventDefault();b.style.background="";
+        const from=e.dataTransfer.getData("chap"),qid=e.dataTransfer.getData("q");
+        if(qid){const q=state.questions.find(x=>x.id===qid);if(q){q.ch=id;save();render();toast("Moved to "+name);}return;}
+        if(from&&from!==id){
+          const a=state.chapters.findIndex(c=>c.id===from),bi=state.chapters.findIndex(c=>c.id===id);
+          const [m]=state.chapters.splice(a,1);state.chapters.splice(bi,0,m);save();render();
+        }
+      };
+    }
+    return b;
+  };
+  box.appendChild(mk("all","All chapters",state.questions.length));
+  state.chapters.forEach(c=>box.appendChild(mk(c.id,c.name,state.questions.filter(q=>q.ch===c.id).length)));
+  const un=state.questions.filter(q=>!state.chapters.some(c=>c.id===q.ch));
+  if(un.length)box.appendChild(mk("__un","Unsorted",un.length));
+  side.appendChild(box);
+  const foot=el("div","side-foot");
+  const nb=el("button","btn","New chapter");
+  nb.onclick=()=>{const c={id:uid(),name:"New chapter"};state.chapters.push(c);save();render();renameChapter(c.id);};
+  const rb=el("button","btn danger","Reset board");
+  rb.onclick=()=>{const old=state;state=seedState();save();render();
+    toast("Board reset to the original "+SEED.length+" problems",()=>{state=old;save();render();});};
+  foot.append(nb,rb);side.appendChild(foot);
+  root.appendChild(side);
+
+  /* main */
+  const main=el("main");
+  const ctl=el("div","controls");
+  ctl.innerHTML=`
+    <div class="ctl-row">
+      <div class="search">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" type="search" placeholder="Search problems and topics…" autocomplete="off" value="${esc(filters.q)}">
+      </div>
+      <select id="tagSel" aria-label="Filter by topic tag"><option value="">All topics</option>${allTags().map(s=>`<option ${filters.tag===s?"selected":""}>${esc(s)}</option>`).join("")}</select>
+      <select id="sortSel" aria-label="Sort order">
+        <option value="custom">My order</option>
+        <option value="new">Newest sheet first</option><option value="old">Oldest sheet first</option>
+        <option value="hard">Hardest first</option>
+        <option value="easy">Easiest first</option><option value="az">A–Z</option>
+      </select>
+    </div>
+    <div class="ctl-row">
+      <button class="chip e" data-diff="Easy">Easy</button>
+      <button class="chip m" data-diff="Medium">Medium</button>
+      <button class="chip h" data-diff="Hard">Hard</button>
+      <button class="chip plain" id="starChip">Starred</button>
+      <button class="chip plain" id="todoChip">Not done</button>
+      <button class="btn" id="clearBtn">Clear filters</button>
+      <span class="count" id="count"></span>
+    </div>`;
+  main.appendChild(ctl);
+  const board=el("div");board.id="board";main.appendChild(board);
+  root.appendChild(main);
+  return root;
+}
+function wireControls(){
+  $("#q").oninput=e=>{filters.q=e.target.value;renderBoard();renderStrip();};
+  $("#tagSel").onchange=e=>{filters.tag=e.target.value;render();};
+  $("#sortSel").value=filters.sort;
+  $("#sortSel").onchange=e=>{filters.sort=e.target.value;renderBoard();};
+  document.querySelectorAll("[data-diff]").forEach(b=>{
+    b.classList.toggle("on",filters.diffs.has(b.dataset.diff));
+    b.onclick=()=>{const d=b.dataset.diff;filters.diffs.has(d)?filters.diffs.delete(d):filters.diffs.add(d);render();};
+  });
+  $("#starChip").classList.toggle("on",filters.star);
+  $("#starChip").onclick=()=>{filters.star=!filters.star;render();};
+  $("#todoChip").classList.toggle("on",filters.todo);
+  $("#todoChip").onclick=()=>{filters.todo=!filters.todo;render();};
+  $("#clearBtn").onclick=()=>{filters={q:"",diffs:new Set(),tag:"",chapter:"all",star:false,todo:false,sort:"custom"};render();};
+}
+function card(q,idx){
+  const c=el("div","card "+dc(q.diff));
+  c.dataset.id=q.id;c.style.animationDelay=Math.min(idx,14)*14+"ms";
+  const left=el("div");left.style.cssText="display:flex;flex-direction:column;align-items:center;gap:4px";
+  const grip=el("div","grip","⠿");grip.title="Drag to reorder, or drop on a chapter";
+  left.append(grip,el("div","num",String(idx+1)));c.appendChild(left);
+
+  const main=el("div","card-main");
+  const h=el("p","q-title");h.appendChild(document.createTextNode(q.title));
+  if(q.star)h.appendChild(el("span","star","★"));
+  if(q.done){const d=el("span","pill","done");d.style.color="var(--mint)";h.appendChild(d);}
+  main.appendChild(h);
+  main.appendChild(el("p","q-text",q.text));
+  const m=el("div","meta");
+  m.appendChild(el("span","pill d "+dc(q.diff),q.diff));
+  m.appendChild(el("span","pill",chName(q.ch)));
+  if(q.date)m.appendChild(el("span","pill",fmtDate(q.date)));
+  if(q.fig&&F[q.fig])m.appendChild(el("span","pill fig","figure"));
+  if(q.notes)m.appendChild(el("span","pill fig","notes"));
+  if(q.imgs&&q.imgs.length)m.appendChild(el("span","pill fig",q.imgs.length+" photo"+(q.imgs.length>1?"s":"")));
+  q.tags.forEach(t=>m.appendChild(el("span","pill",t)));
+  main.appendChild(m);
+  main.onclick=()=>{openId=q.id;solShown=false;render();window.scrollTo({top:0,behavior:"smooth"});};
+  c.appendChild(main);
+
+  const acts=el("div","acts");
+  const ic=(svg,title,fn,cls)=>{const b=el("button","icon "+(cls||""));b.innerHTML=svg;b.title=title;b.setAttribute("aria-label",title);b.onclick=e=>{e.stopPropagation();fn();};return b;};
+  acts.appendChild(ic('<svg width="15" height="15" viewBox="0 0 24 24" fill="'+(q.star?"currentColor":"none")+'" stroke="currentColor" stroke-width="1.8"><path d="m12 3 2.6 5.6 6 .8-4.4 4.2 1.1 6-5.3-3-5.3 3 1.1-6L3.4 9.4l6-.8Z"/></svg>',
+    q.star?"Remove star":"Star this problem",()=>{q.star=!q.star;save();render();},q.star?"on":""));
+  acts.appendChild(ic('<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 5 5L20 7"/></svg>',
+    q.done?"Mark as not done":"Mark as done",()=>{q.done=!q.done;save();render();},q.done?"on":""));
+  acts.appendChild(ic('<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17v3Z"/></svg>',"Edit",()=>openEditor(q)));
+  acts.appendChild(ic('<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m18 9-6 6-6-6"/></svg>',"Move down",()=>move(q.id,1)));
+  acts.appendChild(ic('<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m6 15 6-6 6 6"/></svg>',"Move up",()=>move(q.id,-1)));
+  acts.appendChild(ic('<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 7h14M10 7V5h4v2M7 7l1 13h8l1-13"/></svg>',"Delete",()=>del(q.id),"del"));
+  c.appendChild(acts);
+
+  grip.draggable=true;
+  grip.ondragstart=e=>{e.dataTransfer.setData("q",q.id);e.dataTransfer.effectAllowed="move";c.classList.add("dragging");};
+  grip.ondragend=()=>c.classList.remove("dragging");
+  c.ondragover=e=>{if(e.dataTransfer.types.includes("q")){e.preventDefault();c.classList.add("drop-into");}};
+  c.ondragleave=()=>c.classList.remove("drop-into");
+  c.ondrop=e=>{
+    e.preventDefault();c.classList.remove("drop-into");
+    const id=e.dataTransfer.getData("q");if(!id||id===q.id)return;
+    const from=state.questions.findIndex(x=>x.id===id);const item=state.questions[from];
+    state.questions.splice(from,1);
+    const to=state.questions.findIndex(x=>x.id===q.id);
+    item.ch=q.ch;state.questions.splice(to,0,item);save();render();flash(id);
+  };
+  return c;
+}
+function move(id,dir){
+  const me=state.questions.find(q=>q.id===id);
+  const grouping=filters.chapter==="all"&&filters.sort==="custom";
+  const list=sorted(state.questions.filter(q=>matches(q)&&(!grouping||q.ch===me.ch)));
+  const pos=list.findIndex(q=>q.id===id);const target=list[pos+dir];if(!target)return;
+  const a=state.questions.findIndex(q=>q.id===id),b=state.questions.findIndex(q=>q.id===target.id);
+  const [m]=state.questions.splice(a,1);state.questions.splice(b,0,m);save();render();flash(id);
+}
+function flash(id){
+  requestAnimationFrame(()=>{const n=document.querySelector(`.card[data-id="${id}"]`);
+    if(n){n.classList.add("flash");n.scrollIntoView({block:"nearest",behavior:"smooth"});}});
+}
+function del(id){
+  const i=state.questions.findIndex(q=>q.id===id);const removed=state.questions[i];
+  state.questions.splice(i,1);save();render();
+  toast("Deleted “"+removed.title+"”",()=>{state.questions.splice(i,0,removed);save();render();flash(removed.id);});
+}
+function renderBoard(){
+  const board=$("#board");if(!board)return;
+  board.innerHTML="";
+  const visible=state.questions.filter(matches);
+  $("#count").textContent=visible.length+" of "+state.questions.length+" problems";
+  if(!visible.length){
+    const e=el("div","empty");
+    e.innerHTML="<strong>Nothing matches those filters</strong>Loosen a filter, or add a problem of your own.";
+    board.appendChild(e);return;
+  }
+  if(filters.chapter==="all"&&filters.sort==="custom"){
+    [...state.chapters.map(c=>c.id),"__un"].forEach(cid=>{
+      const list=sorted(visible.filter(q=>cid==="__un"?!state.chapters.some(c=>c.id===q.ch):q.ch===cid));
+      if(!list.length)return;
+      const g=el("div","group"),gh=el("div","group-head");
+      gh.appendChild(el("h3",null,cid==="__un"?"Unsorted":chName(cid)));
+      gh.appendChild(el("span",null,list.length+(list.length===1?" problem":" problems")));
+      g.appendChild(gh);
+      const l=el("div","list");list.forEach((q,i)=>l.appendChild(card(q,i)));
+      g.appendChild(l);board.appendChild(g);
+    });
+  }else{
+    const l=el("div","list");sorted(visible).forEach((q,i)=>l.appendChild(card(q,i)));board.appendChild(l);
+  }
+}
+
+/* ===================== detail page ===================== */
+function detailPage(q){
+  const d=el("div","detail");
+  const cr=el("div","crumbs");
+  const back=el("button","btn","← All problems");
+  back.onclick=()=>{openId=null;render();};
+  cr.appendChild(back);
+  const jump=el("span","pill",chName(q.ch));cr.appendChild(jump);
+  cr.appendChild(el("span","pill d "+dc(q.diff),q.diff));
+  const st=el("button","btn",q.star?"★ Starred":"☆ Star");
+  st.onclick=()=>{q.star=!q.star;save();render();};
+  const dn=el("button","btn",q.done?"✓ Done":"Mark as done");
+  dn.onclick=()=>{q.done=!q.done;save();render();};
+  const ed=el("button","btn","Edit problem");ed.onclick=()=>openEditor(q);
+  cr.append(st,dn,ed);
+  d.appendChild(cr);
+
+  d.appendChild(el("h2",null,q.title));
+  const tg=el("div","meta");
+  q.tags.forEach(t=>tg.appendChild(el("span","pill",t)));
+  if(q.src)tg.appendChild(el("span","pill src",q.src));
+  if(q.date)tg.appendChild(el("span","pill",fmtDate(q.date)));
+  d.appendChild(tg);
+
+  d.appendChild(el("p","statement",q.text));
+
+  if(q.fig&&F[q.fig]){
+    const fb=el("div","figbox");fb.innerHTML=F[q.fig];
+    fb.style.marginBottom="16px";d.appendChild(fb);
+  }
+
+  /* notes */
+  const nb=el("div","block");
+  const nh=el("h4",null,"Your working");
+  const savedTag=el("span","saved","saved");
+  nh.style.cssText="display:flex;justify-content:space-between;align-items:center";
+  nh.appendChild(savedTag);
+  nb.appendChild(nh);
+  const ta=el("textarea");ta.value=q.notes||"";
+  ta.placeholder="Approach, the constraint you used, where you got stuck, the answer you got…";
+  let tmr;
+  ta.oninput=()=>{clearTimeout(tmr);tmr=setTimeout(()=>{q.notes=ta.value;if(save()){savedTag.classList.add("on");setTimeout(()=>savedTag.classList.remove("on"),1200);}},450);};
+  nb.appendChild(ta);
+  d.appendChild(nb);
+
+  /* photos */
+  const pb=el("div","block");
+  pb.appendChild(el("h4",null,"Photos of your work"));
+  const drop=el("div","drop","Click to choose a photo, or drop one here");
+  const input=el("input");input.type="file";input.accept="image/*";input.multiple=true;input.style.display="none";
+  const addFiles=files=>{
+    [...files].filter(f=>f.type.startsWith("image/")).forEach(f=>shrink(f,url=>{
+      q.imgs=q.imgs||[];q.imgs.push(url);
+      if(save())render();
+    }));
+  };
+  drop.onclick=()=>input.click();
+  input.onchange=()=>addFiles(input.files);
+  drop.ondragover=e=>{e.preventDefault();drop.classList.add("over");};
+  drop.ondragleave=()=>drop.classList.remove("over");
+  drop.ondrop=e=>{e.preventDefault();drop.classList.remove("over");addFiles(e.dataTransfer.files);};
+  pb.append(drop,input);
+  if(q.imgs&&q.imgs.length){
+    const grid=el("div","shots");
+    q.imgs.forEach((src,i)=>{
+      const s=el("div","shot");
+      const im=el("img");im.src=src;im.alt="Photo of working";im.onclick=()=>bigImage(src);
+      const x=el("button",null,"✕");x.title="Remove photo";
+      x.onclick=()=>{q.imgs.splice(i,1);save();render();};
+      s.append(im,x);grid.appendChild(s);
+    });
+    pb.appendChild(grid);
+  }
+  d.appendChild(pb);
+
+  /* solution */
+  const sb=el("div","block sol");
+  sb.appendChild(el("h4",null,"Solution"));
+  if(!q.sol){
+    const v=el("div","veil");
+    v.appendChild(el("span",null,"No solution saved for this one yet."));
+    const a=el("button","btn","Write a solution");a.onclick=()=>editSolution(q);
+    v.appendChild(a);sb.appendChild(v);
+  }else if(!solShown){
+    const v=el("div","veil");
+    v.appendChild(el("span",null,"Hidden until you ask for it — try the problem first."));
+    const r=el("button","btn primary","Reveal solution");
+    r.onclick=()=>{solShown=true;render();};
+    v.appendChild(r);sb.appendChild(v);
+  }else{
+    sb.appendChild(el("div","sol-body",q.sol));
+    const row=el("div","veil");row.style.marginTop="14px";
+    const hide=el("button","btn","Hide again");hide.onclick=()=>{solShown=false;render();};
+    const edd=el("button","btn","Edit solution");edd.onclick=()=>editSolution(q);
+    row.append(hide,edd);sb.appendChild(row);
+  }
+  d.appendChild(sb);
+
+  /* prev / next */
+  const list=state.questions.filter(matches);
+  const i=list.findIndex(x=>x.id===q.id);
+  const nav=el("div","crumbs");
+  if(i>0){const p=el("button","btn","← "+list[i-1].title);p.onclick=()=>{openId=list[i-1].id;solShown=false;render();window.scrollTo({top:0});};nav.appendChild(p);}
+  if(i>=0&&i<list.length-1){const n=el("button","btn",list[i+1].title+" →");n.onclick=()=>{openId=list[i+1].id;solShown=false;render();window.scrollTo({top:0});};nav.appendChild(n);}
+  d.appendChild(nav);
+  return d;
+}
+function shrink(file,cb){
+  const r=new FileReader();
+  r.onload=()=>{
+    const img=new Image();
+    img.onload=()=>{
+      const k=Math.min(1,1100/Math.max(img.width,img.height));
+      const c=document.createElement("canvas");
+      c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);
+      c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+      cb(c.toDataURL("image/jpeg",0.72));
+    };
+    img.onerror=()=>toast("That file couldn't be read as an image");
+    img.src=r.result;
+  };
+  r.readAsDataURL(file);
+}
+function bigImage(src){
+  const s=el("div","scrim");
+  s.innerHTML=`<div class="modal" style="width:auto;padding:12px"><img class="big" src="${src}" alt=""></div>`;
+  s.onclick=()=>s.remove();document.body.appendChild(s);
+}
+function editSolution(q){
+  const s=el("div","scrim");
+  s.innerHTML=`<div class="modal" role="dialog" aria-modal="true"><h2>Solution</h2>
+    <div class="field"><label for="f-s">Steps and final answer</label><textarea id="f-s" style="min-height:240px">${esc(q.sol||"")}</textarea></div>
+    <div class="modal-foot"><button class="btn" data-x>Cancel</button><button class="btn primary" data-ok>Save solution</button></div></div>`;
+  document.body.appendChild(s);
+  const close=()=>s.remove();
+  s.onclick=e=>{if(e.target===s)close();};
+  s.querySelector("[data-x]").onclick=close;
+  s.querySelector("[data-ok]").onclick=()=>{q.sol=s.querySelector("#f-s").value;save();close();solShown=true;render();};
+}
+
+/* ===================== editor + chapters ===================== */
+function openEditor(q){
+  const isNew=!q;
+  const d=q||{id:uid(),title:"",text:"",ch:(filters.chapter!=="all"&&filters.chapter!=="__un")?filters.chapter:state.chapters[0].id,
+    diff:"Medium",src:"My notes",date:new Date().toISOString().slice(0,10),tags:[],fig:"",sol:"",notes:"",imgs:[],star:false,done:false};
+  const s=el("div","scrim");
+  s.innerHTML=`<div class="modal" role="dialog" aria-modal="true">
+    <h2>${isNew?"Add a problem":"Edit problem"}</h2>
+    <div class="field"><label for="f-title">Short name</label><input id="f-title" value="${esc(d.title)}" placeholder="e.g. Bead on a released rod"></div>
+    <div class="field"><label for="f-text">Problem statement</label><textarea id="f-text" placeholder="Paste or type the full question here…">${esc(d.text)}</textarea></div>
+    <div class="two">
+      <div class="field"><label for="f-ch">Chapter</label><select id="f-ch">${state.chapters.map(c=>`<option value="${c.id}" ${c.id===d.ch?"selected":""}>${esc(c.name)}</option>`).join("")}</select></div>
+      <div class="field"><label for="f-diff">Difficulty</label><select id="f-diff">${["Easy","Medium","Hard"].map(x=>`<option ${x===d.diff?"selected":""}>${x}</option>`).join("")}</select></div>
+    </div>
+    <div class="two">
+      <div class="field"><label for="f-src">Source sheet</label><input id="f-src" value="${esc(d.src)}"></div>
+      <div class="field"><label for="f-date">Date of the sheet</label><input id="f-date" type="date" value="${esc(d.date||"")}"></div>
+    </div>
+    <div class="field"><label for="f-tags">Topic tags, comma separated</label><input id="f-tags" value="${esc(d.tags.join(", "))}" placeholder="MCQ, energy"></div>
+    <div class="field"><label for="f-sol">Solution (kept hidden on the problem page until revealed)</label><textarea id="f-sol" style="min-height:100px">${esc(d.sol||"")}</textarea></div>
+    <div class="modal-foot"><button class="btn" data-x>Cancel</button><button class="btn primary" data-ok>${isNew?"Add to board":"Save changes"}</button></div></div>`;
+  document.body.appendChild(s);
+  const close=()=>s.remove();
+  s.onclick=e=>{if(e.target===s)close();};
+  s.querySelector("[data-x]").onclick=close;
+  s.querySelector("#f-title").focus();
+  s.querySelector("[data-ok]").onclick=()=>{
+    const t=s.querySelector("#f-title").value.trim(),x=s.querySelector("#f-text").value.trim();
+    if(!t&&!x){toast("Give the problem a name or a statement first");return;}
+    Object.assign(d,{title:t||x.slice(0,48)+"…",text:x,ch:s.querySelector("#f-ch").value,
+      diff:s.querySelector("#f-diff").value,src:s.querySelector("#f-src").value.trim()||"My notes",
+      date:s.querySelector("#f-date").value,
+      tags:s.querySelector("#f-tags").value.split(",").map(v=>v.trim()).filter(Boolean),
+      sol:s.querySelector("#f-sol").value});
+    if(isNew)state.questions.push(d);
+    save();close();render();if(!openId)flash(d.id);
+    toast(isNew?"Added to "+chName(d.ch):"Saved");
+  };
+}
+function renameChapter(id){
+  const c=state.chapters.find(x=>x.id===id);
+  const s=el("div","scrim");
+  s.innerHTML=`<div class="modal" role="dialog" aria-modal="true"><h2>Rename chapter</h2>
+    <div class="field"><label for="f-n">Chapter name</label><input id="f-n" value="${esc(c.name)}"></div>
+    <div class="modal-foot"><button class="btn danger" data-del>Delete chapter</button>
+    <button class="btn" data-x>Cancel</button><button class="btn primary" data-ok>Save name</button></div></div>`;
+  document.body.appendChild(s);
+  const close=()=>s.remove();
+  s.onclick=e=>{if(e.target===s)close();};
+  s.querySelector("[data-x]").onclick=close;
+  s.querySelector("#f-n").select();
+  s.querySelector("[data-ok]").onclick=()=>{const v=s.querySelector("#f-n").value.trim();if(v)c.name=v;save();close();render();};
+  s.querySelector("[data-del]").onclick=()=>{
+    const n=state.questions.filter(q=>q.ch===id).length;
+    state.chapters=state.chapters.filter(x=>x.id!==id);
+    if(filters.chapter===id)filters.chapter="all";
+    save();close();render();
+    toast(n?`Chapter removed; ${n} problem${n>1?"s":""} moved to Unsorted`:"Chapter removed");
+  };
+}
+
+/* ===================== render ===================== */
+function render(){
+  const app=$("#app");app.innerHTML="";
+  const q=openId?state.questions.find(x=>x.id===openId):null;
+  if(q){app.appendChild(detailPage(q));}
+  else{openId=null;app.appendChild(boardPage());wireControls();renderBoard();}
+  renderStrip();
+}
+
+/* ===================== top bar ===================== */
+$("#addBtn").onclick=()=>openEditor(null);
+$("#themeBtn").onclick=()=>{
+  const light=document.documentElement.dataset.theme!=="light";
+  document.documentElement.dataset.theme=light?"light":"dark";
+  $("#themeBtn").textContent=light?"Dark mode":"Light mode";
+  try{localStorage.setItem(KEY+"-theme",light?"light":"dark");}catch(e){}
+};
+$("#exportBtn").onclick=()=>{
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="problem-board.json";a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);toast("Exported problem-board.json");
+};
+$("#importBtn").onclick=()=>{
+  const i=document.createElement("input");i.type="file";i.accept="application/json";
+  i.onchange=()=>{
+    const f=i.files[0];if(!f)return;
+    const r=new FileReader();
+    r.onload=()=>{
+      try{
+        const p=JSON.parse(r.result);if(!p.questions||!p.chapters)throw 0;
+        const old=state;state=p;openId=null;save();render();
+        toast("Imported "+p.questions.length+" problems",()=>{state=old;save();render();});
+      }catch(e){toast("That file isn't a board export");}
+    };
+    r.readAsText(f);
+  };
+  i.click();
+};
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){
+    const sc=document.querySelector(".scrim");
+    if(sc)sc.remove();
+    else if(openId){openId=null;render();}
+    return;
+  }
+  if(e.key==="/"&&!/input|textarea|select/i.test(e.target.tagName)){
+    const box=$("#q");if(box){e.preventDefault();box.focus();}
+  }
+});
+try{const th=localStorage.getItem(KEY+"-theme");
+  if(th==="light"){document.documentElement.dataset.theme="light";$("#themeBtn").textContent="Dark mode";}}catch(e){}
+render();
+</script>
+</body>
+</html>
