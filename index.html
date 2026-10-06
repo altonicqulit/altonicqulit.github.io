@@ -26,28 +26,29 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  /* ---------- Background: pulsing aurora + plotted curves ---------- */
+  /* ---------- Background: nebula clouds + deep space canvas ---------- */
   .aurora { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
   .blob {
     position: absolute; border-radius: 50%;
-    filter: blur(90px); opacity: .35; mix-blend-mode: screen;
-    animation: pulse 9s ease-in-out infinite, drift 26s ease-in-out infinite alternate;
+    filter: blur(110px); opacity: .3; mix-blend-mode: screen;
+    animation: pulse 14s ease-in-out infinite, drift 40s ease-in-out infinite alternate;
   }
-  .b1 { width: 55vmax; height: 55vmax; left: -15vmax; top: -20vmax; background: #1F7CFF; }
-  .b2 { width: 45vmax; height: 45vmax; right: -12vmax; top: 10vh; background: #9B4DFF; animation-delay: -3s, -8s; }
-  .b3 { width: 40vmax; height: 40vmax; left: 25vw; bottom: -25vmax; background: #00D1C7; animation-delay: -6s, -14s; }
+  .b1 { width: 62vmax; height: 62vmax; left: -20vmax; top: -24vmax; background: #1F5CFF; }
+  .b2 { width: 50vmax; height: 50vmax; right: -16vmax; top: 6vh;    background: #8B3DFF; animation-delay: -5s, -12s; }
+  .b3 { width: 46vmax; height: 46vmax; left: 22vw; bottom: -28vmax; background: #00B4C7; animation-delay: -9s, -22s; }
+  .b4 { width: 34vmax; height: 34vmax; right: 8vw; bottom: 4vh;     background: #FF3D8B; opacity: .16; animation-delay: -3s, -30s; }
   @keyframes pulse {
-    0%, 100% { opacity: .22; transform: scale(1); }
-    50%      { opacity: .42; transform: scale(1.12); }
+    0%, 100% { opacity: .16; transform: scale(1); }
+    50%      { opacity: .34; transform: scale(1.14); }
   }
   @keyframes drift {
     from { translate: 0 0; }
-    to   { translate: 6vw -4vh; }
+    to   { translate: 7vw -5vh; }
   }
   #field { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
   .vignette {
     position: fixed; inset: 0; z-index: 2; pointer-events: none;
-    background: radial-gradient(ellipse at center, transparent 40%, rgba(2, 3, 10, .75) 100%);
+    background: radial-gradient(ellipse at center, transparent 38%, rgba(2, 3, 10, .8) 100%);
   }
 
   /* ---------- Layout ---------- */
@@ -84,6 +85,7 @@
     clip-path: inset(0 100% 0 0);
     animation: wipe 1.1s var(--ease) forwards;
     transition: opacity .5s var(--ease), filter .5s var(--ease), transform .6s var(--ease);
+    backdrop-filter: blur(2px);
   }
   @keyframes wipe { to { clip-path: inset(0 0 0 0); } }
 
@@ -161,7 +163,7 @@
 <body>
 
 <div class="aurora" aria-hidden="true">
-  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div>
 </div>
 <canvas id="field" aria-hidden="true"></canvas>
 <div class="vignette" aria-hidden="true"></div>
@@ -189,9 +191,9 @@
    note: optional small extra line
    ========================================================= */
 const APPS = [
-  { name: "Kinetix",   desc: "Probelms from Physics Tutorials and other places", href: "phy_problem_book", hue: 190},
-  { name: "Math Atlas", desc: "Collection of questions for Math",     href: "math_atlas",                    hue: 275 },
-  { name: "Atom Map", desc: "The ultimate mind map for chemistry",     href: "ult_mind_map",                    hue: 275 },
+  { name: "Kinetix",    desc: "Probelms from Physics Tutorials and other places", href: "phy_problem_book", hue: 190 },
+  { name: "Math Atlas", desc: "Collection of questions for Math",                 href: "math_atlas",       hue: 275 },
+  { name: "Atom Map",   desc: "The ultimate mind map for chemistry",              href: "ult_mind_map",     hue: 275 },
   // { name: "New app", desc: "What it does.", href: "new-app/", hue: 330 },
 ];
 
@@ -254,10 +256,23 @@ APPS.forEach((app, i) => {
   })();
 })();
 
-/* ---------- Background canvas: glowing curves + stars ---------- */
+/* =========================================================
+   DEEP SPACE
+   A parallax starfield, drifting asteroids, the occasional
+   rocket, and now and then a stranded astronaut.
+   Tune the numbers in SPACE below.
+   ========================================================= */
+const SPACE = {
+  stars:        260,   // how many stars
+  asteroidEvery: [7, 16],   // seconds between asteroids (min, max)
+  maxAsteroids:  4,
+  rocketEvery:  [34, 70],   // seconds between rockets
+  astronautEvery: [50, 110] // seconds between astronauts
+};
+
 const cv = document.getElementById("field");
 const cx = cv.getContext("2d");
-let W, H, warp = 0, mouseX = 0, mouseY = 0;
+let W, H, warp = 0, mouseX = 0, mouseY = 0, last = 0;
 
 function size() {
   const dpr = Math.min(devicePixelRatio || 1, 2);
@@ -270,75 +285,282 @@ size();
 addEventListener("resize", size);
 addEventListener("pointermove", e => { mouseX = e.clientX / W - .5; mouseY = e.clientY / H - .5; });
 
-const stars = Array.from({ length: 110 }, () => ({
+const rnd = (a, b) => a + Math.random() * (b - a);
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+/* ---------- stars (three parallax depths) ---------- */
+const stars = Array.from({ length: SPACE.stars }, () => {
+  const depth = Math.random();
+  return {
+    x: Math.random(), y: Math.random(),
+    z: depth,                                   // 0 = far, 1 = near
+    r: .4 + depth * 1.5,
+    tw: Math.random() * Math.PI * 2,            // twinkle phase
+    tws: rnd(.6, 2.2),
+    hue: pick([210, 210, 210, 196, 44, 280]),   // mostly white-blue, a few warm
+    sat: Math.random() < .25 ? 60 : 12
+  };
+});
+// warp coordinates, used only during the launch animation
+const warpStars = Array.from({ length: 140 }, () => ({
   x: Math.random() * 2 - 1, y: Math.random() * 2 - 1, z: Math.random() * .9 + .1
 }));
-const curves = [
-  { ox: .72, oy: .30, k: 9000,  rot: .5,  hue: 190, ph: 0 },
-  { ox: .20, oy: .78, k: 14000, rot: -.4, hue: 275, ph: 2 },
-  { ox: .55, oy: .62, k: 5000,  rot: 1.1, hue: 170, ph: 4 },
-];
 
-function drawCurve(c, t) {
-  const breathe = .5 + .5 * Math.sin(t * .6 + c.ph);
-  const k = c.k * (.85 + .3 * breathe);
-  cx.save();
-  cx.translate(c.ox * W + mouseX * 30, c.oy * H + mouseY * 30);
-  cx.rotate(c.rot + Math.sin(t * .1 + c.ph) * .05);
-  cx.strokeStyle = `hsla(${c.hue}, 100%, 65%, ${.10 + .14 * breathe})`;
-  cx.lineWidth = 1.2;
-  cx.shadowColor = `hsla(${c.hue}, 100%, 60%, .9)`;
-  cx.shadowBlur = 14;
-  const span = Math.max(W, H);
-  for (const sign of [1, -1]) {           // both branches of y = k/x
-    cx.beginPath();
-    let started = false;
-    for (let x = 8; x < span; x += 6) {
-      const px = x * sign, py = (k / x) * sign;
-      if (Math.abs(py) > span) continue;
-      started ? cx.lineTo(px, py) : (cx.moveTo(px, py), started = true);
+function drawStars(t) {
+  const px = mouseX * 26, py = mouseY * 26;
+  for (const s of stars) {
+    const sx = s.x * W - px * s.z, sy = s.y * H - py * s.z;
+    const flicker = .55 + .45 * Math.sin(t * s.tws + s.tw);
+    const a = (.25 + s.z * .7) * flicker;
+    cx.fillStyle = `hsla(${s.hue}, ${s.sat}%, 88%, ${a})`;
+    cx.beginPath(); cx.arc(sx, sy, s.r, 0, 7); cx.fill();
+    if (s.z > .82) {                              // brightest few get a glow + cross flare
+      cx.fillStyle = `hsla(${s.hue}, ${s.sat}%, 80%, ${a * .18})`;
+      cx.beginPath(); cx.arc(sx, sy, s.r * 5, 0, 7); cx.fill();
     }
-    cx.stroke();
   }
-  // faint asymptote axes
-  cx.shadowBlur = 0;
-  cx.strokeStyle = `hsla(${c.hue}, 100%, 70%, .05)`;
+}
+function drawWarp() {
+  const cxm = W / 2, cym = H / 2;
+  for (const s of warpStars) {
+    s.z -= .028;
+    if (s.z <= .02) { s.x = Math.random() * 2 - 1; s.y = Math.random() * 2 - 1; s.z = 1; }
+    const sx = cxm + (s.x / s.z) * W * .5, sy = cym + (s.y / s.z) * H * .5;
+    const pz = s.z + .22;
+    const tx = cxm + (s.x / pz) * W * .5, ty = cym + (s.y / pz) * H * .5;
+    cx.strokeStyle = `rgba(200, 218, 255, ${Math.min(1, (1 - s.z) * 1.5) * .8})`;
+    cx.lineWidth = 1.5;
+    cx.beginPath(); cx.moveTo(tx, ty); cx.lineTo(sx, sy); cx.stroke();
+  }
+}
+
+/* ---------- drifting things ---------- */
+const drifters = [];
+
+// a path that enters from one edge and leaves by the other side
+function entry(margin = 140) {
+  const side = Math.floor(Math.random() * 4);
+  if (side === 0) return { x: -margin,     y: rnd(0, H),  vx:  1, vy: rnd(-.35, .35) };
+  if (side === 1) return { x: W + margin,  y: rnd(0, H),  vx: -1, vy: rnd(-.35, .35) };
+  if (side === 2) return { x: rnd(0, W),   y: -margin,    vx: rnd(-.35, .35), vy:  1 };
+  return                 { x: rnd(0, W),   y: H + margin, vx: rnd(-.35, .35), vy: -1 };
+}
+
+function spawnAsteroid() {
+  const e = entry();
+  const r = rnd(9, 42);
+  const n = 9 + Math.floor(Math.random() * 5);
+  const shape = Array.from({ length: n }, (_, i) => {
+    const a = i / n * Math.PI * 2;
+    const rad = r * rnd(.68, 1.18);
+    return [Math.cos(a) * rad, Math.sin(a) * rad];
+  });
+  const craters = Array.from({ length: 2 + Math.floor(Math.random() * 3) }, () => ({
+    x: rnd(-r * .5, r * .5), y: rnd(-r * .5, r * .5), r: rnd(r * .1, r * .26)
+  }));
+  const sp = rnd(7, 22) / (r > 26 ? 1.8 : 1);       // big rocks drift slower
+  drifters.push({
+    kind: "asteroid", x: e.x, y: e.y, vx: e.vx * sp, vy: e.vy * sp,
+    r, shape, craters, rot: Math.random() * 7, spin: rnd(-.25, .25),
+    depth: rnd(.35, 1), fade: 0
+  });
+}
+
+function spawnRocket() {
+  const dir = Math.random() < .5 ? 1 : -1;
+  const y = rnd(H * .12, H * .88);
+  const tilt = rnd(-.16, .16);
+  drifters.push({
+    kind: "rocket",
+    x: dir === 1 ? -180 : W + 180, y,
+    vx: dir * rnd(120, 210), vy: tilt * 40,
+    ang: dir === 1 ? tilt : Math.PI - tilt,
+    scale: rnd(.7, 1.15), puffs: [], t: 0, fade: 0
+  });
+}
+
+function spawnAstronaut() {
+  const e = entry(120);
+  const sp = rnd(10, 26);
+  drifters.push({
+    kind: "astronaut", x: e.x, y: e.y, vx: e.vx * sp, vy: e.vy * sp,
+    rot: Math.random() * 7, spin: rnd(-.5, .5), scale: rnd(.55, 1),
+    t: Math.random() * 10, fade: 0
+  });
+}
+
+/* ---------- renderers ---------- */
+function drawAsteroid(o) {
+  cx.save();
+  cx.translate(o.x, o.y); cx.rotate(o.rot);
+  const g = cx.createLinearGradient(-o.r, -o.r, o.r, o.r);
+  g.addColorStop(0, `rgba(118, 126, 158, ${.95 * o.fade})`);
+  g.addColorStop(1, `rgba(34, 38, 60, ${.95 * o.fade})`);
+  cx.fillStyle = g;
   cx.beginPath();
-  cx.moveTo(-span, 0); cx.lineTo(span, 0);
-  cx.moveTo(0, -span); cx.lineTo(0, span);
-  cx.stroke();
+  o.shape.forEach(([px, py], i) => i ? cx.lineTo(px, py) : cx.moveTo(px, py));
+  cx.closePath(); cx.fill();
+  cx.strokeStyle = `rgba(175, 195, 255, ${.3 * o.fade})`;
+  cx.lineWidth = 1; cx.stroke();
+  cx.fillStyle = `rgba(16, 19, 34, ${.5 * o.fade})`;
+  o.craters.forEach(c => { cx.beginPath(); cx.arc(c.x, c.y, c.r, 0, 7); cx.fill(); });
   cx.restore();
+}
+
+function drawRocket(o) {
+  // exhaust puffs trailing behind
+  cx.save();
+  o.puffs.forEach(p => {
+    cx.fillStyle = `rgba(150, 170, 255, ${p.life * .16 * o.fade})`;
+    cx.beginPath(); cx.arc(p.x, p.y, p.r, 0, 7); cx.fill();
+  });
+  cx.restore();
+
+  cx.save();
+  cx.translate(o.x, o.y); cx.rotate(o.ang); cx.scale(o.scale, o.scale);
+  cx.globalAlpha = o.fade;
+
+  // flame
+  const flick = .75 + Math.sin(o.t * 30) * .25;
+  const fl = cx.createLinearGradient(-24, 0, -64 * flick, 0);
+  fl.addColorStop(0, "rgba(255, 236, 170, .95)");
+  fl.addColorStop(.45, "rgba(255, 138, 60, .7)");
+  fl.addColorStop(1, "rgba(255, 60, 40, 0)");
+  cx.fillStyle = fl;
+  cx.beginPath();
+  cx.moveTo(-22, -7); cx.quadraticCurveTo(-52 * flick, 0, -22, 7); cx.closePath(); cx.fill();
+
+  // fins
+  cx.fillStyle = "#C8406A";
+  cx.beginPath(); cx.moveTo(-18, -6); cx.lineTo(-30, -17); cx.lineTo(-10, -9); cx.closePath(); cx.fill();
+  cx.beginPath(); cx.moveTo(-18, 6);  cx.lineTo(-30, 17);  cx.lineTo(-10, 9);  cx.closePath(); cx.fill();
+
+  // body
+  const bg = cx.createLinearGradient(0, -10, 0, 10);
+  bg.addColorStop(0, "#FDFEFF"); bg.addColorStop(.55, "#D3DCF2"); bg.addColorStop(1, "#8B97BC");
+  cx.fillStyle = bg;
+  cx.beginPath();
+  cx.moveTo(34, 0); cx.quadraticCurveTo(16, -11, -20, -9);
+  cx.lineTo(-20, 9); cx.quadraticCurveTo(16, 11, 34, 0); cx.closePath(); cx.fill();
+
+  // nose + window
+  cx.fillStyle = "#E0556F";
+  cx.beginPath(); cx.moveTo(34, 0); cx.quadraticCurveTo(20, -8, 14, -7);
+  cx.lineTo(14, 7); cx.quadraticCurveTo(20, 8, 34, 0); cx.closePath(); cx.fill();
+  cx.fillStyle = "#6FE7FF";
+  cx.beginPath(); cx.arc(2, 0, 4.4, 0, 7); cx.fill();
+  cx.strokeStyle = "rgba(255,255,255,.75)"; cx.lineWidth = 1.2; cx.stroke();
+  cx.restore();
+}
+
+function drawAstronaut(o) {
+  cx.save();
+  cx.translate(o.x, o.y); cx.rotate(o.rot); cx.scale(o.scale, o.scale);
+  cx.globalAlpha = o.fade;
+
+  // tether, drifting loosely behind
+  cx.strokeStyle = "rgba(190, 205, 255, .35)"; cx.lineWidth = 1.4;
+  cx.beginPath(); cx.moveTo(-6, 12);
+  for (let i = 1; i <= 5; i++) {
+    cx.lineTo(-6 - i * 11, 12 + Math.sin(o.t * 1.6 + i * .9) * 7);
+  }
+  cx.stroke();
+
+  const suit = "#EEF2FF", shade = "rgba(120,135,175,.9)";
+  // backpack
+  cx.fillStyle = shade;
+  cx.fillRect(-13, -9, 9, 20);
+  // limbs
+  cx.strokeStyle = suit; cx.lineWidth = 7; cx.lineCap = "round";
+  cx.beginPath();
+  cx.moveTo(-2, -2); cx.lineTo(13, -11);     // arm up
+  cx.moveTo(-2, 3);  cx.lineTo(11, 12);      // arm out
+  cx.moveTo(-2, 8);  cx.lineTo(6, 23);       // leg
+  cx.moveTo(-4, 8);  cx.lineTo(-10, 23);     // leg
+  cx.stroke();
+  // torso
+  cx.fillStyle = suit;
+  cx.beginPath(); cx.roundRect(-9, -8, 15, 19, 6); cx.fill();
+  cx.fillStyle = "rgba(255,120,150,.9)";
+  cx.fillRect(-7, -3, 10, 2.5);
+  // helmet
+  cx.fillStyle = suit;
+  cx.beginPath(); cx.arc(-1, -14, 10, 0, 7); cx.fill();
+  const vis = cx.createLinearGradient(-9, -20, 7, -8);
+  vis.addColorStop(0, "#0A1030"); vis.addColorStop(.6, "#1B3C86"); vis.addColorStop(1, "#7FE3FF");
+  cx.fillStyle = vis;
+  cx.beginPath(); cx.arc(0, -14, 7, 0, 7); cx.fill();
+  cx.fillStyle = "rgba(255,255,255,.55)";
+  cx.beginPath(); cx.ellipse(-2.5, -16.5, 2.6, 1.6, -.5, 0, 7); cx.fill();
+  cx.restore();
+}
+
+/* ---------- timers ---------- */
+let tAst = rnd(2, 6), tRocket = rnd(10, 25), tMan = rnd(18, 40);
+
+function updateDrifters(dt, t) {
+  tAst -= dt; tRocket -= dt; tMan -= dt;
+  if (tAst <= 0) {
+    if (drifters.filter(d => d.kind === "asteroid").length < SPACE.maxAsteroids) spawnAsteroid();
+    tAst = rnd(...SPACE.asteroidEvery);
+  }
+  if (tRocket <= 0) { spawnRocket(); tRocket = rnd(...SPACE.rocketEvery); }
+  if (tMan <= 0)    { spawnAstronaut(); tMan = rnd(...SPACE.astronautEvery); }
+
+  for (let i = drifters.length - 1; i >= 0; i--) {
+    const o = drifters[i];
+    o.fade = Math.min(1, o.fade + dt * 1.2);
+    o.t = (o.t || 0) + dt;
+    o.x += o.vx * dt; o.y += o.vy * dt;
+    if (o.spin !== undefined) o.rot += o.spin * dt;
+
+    if (o.kind === "rocket") {
+      o.puffs.push({ x: o.x - Math.cos(o.ang) * 26 * o.scale, y: o.y - Math.sin(o.ang) * 26 * o.scale, r: 4, life: 1 });
+      for (const p of o.puffs) { p.life -= dt * .5; p.r += dt * 26; }
+      o.puffs = o.puffs.filter(p => p.life > 0);
+      if (o.puffs.length > 90) o.puffs.splice(0, o.puffs.length - 90);
+    }
+    const pad = 260;
+    if (o.x < -pad || o.x > W + pad || o.y < -pad || o.y > H + pad) drifters.splice(i, 1);
+  }
+}
+
+function drawDrifters() {
+  // far things first
+  const order = { asteroid: 0, astronaut: 1, rocket: 2 };
+  [...drifters].sort((a, b) => order[a.kind] - order[b.kind]).forEach(o => {
+    cx.save();
+    if (o.depth) cx.globalAlpha = .35 + o.depth * .55;
+    if (o.kind === "asteroid") drawAsteroid(o);
+    else if (o.kind === "rocket") drawRocket(o);
+    else drawAstronaut(o);
+    cx.restore();
+  });
 }
 
 function frame(ms) {
   const t = ms / 1000;
+  const dt = Math.min(.05, last ? t - last : .016);
+  last = t;
+
   cx.clearRect(0, 0, W, H);
   cx.globalCompositeOperation = "lighter";
-  curves.forEach(c => drawCurve(c, t));
-
-  const cxm = W / 2, cym = H / 2;
-  stars.forEach(s => {
-    const speed = .0006 + warp * .03;
-    s.z -= speed;
-    if (s.z <= .02) { s.x = Math.random() * 2 - 1; s.y = Math.random() * 2 - 1; s.z = 1; }
-    const sx = cxm + (s.x / s.z) * W * .5 - mouseX * 20 / s.z;
-    const sy = cym + (s.y / s.z) * H * .5 - mouseY * 20 / s.z;
-    const a = Math.min(1, (1 - s.z) * 1.4) * .7;
-    if (warp > 0) {
-      const pz = s.z + speed * 8;
-      const tx = cxm + (s.x / pz) * W * .5, ty = cym + (s.y / pz) * H * .5;
-      cx.strokeStyle = `rgba(190, 210, 255, ${a})`;
-      cx.lineWidth = 1.4;
-      cx.beginPath(); cx.moveTo(tx, ty); cx.lineTo(sx, sy); cx.stroke();
-    } else {
-      cx.fillStyle = `rgba(200, 215, 255, ${a})`;
-      cx.beginPath(); cx.arc(sx, sy, (1 - s.z) * 1.6 + .2, 0, Math.PI * 2); cx.fill();
-    }
-  });
+  warp > 0 ? drawWarp() : drawStars(t);
   cx.globalCompositeOperation = "source-over";
-  if (!reduce) requestAnimationFrame(frame);
+
+  if (warp === 0) { updateDrifters(dt, t); drawDrifters(); }
+  requestAnimationFrame(frame);
 }
-requestAnimationFrame(frame);
+
+if (reduce) {
+  // one quiet static frame: stars, a rock and a drifting astronaut
+  drawStars(0);
+  spawnAsteroid(); spawnAstronaut();
+  drifters.forEach(o => { o.fade = 1; o.x = W * rnd(.2, .8); o.y = H * rnd(.2, .8); });
+  drawDrifters();
+} else {
+  requestAnimationFrame(frame);
+}
 
 /* ---------- Launch: warp + portal, then open the app ---------- */
 const portal = document.getElementById("portal");
@@ -369,6 +591,7 @@ addEventListener("pageshow", e => {
   document.querySelectorAll(".app.chosen").forEach(el => el.classList.remove("chosen"));
   portal.classList.remove("on");
   warp = 0;
+  drifters.length = 0;
 });
 </script>
 </body>
