@@ -576,7 +576,7 @@ function spawnRocket() {
     dist: Math.hypot(tx - x, ty - y), gone: 0,
     scale: rnd(.72, 1.05),
     ring: 0, t: 0, fade: 0, puffs: [],
-    decided: false, hyper: false, hyperT: 0, streak: 0
+    decided: false, hyper: false, hyperT: 0, streak: 0, shield: 0
   });
 }
 
@@ -681,7 +681,7 @@ function drawRocket(o) {
   cx.translate(o.x, o.y);
   cx.rotate(o.ang);
   if (Math.cos(o.ang) < 0) cx.scale(1, -1);          // keep it the right way up
-  cx.scale(sc * (1 + o.streak * 7), sc * (1 - o.streak * .35));
+  cx.scale(sc, sc);
   cx.globalAlpha = o.fade * .9;
 
   /* ---- engine plume ---- */
@@ -754,6 +754,30 @@ function drawRocket(o) {
   cx.fillStyle = "rgba(120, 210, 255, .5)";
   cx.beginPath(); cx.arc(120, 0, 5, 0, 7); cx.fill();
   cx.restore();
+
+  /* ---- hyperdrive force field ---- */
+  if (o.shield > 0) {
+    const sh = o.shield, puls = .88 + .12 * Math.sin(o.t * 22);
+    const rx = 168 * (.55 + .45 * sh) * puls, ry = 52 * (.55 + .45 * sh) * puls;
+    cx.save();
+    cx.globalCompositeOperation = "lighter";
+    const g = cx.createRadialGradient(0, 0, ry * .35, 0, 0, rx);
+    g.addColorStop(0,   `rgba(90, 190, 255, ${.05 * sh})`);
+    g.addColorStop(.72, `rgba(90, 200, 255, ${.16 * sh})`);
+    g.addColorStop(.93, `rgba(165, 235, 255, ${.5 * sh})`);
+    g.addColorStop(1,   "rgba(120, 210, 255, 0)");
+    cx.fillStyle = g;
+    cx.beginPath(); cx.ellipse(0, 0, rx, ry, 0, 0, 7); cx.fill();
+    // rim, plus a couple of travelling ripples
+    cx.strokeStyle = `rgba(190, 242, 255, ${.65 * sh})`; cx.lineWidth = 2;
+    cx.beginPath(); cx.ellipse(0, 0, rx, ry, 0, 0, 7); cx.stroke();
+    cx.strokeStyle = `rgba(120, 205, 255, ${.3 * sh})`; cx.lineWidth = 1.2;
+    for (let q = 0; q < 2; q++) {
+      const f = ((o.t * .7 + q * .5) % 1);
+      cx.beginPath(); cx.ellipse(0, 0, rx * (.45 + f * .55), ry * (.45 + f * .55), 0, 0, 7); cx.stroke();
+    }
+    cx.restore();
+  }
 
   cx.restore();
 }
@@ -834,10 +858,13 @@ function updateDrifters(dt) {
       }
       if (o.hyper) {
         o.hyperT += dt;
-        const boost = Math.pow(11, dt);           // builds up fast
-        o.vx *= boost; o.vy *= boost;
-        o.streak = Math.min(1, o.hyperT * 1.7);
-        if (o.hyperT > 1.5) o.fade = Math.max(0, o.fade - dt * 2.2);
+        o.shield = Math.min(1, o.hyperT / .6);    // the field snaps up first
+        if (o.hyperT > .6) {                      // then it piles on speed
+          const boost = Math.pow(16, dt);
+          o.vx *= boost; o.vy *= boost;
+          o.streak = Math.min(1, (o.hyperT - .6) * 2);
+        }
+        if (o.hyperT > 2.2) o.fade = Math.max(0, o.fade - dt * 2.4);
       }
 
       const bx = o.x - Math.cos(o.ang) * 132 * o.scale;
