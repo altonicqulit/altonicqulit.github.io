@@ -396,7 +396,7 @@ const SPACE = {
   stars:          260,      // how many stars
   asteroidEvery:  [14, 16],  // seconds between asteroids (min, max)
   maxAsteroids:   10,
-  rocketEvery:    [30, 34], // seconds between rockets
+  rocketEvery:    [16, 34], // seconds between rockets
   astronautEvery: [30, 50] // seconds between astronauts
 };
 
@@ -483,23 +483,23 @@ const ICO_V = (() => {
 const ICO_F = [[0,11,5],[0,5,1],[0,1,7],[0,7,10],[0,10,11],[1,5,9],[5,11,4],
                [11,10,2],[10,7,6],[7,1,8],[3,9,4],[3,4,2],[3,2,6],[3,6,8],
                [3,8,9],[4,9,5],[2,4,11],[6,2,10],[8,6,7],[9,8,1]];
-const FOCAL = 420;   // smaller = stronger perspective
+const FOCAL = 620;   // smaller = stronger perspective
 
 function spawnAsteroid() {
-  const r = rnd(20, 54);
+  const r = rnd(104, 361);
   // deform the sphere: every vertex pushed in or out by its own amount
   const verts = ICO_V.map(v => {
     const L = Math.hypot(v[0], v[1], v[2]), k = r * rnd(.62, 1.3) / L;
     return [v[0] * k, v[1] * k, v[2] * k];
   });
-  const coming = Math.random() < .62;                 // most fall towards the screen
+  const coming = Math.random() < .52;                 // most fall towards the screen
   const z = coming ? rnd(1500, 2800) : rnd(-120, 320);
   const spread = coming ? rnd(.25, 1.5) : rnd(.1, .7);
   drifters.push({
     kind: "asteroid", verts, r,
     wx: rnd(-W, W) * spread * .7, wy: rnd(-H, H) * spread * .7, z,
     vwx: rnd(-26, 26), vwy: rnd(-26, 26),
-    vz: coming ? -rnd(55, 165) : rnd(200, 360),
+    vz: coming ? -rnd(160, 300) : rnd(200, 360),
     rx: Math.random() * 7, ry: Math.random() * 7, rz: Math.random() * 7,
     sx: rnd(-.5, .5), sy: rnd(-.45, .45), sz: rnd(-.35, .35),
     tint: pick([[118,126,158],[136,124,132],[104,122,150],[128,132,128]]),
