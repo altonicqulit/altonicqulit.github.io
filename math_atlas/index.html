@@ -13299,12 +13299,12 @@ input[type=range]{width:100%;accent-color:var(--ink);height:28px}
 {
 "id": "coordinate-geometry",
 "number": 9,
-"title": "Coordinate Geometry",
+"title": "Straight Lines",
 "questions": [
 {
 "difficulty": 1,
 "topics": [
-"Coordinate systems"
+"Coordinate basics"
 ],
 "type": "Concept",
 "text": "Convert the polar point $(3, \\pi)$ to Cartesian form.",
@@ -13323,7 +13323,7 @@ input[type=range]{width:100%;accent-color:var(--ink);height:28px}
 {
 "difficulty": 2,
 "topics": [
-"Distance formula"
+"Coordinate basics"
 ],
 "type": "Find the value",
 "text": "Find the third vertex of an equilateral triangle with two vertices $A(0, 0)$ and $B(\\sqrt3, 1)$.",
@@ -13417,6 +13417,2041 @@ input[type=range]{width:100%;accent-color:var(--ink);height:28px}
 },
 "id": "cg-005",
 "number": "5"
+},
+{
+"difficulty": 1,
+"topics": [
+"Coordinate basics"
+],
+"type": "Find the value",
+"text": "Find the fourth vertex $D$ of a parallelogram $ABCD$ with $A(1,3),\\ B(-1,2),\\ C(2,5)$.",
+"solution": {
+"steps": [
+{
+"title": "Diagonals bisect each other",
+"text": "Midpoint of $AC$ = midpoint of $BD$: $\\left(\\frac{1+2}{2}, \\frac{3+5}{2}\\right) = \\left(\\frac{x-1}{2}, \\frac{y+2}{2}\\right)$"
+},
+{
+"title": "Solve",
+"text": "$x - 1 = 3 \\Rightarrow x = 4$; $\\ y + 2 = 8 \\Rightarrow y = 6$"
+}
+],
+"answer": "$D(4, 6)$",
+"tip": "Shortcut: $D = A + C - B$."
+},
+"id": "cg-006",
+"number": "6"
+},
+{
+"difficulty": 2,
+"topics": [
+"Section formula"
+],
+"type": "Find the value",
+"text": "The mid-points of the sides of a triangle are $(x_1,y_1), (x_2,y_2), (x_3,y_3)$. Find the vertices.",
+"solution": {
+"steps": [
+{
+"title": "Name them",
+"text": "Let $D, E, F$ be the mid-points of $BC, CA, AB$. Then $AFDE$ is a parallelogram."
+},
+{
+"title": "Use the parallelogram rule",
+"text": "$A = E + F - D$, $B = F + D - E$, $C = D + E - F$"
+}
+],
+"answer": "$(x_2 + x_3 - x_1,\\ y_2 + y_3 - y_1)$ and the two cyclic versions",
+"tip": "The three mid-points form a parallelogram with each vertex — use $D = A + C - B$ three times."
+},
+"id": "cg-007",
+"number": "7"
+},
+{
+"difficulty": 3,
+"topics": [
+"Section formula"
+],
+"type": "Proof",
+"text": "If $P$ and $Q$ divide $AB$ internally and externally in the same ratio $k : 1$ ($k \\ne 1$), they are called harmonic conjugates. Prove that $AP, AB, AQ$ are in HP.",
+"solution": {
+"steps": [
+{
+"title": "Internal division",
+"text": "$\\frac{PA}{PB} = k \\Rightarrow \\frac{AB}{AP} = \\frac{AP + PB}{AP} = 1 + \\frac1k = \\frac{k+1}{k}$"
+},
+{
+"title": "External division",
+"text": "$\\frac{QA}{QB} = k \\Rightarrow \\frac{AB}{AQ} = \\frac{AQ - QB}{AQ} = 1 - \\frac1k = \\frac{k-1}{k}$"
+},
+{
+"title": "Add",
+"text": "$\\frac{AB}{AP} + \\frac{AB}{AQ} = 2 \\Rightarrow \\frac{2}{AB} = \\frac1{AP} + \\frac1{AQ}$ ∎"
+}
+],
+"answer": "Proved: $\\frac2{AB} = \\frac1{AP} + \\frac1{AQ}$"
+},
+"id": "cg-008",
+"number": "8"
+},
+{
+"difficulty": 2,
+"topics": [
+"Section formula"
+],
+"type": "Find the value",
+"text": "Find the harmonic conjugate of $P(3,4)$ with respect to the join of $A(2,3)$ and $B(5,6)$.",
+"solution": {
+"steps": [
+{
+"title": "Ratio in which P divides AB",
+"text": "$AP : PB = \\sqrt{1^2+1^2} : \\sqrt{2^2+2^2} = 1 : 2$ (internal)"
+},
+{
+"title": "External division in 1 : 2",
+"text": "$Q = \\left(\\frac{1\\cdot5 - 2\\cdot2}{1-2}, \\frac{1\\cdot6 - 2\\cdot3}{1-2}\\right)$"
+}
+],
+"answer": "$Q(-1, 0)$"
+},
+"id": "cg-009",
+"number": "9"
+},
+{
+"difficulty": 2,
+"topics": [
+"Area & collinearity"
+],
+"type": "Find the value",
+"text": "Find $x$ if the area of the triangle formed by<ol class='parts'><li>$A(1,2),\\ B(2,3),\\ C(x,4)$ is 40 sq. units</li><li>$A(1,2),\\ B(2,3),\\ C(x, x+5)$ is 1 sq. unit</li></ol>",
+"solution": {
+"steps": [
+{
+"title": "Area formula",
+"text": "$\\Delta = \\frac12\\left|x_1y_2 + x_2y_3 + x_3y_1 - x_2y_1 - x_3y_2 - x_1y_3\\right|$ (cross-multiply the stacked coordinates)"
+},
+{
+"title": "(i)",
+"text": "$\\frac12|3 + 8 + 2x - 4 - 3x - 4| = \\frac12|3 - x| = 40 \\Rightarrow 3 - x = \\pm80$"
+},
+{
+"title": "(ii) the x cancels",
+"text": "$\\frac12|3 + 2(x+5) + 2x - 4 - 3x - (x+5)| = \\frac12|4| = 2$ for every $x$"
+},
+{
+"title": "Why",
+"text": "$A, B$ lie on $y = x + 1$ and $C$ on the parallel line $y = x + 5$, so the height and base never change."
+}
+],
+"answer": "(i) $x = -77$ or $83$ (ii) no such $x$ — the area is always 2"
+},
+"id": "cg-010",
+"number": "10"
+},
+{
+"difficulty": 2,
+"topics": [
+"Area & collinearity"
+],
+"type": "Find the value",
+"text": "Find the area of the quadrilateral with vertices $(1,1), (3,4), (5,-2), (4,-7)$ taken in order.",
+"solution": {
+"steps": [
+{
+"title": "Polygon formula",
+"text": "$\\frac12\\left|\\begin{matrix}x_1 & y_1\\\\ x_2 & y_2\\\\ \\vdots\\\\ x_n & y_n\\\\ x_1 & y_1\\end{matrix}\\right|$ — sum of downward products minus upward products"
+},
+{
+"title": "Down products",
+"text": "$1\\cdot4 + 3(-2) + 5(-7) + 4\\cdot1 = -33$"
+},
+{
+"title": "Up products",
+"text": "$1\\cdot3 + 4\\cdot5 + (-2)4 + (-7)1 = 8$"
+},
+{
+"title": "Area",
+"text": "$\\frac12|-33 - 8|$"
+}
+],
+"answer": "$\\frac{41}{2}$ sq. units"
+},
+"id": "cg-011",
+"number": "11"
+},
+{
+"difficulty": 2,
+"topics": [
+"Area & collinearity",
+"Slope & angle"
+],
+"type": "Find the value",
+"text": "Find:<ol class='parts'><li>the slope of the line through $A(at_1^2, 2at_1)$ and $B(at_2^2, 2at_2)$</li><li>$\\lambda$ if the line through $(2,-3), (5,-1)$ is parallel to the line through $(\\lambda,-1), (0,3)$</li><li>the number of $\\theta \\in [0, 2\\pi]$ for which $(\\sin\\theta, \\cos\\theta), (-2\\sqrt2, 2), (-\\sqrt2, 1)$ are collinear</li><li>$k$ such that $(k+1, 2-k), (1-k, -k), (2+k, 3-k)$ are collinear</li></ol>",
+"solution": {
+"steps": [
+{
+"title": "(i)",
+"text": "$\\frac{2a(t_2 - t_1)}{a(t_2 - t_1)(t_2 + t_1)} = \\frac{2}{t_1 + t_2}$"
+},
+{
+"title": "(ii)",
+"text": "$\\frac{2}{3} = \\frac{4}{-\\lambda} \\Rightarrow \\lambda = -6$"
+},
+{
+"title": "(iii) area = 0",
+"text": "$\\begin{vmatrix}\\sin\\theta&\\cos\\theta&1\\\\-2\\sqrt2&2&1\\\\-\\sqrt2&1&1\\end{vmatrix} = \\sin\\theta + \\sqrt2\\cos\\theta = 0 \\Rightarrow \\tan\\theta = -\\sqrt2$ — once in Q2, once in Q4"
+},
+{
+"title": "(iv) equal slopes",
+"text": "Slope of first pair $= \\frac{-2}{-2k} = \\frac1k$; slope of first and third $= \\frac{1}{1} = 1$, so $k = 1$"
+}
+],
+"answer": "(i) $\\frac2{t_1+t_2}$ (ii) $-6$ (iii) 2 (iv) $k = 1$",
+"tip": "Collinear ⇔ equal slopes ⇔ area determinant $= 0$."
+},
+"id": "cg-012",
+"number": "12"
+},
+{
+"difficulty": 4,
+"topics": [
+"Area & collinearity"
+],
+"type": "Proof",
+"text": "Show that an equilateral triangle cannot have all its vertices at integer (lattice) points.",
+"solution": {
+"steps": [
+{
+"title": "Area from coordinates",
+"text": "With integer coordinates, $\\Delta = \\frac12|\\text{determinant}|$ is rational."
+},
+{
+"title": "Area from the side",
+"text": "$\\Delta = \\frac{\\sqrt3}{4}a^2$, and $a^2 = (x_2-x_1)^2 + (y_2-y_1)^2$ is an integer — so $\\Delta$ is irrational."
+},
+{
+"title": "Contradiction",
+"text": "A number can't be both rational and irrational ∎"
+}
+],
+"answer": "Proved",
+"tip": "Alternative: $\\tan60^\\circ = \\left|\\frac{m_1 - m_2}{1 + m_1m_2}\\right|$ would be rational with integer coordinates, but $\\sqrt3$ is not."
+},
+"id": "cg-013",
+"number": "13"
+},
+{
+"difficulty": 3,
+"topics": [
+"Triangle centres"
+],
+"type": "Find the value",
+"text": "For the triangle with vertices $A(8,6),\\ B(8,-2),\\ C(2,-2)$, find the (i) centroid (ii) orthocentre (iii) circumcentre (iv) incentre.",
+"solution": {
+"steps": [
+{
+"title": "Spot the right angle",
+"text": "$AB$ is vertical and $BC$ horizontal, so $\\angle B = 90^\\circ$."
+},
+{
+"title": "(i) centroid",
+"text": "$G = \\left(\\frac{8+8+2}{3}, \\frac{6-2-2}{3}\\right) = \\left(6, \\frac23\\right)$"
+},
+{
+"title": "(ii), (iii)",
+"text": "In a right triangle the orthocentre is the right-angle vertex $B(8,-2)$, and the circumcentre is the mid-point of the hypotenuse $AC$: $(5, 2)$."
+},
+{
+"title": "(iv) incentre",
+"text": "$a = BC = 6,\\ b = CA = 10,\\ c = AB = 8$: $I = \\left(\\frac{6\\cdot8 + 10\\cdot8 + 8\\cdot2}{24}, \\frac{6\\cdot6 + 10(-2) + 8(-2)}{24}\\right) = (6, 0)$"
+},
+{
+"title": "Check",
+"text": "$r = \\frac{a + c - b}{2} = 2$, so $I$ is 2 units from both legs: $(8 - 2, -2 + 2)$ ✓"
+}
+],
+"answer": "(i) $(6, \\frac23)$ (ii) $(8,-2)$ (iii) $(5,2)$ (iv) $(6,0)$",
+"diagram": "<svg viewBox=\"0 0 330 220\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"inherit\" font-size=\"13\">\n<line x1=\"20\" y1=\"180\" x2=\"300\" y2=\"180\" style=\"stroke:currentColor;stroke-opacity:.35\"/>\n<polygon points=\"250,40 250,180 70,180\" style=\"fill:var(--d2);fill-opacity:.1;stroke:currentColor;stroke-width:1.6\"/>\n<rect x=\"238\" y=\"168\" width=\"12\" height=\"12\" style=\"fill:none;stroke:currentColor\"/>\n<g style=\"fill:currentColor\"><text x=\"256\" y=\"40\">A(8, 6)</text><text x=\"256\" y=\"198\">B(8, −2)</text><text x=\"22\" y=\"198\">C(2, −2)</text>\n<circle cx=\"190\" cy=\"133\" r=\"4\" style=\"fill:var(--d1)\"/><text x=\"197\" y=\"130\">G</text>\n<circle cx=\"160\" cy=\"110\" r=\"4\" style=\"fill:var(--d5)\"/><text x=\"140\" y=\"102\">O</text>\n<circle cx=\"190\" cy=\"145\" r=\"4\" style=\"fill:var(--d4)\"/><text x=\"197\" y=\"157\">I</text>\n<circle cx=\"250\" cy=\"180\" r=\"4\" style=\"fill:var(--d3)\"/><text x=\"258\" y=\"172\">H</text></g></svg>",
+"tip": "Right-angled triangle: $H$ = right-angle vertex, $O$ = mid-point of hypotenuse. Also $H, G, O$ are collinear with $HG : GO = 2 : 1$."
+},
+"id": "cg-014",
+"number": "14"
+},
+{
+"difficulty": 3,
+"topics": [
+"Triangle centres",
+"Forms of a line"
+],
+"type": "Find the value",
+"text": "If the equations of $AB$ and $AC$ are $3x + 4y = 7$ and $3y = 4x - 1$, and the mid-point of $BC$ is $(0,0)$, find the centroid of $\\triangle ABC$.",
+"solution": {
+"steps": [
+{
+"title": "Vertex A",
+"text": "Solve $3x + 4y = 7$ and $4x - 3y = 1$: $A = (1, 1)$"
+},
+{
+"title": "Centroid on the median",
+"text": "$G$ divides $AM$ in $2 : 1$ where $M = (0,0)$: $G = \\frac{A + 2M}{3}$"
+}
+],
+"answer": "$\\left(\\frac13, \\frac13\\right)$",
+"tip": "You don't need $B$ and $C$ — the centroid lies $\\frac23$ of the way from $A$ to the mid-point of $BC$."
+},
+"id": "cg-015",
+"number": "15"
+},
+{
+"difficulty": 4,
+"topics": [
+"Triangle centres"
+],
+"type": "Find the value",
+"text": "Let $A = (3,2)$ and $B = (5,1)$. $ABP$ is an equilateral triangle on the side of $AB$ remote from the origin. Find the orthocentre of $\\triangle ABP$.",
+"solution": {
+"steps": [
+{
+"title": "Equilateral ⇒ H = G",
+"text": "The orthocentre is the centroid, which lies on the perpendicular bisector of $AB$ at $\\frac13$ of the height from $AB$."
+},
+{
+"title": "Set up",
+"text": "Mid-point $M(4, \\frac32)$; $AB = \\sqrt5$; height $= \\frac{\\sqrt3}{2}\\sqrt5$, so $MG = \\frac13\\cdot\\frac{\\sqrt{15}}{2}$."
+},
+{
+"title": "Direction away from origin",
+"text": "$m_{AB} = -\\frac12$, so the perpendicular has slope 2, unit vector $\\left(\\frac1{\\sqrt5}, \\frac2{\\sqrt5}\\right)$ (pointing away from $O$)."
+},
+{
+"title": "Distance form",
+"text": "$G = \\left(4 + \\frac{\\sqrt{15}}{6}\\cdot\\frac{1}{\\sqrt5},\\ \\frac32 + \\frac{\\sqrt{15}}{6}\\cdot\\frac{2}{\\sqrt5}\\right)$"
+}
+],
+"answer": "$\\left(4 + \\frac{\\sqrt3}{6},\\ \\frac32 + \\frac{\\sqrt3}{3}\\right)$"
+},
+"id": "cg-016",
+"number": "16"
+},
+{
+"difficulty": 2,
+"topics": [
+"Slope & angle"
+],
+"type": "Find the value",
+"text": "Find:<ol class='parts'><li>the angle between the lines joining $(0,0), (2,3)$ and $(2,-2), (3,5)$</li><li>the slope of the other line if the angle between two lines is $\\frac\\pi4$ and one slope is $\\frac12$</li><li>the slopes of lines parallel and perpendicular to $AB$, where $A(2,-3), B(6,3)$</li></ol>",
+"solution": {
+"steps": [
+{
+"title": "Formula",
+"text": "$\\tan\\theta = \\left|\\frac{m_1 - m_2}{1 + m_1m_2}\\right|$ (acute angle)"
+},
+{
+"title": "(i)",
+"text": "$m_1 = \\frac32,\\ m_2 = 7$: $\\tan\\theta = \\frac{11/2}{23/2} = \\frac{11}{23}$"
+},
+{
+"title": "(ii)",
+"text": "$\\left|\\frac{m - \\frac12}{1 + \\frac m2}\\right| = 1 \\Rightarrow \\frac{2m-1}{2+m} = \\pm1 \\Rightarrow m = 3$ or $-\\frac13$"
+},
+{
+"title": "(iii)",
+"text": "$m_{AB} = \\frac{6}{4} = \\frac32$; perpendicular slope $-\\frac23$"
+}
+],
+"answer": "(i) $\\tan^{-1}\\frac{11}{23}$ (ii) $3$ or $-\\frac13$ (iii) $\\frac32$, $-\\frac23$",
+"tip": "Because of the modulus, an angle condition always gives two slopes."
+},
+"id": "cg-017",
+"number": "17"
+},
+{
+"difficulty": 2,
+"topics": [
+"Forms of a line"
+],
+"type": "Find the value",
+"text": "Find the equation of the line through $A(1,0)$ which<ol class='parts'><li>makes an angle $\\frac{3\\pi}{8}$ with the $+x$-axis</li><li>makes intercepts equal in magnitude but opposite in sign</li><li>also passes through $B(2,5)$</li></ol>",
+"solution": {
+"steps": [
+{
+"title": "Point-slope form",
+"text": "$y - y_1 = m(x - x_1)$"
+},
+{
+"title": "(i)",
+"text": "$m = \\tan67.5^\\circ = \\sqrt2 + 1$"
+},
+{
+"title": "(ii)",
+"text": "Intercepts $a$ and $-a$ ⇒ slope $= 1$"
+},
+{
+"title": "(iii)",
+"text": "$m = \\frac{5 - 0}{2 - 1} = 5$"
+}
+],
+"answer": "(i) $y = (\\sqrt2+1)(x-1)$ (ii) $y = x - 1$ (iii) $y = 5x - 5$",
+"tip": "Equal intercepts ⇒ $m = -1$; equal in magnitude, opposite in sign ⇒ $m = 1$."
+},
+"id": "cg-018",
+"number": "18"
+},
+{
+"difficulty": 3,
+"topics": [
+"Forms of a line"
+],
+"type": "Find the value",
+"text": "For the triangle $A(10,4),\\ B(-4,9),\\ C(-2,-1)$, find the equation of the (i) median through $A$ (ii) altitude from $A$ (iii) perpendicular bisector of $BC$, and (iv) the orthocentre.",
+"solution": {
+"steps": [
+{
+"title": "(i)",
+"text": "Mid-point of $BC = (-3, 4)$; the median joins $(10,4)$ and $(-3,4)$: horizontal"
+},
+{
+"title": "(ii)",
+"text": "$m_{BC} = \\frac{-10}{2} = -5$, so the altitude has slope $\\frac15$: $y - 4 = \\frac15(x - 10)$"
+},
+{
+"title": "(iii)",
+"text": "Through $(-3,4)$ with slope $\\frac15$: $y - 4 = \\frac15(x + 3)$"
+},
+{
+"title": "(iv)",
+"text": "Altitude from $B$: $m_{AC} = \\frac{5}{12}$, so slope $-\\frac{12}{5}$ through $B$. Solve with $x = 5y - 10$: $y = \\frac95, x = -1$. Check with the altitude from $C$ ✓"
+}
+],
+"answer": "(i) $y = 4$ (ii) $x - 5y + 10 = 0$ (iii) $x - 5y + 23 = 0$ (iv) $H\\left(-1, \\frac95\\right)$"
+},
+"id": "cg-019",
+"number": "19"
+},
+{
+"difficulty": 2,
+"topics": [
+"Forms of a line"
+],
+"type": "Find the value",
+"text": "Find:<ol class='parts'><li>the line equidistant from $x = \\frac32$ and $x = \\frac72$</li><li>Prove that $y = \\cos x\\cos(x+2) - \\cos^2(x+1)$ is a straight line parallel to the $x$-axis through $\\left(\\frac\\pi2, -\\sin^21\\right)$</li></ol>",
+"solution": {
+"steps": [
+{
+"title": "(i)",
+"text": "Half-way between: $x = \\frac{3/2 + 7/2}{2}$"
+},
+{
+"title": "(ii) rewrite",
+"text": "$\\cos x\\cos(x+2) = \\cos((x+1)-1)\\cos((x+1)+1) = \\cos^2(x+1) - \\sin^21$"
+},
+{
+"title": "(ii) result",
+"text": "$y = -\\sin^21$, a constant ∎"
+}
+],
+"answer": "(i) $x = \\frac52$ (ii) $y = -\\sin^21$",
+"tip": "$\\cos(A-B)\\cos(A+B) = \\cos^2A - \\sin^2B$."
+},
+"id": "cg-020",
+"number": "20"
+},
+{
+"difficulty": 2,
+"topics": [
+"Forms of a line"
+],
+"type": "Find the value",
+"text": "Find the equation of the line through<ol class='parts'><li>$P(11,5)$ parallel to $2x + 3y = 7$</li><li>$P(a,b)$ parallel to $\\frac xa + \\frac yb = 1$</li><li>the intersection of $3x + 4y = 8$ with the $y$-axis, perpendicular to $2x - y = 7$</li></ol>",
+"solution": {
+"steps": [
+{
+"title": "Shortcut",
+"text": "Parallel to $ax + by + c = 0$: $ax + by + \\lambda = 0$. Perpendicular: $bx - ay + k = 0$."
+},
+{
+"title": "(i)",
+"text": "$2x + 3y = \\lambda$ through $(11,5)$: $\\lambda = 37$"
+},
+{
+"title": "(ii)",
+"text": "$\\frac xa + \\frac yb = \\lambda$ through $(a,b)$: $\\lambda = 2$"
+},
+{
+"title": "(iii)",
+"text": "Point $(0,2)$; perpendicular to $2x - y = 7$: $x + 2y = \\lambda$ ⇒ $\\lambda = 4$"
+}
+],
+"answer": "(i) $2x + 3y = 37$ (ii) $\\frac xa + \\frac yb = 2$ (iii) $x + 2y = 4$",
+"tip": "Keep the $x, y$ coefficients for a parallel line; swap them and change one sign for a perpendicular line."
+},
+"id": "cg-021",
+"number": "21"
+},
+{
+"difficulty": 3,
+"topics": [
+"Slope & angle",
+"Forms of a line"
+],
+"type": "Find the value",
+"text": "A vertex of an equilateral triangle is $(2,3)$ and the opposite side is $x + y = 2$. Find the other two sides.",
+"solution": {
+"steps": [
+{
+"title": "Angle condition",
+"text": "Each side through $A$ makes $60^\\circ$ with $x + y = 2$ (slope $-1$): $\\tan60^\\circ = \\left|\\frac{m + 1}{1 - m}\\right|$"
+},
+{
+"title": "Solve",
+"text": "$\\frac{m+1}{1-m} = \\pm\\sqrt3 \\Rightarrow m = 2 \\pm \\sqrt3$"
+}
+],
+"answer": "$y - 3 = (2 \\pm \\sqrt3)(x - 2)$"
+},
+"id": "cg-022",
+"number": "22"
+},
+{
+"difficulty": 3,
+"topics": [
+"Slope & angle",
+"Forms of a line"
+],
+"type": "Find the value",
+"text": "Two equal sides of a triangle lie along $7x - y + 3 = 0$ and $x + y = 3$, and the third side passes through $(1,-10)$. Find the third side.",
+"solution": {
+"steps": [
+{
+"title": "Isosceles ⇒ equal base angles",
+"text": "The third side makes equal angles with both lines: $\\left|\\frac{m - 7}{1 + 7m}\\right| = \\left|\\frac{m + 1}{1 - m}\\right|$"
+},
+{
+"title": "Solve",
+"text": "$m = -3$ (both give $\\frac12$) or $m = \\frac13$ (both give 2)"
+},
+{
+"title": "Lines",
+"text": "$y + 10 = -3(x - 1)$ and $y + 10 = \\frac13(x - 1)$"
+}
+],
+"answer": "$3x + y + 7 = 0$ or $x - 3y - 31 = 0$"
+},
+"id": "cg-023",
+"number": "23"
+},
+{
+"difficulty": 3,
+"topics": [
+"Forms of a line"
+],
+"type": "MCQ",
+"text": "The equation of the straight line through $(-a, 0)$ making a triangle of area $T$ with the axes is<div class='opts'><span>(a) $2Tx + a^2y + 2aT = 0$</span><span>(b) $2Tx - a^2y + 2aT = 0$</span><span>(c) $2Tx - a^2y - 2aT = 0$</span><span>(d) none of these</span></div>",
+"solution": {
+"steps": [
+{
+"title": "Intercept form",
+"text": "$x$-intercept $-a$, $y$-intercept $b$: area $\\frac12 a|b| = T \\Rightarrow b = \\pm\\frac{2T}{a}$"
+},
+{
+"title": "Lines",
+"text": "$\\frac{x}{-a} + \\frac{y}{\\pm 2T/a} = 1$, i.e. $2Tx \\mp a^2y + 2aT = 0$"
+},
+{
+"title": "Check options",
+"text": "(a) has $y$-intercept $-\\frac{2T}{a}$ and (b) has $+\\frac{2T}{a}$ — both enclose area $T$."
+}
+],
+"answer": "(a) and (b) both work (the board solution takes (a))"
+},
+"id": "cg-024",
+"number": "24"
+},
+{
+"difficulty": 3,
+"topics": [
+"Forms of a line"
+],
+"type": "MCQ",
+"text": "The number of integral points $(x, y)$ in the first quadrant (not on the axes) on the line $3x + 5y = 2007$ is<div class='opts'><span>(a) 133</span><span>(b) 135</span><span>(c) 138</span><span>(d) 140</span></div>",
+"solution": {
+"steps": [
+{
+"title": "Condition on x",
+"text": "$5y = 2007 - 3x$ needs $3x \\equiv 2007 \\equiv 2 \\pmod 5 \\Rightarrow x \\equiv 4 \\pmod 5$"
+},
+{
+"title": "Range",
+"text": "$y \\ge 1 \\Rightarrow 3x \\le 2002 \\Rightarrow x \\le 667$; so $x = 4, 9, \\ldots, 664$"
+},
+{
+"title": "Count",
+"text": "$\\frac{664 - 4}{5} + 1$"
+}
+],
+"answer": "(a) 133"
+},
+"id": "cg-025",
+"number": "25"
+},
+{
+"difficulty": 4,
+"topics": [
+"Forms of a line"
+],
+"type": "Find the value",
+"text": "A straight line $L$ with negative slope passes through $(8,2)$ and cuts the positive axes at $P$ and $Q$. Find the minimum value of $OP + OQ$.",
+"solution": {
+"steps": [
+{
+"title": "Intercepts",
+"text": "With $A(a,0), B(0,b)$ and slopes equal: $\\frac{b}{-a} = \\frac{2}{8 - a} \\Rightarrow ab = 2a + 8b \\Rightarrow (a - 8)(b - 2) = 16$"
+},
+{
+"title": "Shift",
+"text": "Let $p = a - 8 \\gt 0,\\ q = b - 2 \\gt 0$ with $pq = 16$: $a + b = 10 + p + q$"
+},
+{
+"title": "AM–GM",
+"text": "$p + q \\ge 2\\sqrt{16} = 8$, equality at $p = q = 4$"
+}
+],
+"answer": "18 (at $a = 12, b = 6$)",
+"tip": "Turn the constraint into a product $(a - 8)(b - 2) = 16$, then use AM ≥ GM."
+},
+"id": "cg-026",
+"number": "26"
+},
+{
+"difficulty": 2,
+"topics": [
+"Locus"
+],
+"type": "Find the value",
+"text": "Find the locus of a point which<ol class='parts'><li>is equidistant from $A(1,-2)$ and $B(3,-7)$</li><li>is at a constant distance 5 from the origin</li><li>is equidistant from $A(1,2)$ and the $x$-axis</li><li>has the sum of its distances from $A(3,0)$ and $B(-3,0)$ equal to 8</li></ol>",
+"solution": {
+"steps": [
+{
+"title": "Steps",
+"text": "Take the point as $P(h,k)$, write the condition, eliminate parameters, then replace $h \\to x, k \\to y$."
+},
+{
+"title": "(i)",
+"text": "$PA^2 = PB^2$: $-2x + 4y + 5 = -6x + 14y + 58$ — the perpendicular bisector of $AB$"
+},
+{
+"title": "(ii), (iii)",
+"text": "$x^2 + y^2 = 25$. (iii) $(x-1)^2 + (y-2)^2 = y^2 \\Rightarrow (x-1)^2 = 4(y - 1)$"
+},
+{
+"title": "(iv)",
+"text": "$\\sqrt{(x-3)^2 + y^2} = 8 - \\sqrt{(x+3)^2 + y^2}$; squaring twice gives $7x^2 + 16y^2 = 112$"
+}
+],
+"answer": "(i) $4x - 10y = 53$ (ii) $x^2 + y^2 = 25$ (iii) $(x-1)^2 = 4(y-1)$ (iv) $\\frac{x^2}{16} + \\frac{y^2}{7} = 1$"
+},
+"id": "cg-027",
+"number": "27"
+},
+{
+"difficulty": 2,
+"topics": [
+"Locus"
+],
+"type": "Find the value",
+"text": "If $t$ and $\\theta$ are parameters, find the locus of<ol class='parts'><li>$P(t, t+3)$</li><li>$P(5\\cos\\theta, 5\\sin\\theta)$</li><li>$P(2\\cos\\theta, 7\\sin\\theta)$</li><li>$P(t+1, t^2 + t + 1)$</li><li>$P\\left(\\frac{1-t^2}{1+t^2}, \\frac{2t}{1+t^2}\\right)$</li></ol>",
+"solution": {
+"steps": [
+{
+"title": "Eliminate the parameter",
+"text": "(i) $x = t, y = t + 3$. (ii) $x^2 + y^2 = 25$. (iii) $\\left(\\frac x2\\right)^2 + \\left(\\frac y7\\right)^2 = 1$"
+},
+{
+"title": "(iv)",
+"text": "$t = x - 1$: $y = (x-1)^2 + (x-1) + 1 = x^2 - x + 1$"
+},
+{
+"title": "(v)",
+"text": "$x^2 + y^2 = \\frac{(1-t^2)^2 + 4t^2}{(1+t^2)^2} = 1$; $x = -1$ is never reached"
+}
+],
+"answer": "(i) $y = x + 3$ (ii) $x^2 + y^2 = 25$ (iii) $\\frac{x^2}4 + \\frac{y^2}{49} = 1$ (iv) $y = x^2 - x + 1$ (v) $x^2 + y^2 = 1$ (except $(-1,0)$)",
+"tip": "For $\\cos\\theta, \\sin\\theta$ parameters, isolate them and use $\\sin^2 + \\cos^2 = 1$."
+},
+"id": "cg-028",
+"number": "28"
+},
+{
+"difficulty": 2,
+"topics": [
+"Locus",
+"Triangle centres"
+],
+"type": "Find the value",
+"text": "Find the locus of the centroid of the triangle with vertices $A(3,1),\\ B(5,2)$ and $C$, where $C$ lies on $4x - y + 7 = 0$.",
+"solution": {
+"steps": [
+{
+"title": "Express C",
+"text": "$G(h,k)$: $C = (3h - 8,\\ 3k - 3)$"
+},
+{
+"title": "C is on the line",
+"text": "$4(3h - 8) - (3k - 3) + 7 = 0 \\Rightarrow 12h - 3k - 22 = 0$"
+}
+],
+"answer": "$12x - 3y = 22$"
+},
+"id": "cg-029",
+"number": "29"
+},
+{
+"difficulty": 2,
+"topics": [
+"Locus"
+],
+"type": "Find the value",
+"text": "A rod of length $2l$ slides with its ends on two perpendicular lines. Find the locus of its mid-point.",
+"solution": {
+"steps": [
+{
+"title": "Set up",
+"text": "Ends $A(a,0), B(0,b)$; mid-point $M(h,k) = \\left(\\frac a2, \\frac b2\\right)$"
+},
+{
+"title": "Length",
+"text": "$a^2 + b^2 = 4l^2 \\Rightarrow 4h^2 + 4k^2 = 4l^2$"
+}
+],
+"answer": "$x^2 + y^2 = l^2$"
+},
+"diagram": "<svg viewBox=\"0 0 260 220\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"inherit\" font-size=\"13\">\n<line x1=\"30\" y1=\"195\" x2=\"250\" y2=\"195\" style=\"stroke:currentColor;stroke-opacity:.5\"/><line x1=\"40\" y1=\"10\" x2=\"40\" y2=\"205\" style=\"stroke:currentColor;stroke-opacity:.5\"/>\n<path d=\"M40 83 A112 112 0 0 1 152 195\" style=\"fill:none;stroke:var(--d5);stroke-dasharray:5 4;stroke-width:1.6\"/>\n<line x1=\"40\" y1=\"40\" x2=\"200\" y2=\"195\" style=\"stroke:var(--d3);stroke-width:3\"/>\n<g style=\"fill:currentColor\"><circle cx=\"120\" cy=\"117\" r=\"4\" style=\"fill:var(--d4)\"/><text x=\"126\" y=\"112\">M(h, k)</text>\n<text x=\"46\" y=\"36\">B(0, b)</text><text x=\"186\" y=\"212\">A(a, 0)</text><text x=\"86\" y=\"78\">2l</text></g></svg>",
+"id": "cg-030",
+"number": "30"
+},
+{
+"difficulty": 4,
+"topics": [
+"Locus"
+],
+"type": "Find the value",
+"text": "In an equilateral triangle $ABC$, $B = (0, b)$ is fixed and $A = (a, 0)$ moves along the $x$-axis. Find the locus of $C$.",
+"solution": {
+"steps": [
+{
+"title": "Rotate A about B",
+"text": "$C$ is $A$ rotated by $\\pm60^\\circ$ about $B$. With $A - B = (a, -b)$, rotating by $+60^\\circ$ gives $\\left(\\frac a2 + \\frac{\\sqrt3 b}{2},\\ \\frac{\\sqrt3 a}{2} - \\frac b2\\right)$."
+},
+{
+"title": "Add B",
+"text": "$C = \\left(\\frac a2 + \\frac{\\sqrt3b}2,\\ \\frac{\\sqrt3a}2 + \\frac b2\\right)$"
+},
+{
+"title": "Eliminate a",
+"text": "$a = 2x - \\sqrt3b \\Rightarrow y = \\sqrt3x - b$"
+},
+{
+"title": "Other orientation",
+"text": "Rotating by $-60^\\circ$ gives $y = -\\sqrt3x - b$"
+}
+],
+"answer": "The lines $\\sqrt3x - y = b$ and $\\sqrt3x + y + b = 0$",
+"tip": "Check with $a = 0$: $A$ and $B$ give $C = \\left(\\pm\\frac{\\sqrt3b}{2}, \\frac b2\\right)$, which lies on these lines."
+},
+"id": "cg-031",
+"number": "31"
+},
+{
+"difficulty": 5,
+"topics": [
+"Locus"
+],
+"type": "MCQ",
+"text": "$ABCD$ is a square of side $a$. Side $AB$ slides with $A$ on the $x$-axis and $B$ on the $y$-axis in the first quadrant. The locus of the foot of the perpendicular from $E$ (mid-point of $AD$) to the diagonal $AC$ is<div class='opts'><span>(a) $(y-x)^2 + (x-3y)^2 = \\frac{a^2}4$</span><span>(b) $(y-x)^2 + (x-3y)^2 = a^2$</span><span>(c) $(x-y)^2 + (y-3x)^2 = \\frac{a^2}{4}$</span><span>(d) none of these</span></div>",
+"solution": {
+"steps": [
+{
+"title": "Coordinates",
+"text": "$A(a\\cos\\theta, 0),\\ B(0, a\\sin\\theta),\\ D(a\\cos\\theta + a\\sin\\theta,\\ a\\cos\\theta)$"
+},
+{
+"title": "Foot of perpendicular",
+"text": "$E$ is the mid-point of $AD$, so the foot $P$ from $E$ to $AC$ is the mid-point of $A$ and the centre $F = \\frac{B+D}{2}$: $P = \\frac{2A + B + D}{4}$"
+},
+{
+"title": "Parametric",
+"text": "$h = \\frac a4(3\\cos\\theta + \\sin\\theta),\\ k = \\frac a4(\\cos\\theta + \\sin\\theta)$"
+},
+{
+"title": "Eliminate θ",
+"text": "$h - k = \\frac a2\\cos\\theta,\\ 3k - h = \\frac a2\\sin\\theta$; square and add"
+}
+],
+"answer": "(a)"
+},
+"id": "cg-032",
+"number": "32"
+},
+{
+"difficulty": 2,
+"topics": [
+"Distance & foot of perpendicular"
+],
+"type": "Find the value",
+"text": "Find the distance of $P(3,-2)$ from $4x + 3y = 7$, and the foot of the perpendicular.",
+"solution": {
+"steps": [
+{
+"title": "Distance",
+"text": "$\\frac{|ax_1 + by_1 + c|}{\\sqrt{a^2+b^2}} = \\frac{|12 - 6 - 7|}{5} = \\frac15$"
+},
+{
+"title": "Foot",
+"text": "$\\frac{x - x_1}{a} = \\frac{y - y_1}{b} = -\\frac{ax_1 + by_1 + c}{a^2 + b^2} = \\frac{1}{25}$"
+},
+{
+"title": "Result",
+"text": "$\\left(3 + \\frac4{25},\\ -2 + \\frac3{25}\\right)$"
+}
+],
+"answer": "$\\frac15$; foot $\\left(\\frac{79}{25}, -\\frac{47}{25}\\right)$",
+"tip": "Foot: $\\frac{x - x_1}{a} = \\frac{y - y_1}{b} = -\\frac{L(P)}{a^2+b^2}$. Image: same with $-\\frac{2L(P)}{a^2+b^2}$."
+},
+"id": "cg-033",
+"number": "33"
+},
+{
+"difficulty": 2,
+"topics": [
+"Reflection & images"
+],
+"type": "Find the value",
+"text": "Find the image of $P(2,-1)$ in the line $y = 3x + 1$.",
+"solution": {
+"steps": [
+{
+"title": "Write as 3x − y + 1 = 0",
+"text": "$L(P) = 6 + 1 + 1 = 8$"
+},
+{
+"title": "Image formula",
+"text": "$\\frac{x - 2}{3} = \\frac{y + 1}{-1} = -\\frac{2\\cdot8}{10} = -\\frac85$"
+},
+{
+"title": "Solve",
+"text": "$x = 2 - \\frac{24}{5},\\ y = -1 + \\frac85$"
+}
+],
+"answer": "$\\left(-\\frac{14}{5}, \\frac35\\right)$"
+},
+"id": "cg-034",
+"number": "34"
+},
+{
+"difficulty": 3,
+"topics": [
+"Distance & foot of perpendicular",
+"Forms of a line"
+],
+"type": "Find the value",
+"text": "Find the distance of the line $3x + y + 4 = 0$ from $P(2,5)$ measured parallel to $3x - 4y + 8 = 0$.",
+"solution": {
+"steps": [
+{
+"title": "Direction",
+"text": "Slope $\\frac34$: $\\cos\\theta = \\frac45,\\ \\sin\\theta = \\frac35$"
+},
+{
+"title": "Distance form",
+"text": "General point $\\left(2 + \\frac{4r}5, 5 + \\frac{3r}5\\right)$"
+},
+{
+"title": "Substitute",
+"text": "$3\\left(2 + \\frac{4r}{5}\\right) + 5 + \\frac{3r}5 + 4 = 15 + 3r = 0 \\Rightarrow r = -5$"
+}
+],
+"answer": "5 units",
+"tip": "Distance measured along a direction: use the parametric point $(x_1 + r\\cos\\theta, y_1 + r\\sin\\theta)$ and put it in the line."
+},
+"id": "cg-035",
+"number": "35"
+},
+{
+"difficulty": 3,
+"topics": [
+"Distance & foot of perpendicular",
+"Area & collinearity"
+],
+"type": "Find the value",
+"text": "A line through $P(3,1)$ meets the axes at $A$ and $B$. If the line is as far as possible from the origin $O$, find the area of $\\triangle OAB$.",
+"solution": {
+"steps": [
+{
+"title": "Farthest line",
+"text": "The distance from $O$ is at most $OP$, reached when the line is perpendicular to $OP$."
+},
+{
+"title": "Line",
+"text": "$m_{OP} = \\frac13$, so slope $-3$: $y - 1 = -3(x - 3) \\Rightarrow 3x + y = 10$"
+},
+{
+"title": "Area",
+"text": "Intercepts $\\frac{10}3$ and $10$: $\\frac12\\cdot\\frac{10}{3}\\cdot10$"
+}
+],
+"answer": "$\\frac{50}{3}$ sq. units"
+},
+"id": "cg-036",
+"number": "36"
+},
+{
+"difficulty": 2,
+"topics": [
+"Forms of a line"
+],
+"type": "Find the value",
+"text": "Find the line on which the perpendicular from the origin has length 4, if the line makes $120^\\circ$ with the $+x$-axis.",
+"solution": {
+"steps": [
+{
+"title": "Normal form",
+"text": "$x\\cos\\alpha + y\\sin\\alpha = p$, where $\\alpha$ is the angle of the normal (not of the line)"
+},
+{
+"title": "Angle of the normal",
+"text": "The line is at $120^\\circ$, so its normal is at $30^\\circ$ (or $210^\\circ$)"
+},
+{
+"title": "Write it",
+"text": "$x\\cos30^\\circ + y\\sin30^\\circ = 4$, or the same line on the other side"
+}
+],
+"answer": "$\\sqrt3x + y = 8$ or $\\sqrt3x + y + 8 = 0$"
+},
+"id": "cg-037",
+"number": "37"
+},
+{
+"difficulty": 4,
+"topics": [
+"Slope & angle"
+],
+"type": "Find the value",
+"text": "Points $(0, \\frac83), (1,3), (82, 30)$:<ol class='parts'><li>state whether their triangle is acute or obtuse</li><li>find $k$ if $(0, \\frac83), (1,3), (82, k)$ form an obtuse-angled triangle</li></ol>",
+"solution": {
+"steps": [
+{
+"title": "(i) check collinearity first",
+"text": "Slopes: $\\frac{3 - 8/3}{1} = \\frac13$ and $\\frac{27}{81} = \\frac13$ — the points are collinear, so there's no triangle."
+},
+{
+"title": "(ii) angle at (1,3)",
+"text": "Vectors to the other points: $(-1, -\\frac13)$ and $(81, k - 3)$. Obtuse ⇔ dot product $\\lt 0$: $-81 - \\frac{k-3}{3} \\lt 0 \\Rightarrow k \\gt -240$"
+},
+{
+"title": "(ii) angle at (0, 8/3)",
+"text": "$(1, \\frac13)\\cdot(82, k - \\frac83) \\lt 0 \\Rightarrow k \\lt -\\frac{730}{3}$"
+},
+{
+"title": "(ii) angle at (82, k)",
+"text": "Needs $\\left(k - \\frac83\\right)(k - 3) \\lt -6642$, impossible"
+},
+{
+"title": "Exclude collinear",
+"text": "$k \\ne 30$"
+}
+],
+"answer": "(i) not a triangle (collinear) (ii) $k \\in \\left(-\\infty, -\\frac{730}{3}\\right) \\cup (-240, 30) \\cup (30, \\infty)$",
+"tip": "An angle is obtuse exactly when the dot product of its two side vectors is negative (or use the cosine rule)."
+},
+"id": "cg-038",
+"number": "38"
+},
+{
+"difficulty": 2,
+"topics": [
+"Forms of a line"
+],
+"type": "Find the value",
+"text": "A line through $A(2,3)$ is inclined at $45^\\circ$ to the $x$-axis. Find the points on it at distance 4 from $A$.",
+"solution": {
+"steps": [
+{
+"title": "Distance form",
+"text": "$\\frac{x - 2}{\\cos45^\\circ} = \\frac{y - 3}{\\sin45^\\circ} = \\pm4$"
+}
+],
+"answer": "$(2 + 2\\sqrt2,\\ 3 + 2\\sqrt2)$ and $(2 - 2\\sqrt2,\\ 3 - 2\\sqrt2)$"
+},
+"id": "cg-039",
+"number": "39"
+},
+{
+"difficulty": 3,
+"topics": [
+"Forms of a line"
+],
+"type": "Find the value",
+"text": "A line through $P(x_1,y_1)$ making angle $\\alpha$ with the $x$-axis meets $Ax + By + C = 0$ at $Q$. Find $PQ$.",
+"solution": {
+"steps": [
+{
+"title": "Parametric point",
+"text": "$Q = (x_1 + r\\cos\\alpha,\\ y_1 + r\\sin\\alpha)$"
+},
+{
+"title": "Put in the line",
+"text": "$A(x_1 + r\\cos\\alpha) + B(y_1 + r\\sin\\alpha) + C = 0$"
+}
+],
+"answer": "$PQ = \\left|\\frac{Ax_1 + By_1 + C}{A\\cos\\alpha + B\\sin\\alpha}\\right|$"
+},
+"id": "cg-040",
+"number": "40"
+},
+{
+"difficulty": 3,
+"topics": [
+"Forms of a line",
+"Distance & foot of perpendicular"
+],
+"type": "Find the value",
+"text": "$A(3,1)$ lies on $L: 2x + 5y = 11$. Find (i) a point $P$ on $L$ at distance 7 from $A$ (ii) the point $Q$ farthest from $L$ with $AQ = 10$.",
+"solution": {
+"steps": [
+{
+"title": "(i) along the line",
+"text": "Direction of $L$: $\\frac{(5, -2)}{\\sqrt{29}}$, so $P = A \\pm 7\\cdot\\frac{(5,-2)}{\\sqrt{29}}$"
+},
+{
+"title": "(ii) along the normal",
+"text": "Farthest from $L$ means $AQ \\perp L$: direction $\\frac{(2, 5)}{\\sqrt{29}}$, so $Q = A \\pm 10\\cdot\\frac{(2,5)}{\\sqrt{29}}$"
+}
+],
+"answer": "(i) $\\left(3 \\pm \\frac{35}{\\sqrt{29}},\\ 1 \\mp \\frac{14}{\\sqrt{29}}\\right)$ (ii) $\\left(3 \\pm \\frac{20}{\\sqrt{29}},\\ 1 \\pm \\frac{50}{\\sqrt{29}}\\right)$"
+},
+"id": "cg-041",
+"number": "41"
+},
+{
+"difficulty": 5,
+"topics": [
+"Forms of a line"
+],
+"type": "Find the value",
+"text": "A line through $A(-5,-4)$ meets $x + 3y + 2 = 0$, $2x + y + 4 = 0$ and $x - y - 5 = 0$ at $B, C, D$. If $\\left(\\frac{15}{AB}\\right)^2 + \\left(\\frac{10}{AC}\\right)^2 = \\left(\\frac{6}{AD}\\right)^2$, find the line.",
+"solution": {
+"steps": [
+{
+"title": "Parametric point",
+"text": "$(-5 + r\\cos\\theta,\\ -4 + r\\sin\\theta)$"
+},
+{
+"title": "Distances",
+"text": "Put into each line: $\\frac{15}{AB} = \\cos\\theta + 3\\sin\\theta$, $\\frac{10}{AC} = 2\\cos\\theta + \\sin\\theta$, $\\frac{6}{AD} = \\cos\\theta - \\sin\\theta$"
+},
+{
+"title": "Substitute",
+"text": "$(c + 3s)^2 + (2c + s)^2 = (c - s)^2 \\Rightarrow 4c^2 + 12cs + 9s^2 = 0 \\Rightarrow (2c + 3s)^2 = 0$"
+},
+{
+"title": "Slope",
+"text": "$\\tan\\theta = -\\frac23$: $y + 4 = -\\frac23(x + 5)$"
+}
+],
+"answer": "$2x + 3y + 22 = 0$",
+"tip": "With the distance form, $\\frac{k}{r}$ becomes a simple linear expression in $\\cos\\theta, \\sin\\theta$."
+},
+"id": "cg-042",
+"number": "42"
+},
+{
+"difficulty": 2,
+"topics": [
+"Triangle centres"
+],
+"type": "Find the value",
+"text": "If $A(3,2)$ and $B(7,4)$ are vertices of an equilateral triangle, find the third vertex.",
+"solution": {
+"steps": [
+{
+"title": "Rotate about the mid-point",
+"text": "Third vertex $= M \\pm \\frac{\\sqrt3}{2}\\left(-(y_2 - y_1),\\ x_2 - x_1\\right)$ with $M = (5, 3)$"
+},
+{
+"title": "Substitute",
+"text": "$(5, 3) \\pm \\frac{\\sqrt3}{2}(-2, 4)$"
+}
+],
+"answer": "$(5 - \\sqrt3,\\ 3 + 2\\sqrt3)$ or $(5 + \\sqrt3,\\ 3 - 2\\sqrt3)$",
+"tip": "Formula: $\\left(\\frac{x_1+x_2 \\pm \\sqrt3(y_1-y_2)}{2},\\ \\frac{y_1+y_2 \\mp \\sqrt3(x_1-x_2)}{2}\\right)$."
+},
+"id": "cg-043",
+"number": "43"
+},
+{
+"difficulty": 4,
+"topics": [
+"Forms of a line"
+],
+"type": "Find the value",
+"text": "The line $y = \\sqrt3x - 3$ cuts the curve $y^2 = x + 2$ at $P$ and $Q$. If $A = (0,-3)$, find (i) $AP\\cdot AQ$ (ii) $\\frac1{AP} + \\frac1{AQ}$.",
+"solution": {
+"steps": [
+{
+"title": "A is on the line",
+"text": "Slope $\\sqrt3$ ⇒ $\\theta = 60^\\circ$: points are $\\left(\\frac r2,\\ -3 + \\frac{\\sqrt3 r}{2}\\right)$"
+},
+{
+"title": "Substitute into the curve",
+"text": "$\\left(-3 + \\frac{\\sqrt3r}2\\right)^2 = \\frac r2 + 2 \\Rightarrow 3r^2 - (12\\sqrt3 + 2)r + 28 = 0$"
+},
+{
+"title": "Vieta",
+"text": "$r_1r_2 = \\frac{28}{3},\\ r_1 + r_2 = \\frac{12\\sqrt3 + 2}{3}$ (both roots positive)"
+},
+{
+"title": "(ii)",
+"text": "$\\frac{r_1 + r_2}{r_1r_2} = \\frac{12\\sqrt3 + 2}{28}$"
+}
+],
+"answer": "(i) $\\frac{28}{3}$ (ii) $\\frac{6\\sqrt3 + 1}{14}$",
+"tip": "Distance form turns 'product/sum of distances from A' into the product/sum of roots of a quadratic in $r$."
+},
+"id": "cg-044",
+"number": "44"
+},
+{
+"difficulty": 4,
+"topics": [
+"Reflection & images"
+],
+"type": "Find the value",
+"text": "A ray of light from $A(1,2)$ strikes the mirror $3x + 4y = 3$ at $B$ and after reflection passes through $C(4,4)$. Find $B$, the incident ray and the reflected ray.",
+"solution": {
+"steps": [
+{
+"title": "Image of C",
+"text": "$\\frac{x - 4}{3} = \\frac{y - 4}{4} = -\\frac{2(12 + 16 - 3)}{25} = -2 \\Rightarrow C' = (-2, -4)$"
+},
+{
+"title": "Incident ray = line AC′",
+"text": "Slope $\\frac{-4 - 2}{-2 - 1} = 2$: $y = 2x$"
+},
+{
+"title": "B",
+"text": "$3x + 8x = 3 \\Rightarrow B = \\left(\\frac3{11}, \\frac6{11}\\right)$"
+},
+{
+"title": "Reflected ray = line BC",
+"text": "Slope $\\frac{4 - 6/11}{4 - 3/11} = \\frac{38}{41}$"
+}
+],
+"answer": "$B\\left(\\frac3{11}, \\frac6{11}\\right)$; incident $y = 2x$; reflected $38x - 41y + 12 = 0$",
+"diagram": "<svg viewBox=\"0 0 320 220\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"inherit\" font-size=\"13\">\n<line x1=\"10\" y1=\"130\" x2=\"310\" y2=\"130\" style=\"stroke:var(--d2);stroke-width:2.5\"/>\n<g style=\"stroke:var(--d2);stroke-opacity:.6\"><line x1=\"30\" y1=\"130\" x2=\"22\" y2=\"140\"/><line x1=\"60\" y1=\"130\" x2=\"52\" y2=\"140\"/><line x1=\"90\" y1=\"130\" x2=\"82\" y2=\"140\"/><line x1=\"120\" y1=\"130\" x2=\"112\" y2=\"140\"/><line x1=\"150\" y1=\"130\" x2=\"142\" y2=\"140\"/><line x1=\"180\" y1=\"130\" x2=\"172\" y2=\"140\"/><line x1=\"210\" y1=\"130\" x2=\"202\" y2=\"140\"/><line x1=\"240\" y1=\"130\" x2=\"232\" y2=\"140\"/><line x1=\"270\" y1=\"130\" x2=\"262\" y2=\"140\"/></g>\n<line x1=\"60\" y1=\"40\" x2=\"120\" y2=\"130\" style=\"stroke:var(--d4);stroke-width:2\"/><line x1=\"120\" y1=\"130\" x2=\"270\" y2=\"20\" style=\"stroke:var(--d1);stroke-width:2\"/>\n<line x1=\"120\" y1=\"130\" x2=\"270\" y2=\"210\" style=\"stroke:currentColor;stroke-dasharray:4 4;stroke-opacity:.6\"/>\n<g style=\"fill:currentColor\"><circle cx=\"60\" cy=\"40\" r=\"4\"/><text x=\"66\" y=\"36\">A(1, 2)</text><circle cx=\"270\" cy=\"20\" r=\"4\"/><text x=\"222\" y=\"16\">C(4, 4)</text>\n<circle cx=\"120\" cy=\"130\" r=\"4\" style=\"fill:var(--d3)\"/><text x=\"104\" y=\"155\">B</text><circle cx=\"270\" cy=\"210\" r=\"4\" style=\"fill:none;stroke:currentColor\"/><text x=\"168\" y=\"206\">C′(−2, −4)</text><text x=\"250\" y=\"124\">mirror</text></g></svg>",
+"tip": "Reflect the far point in the mirror; the incident ray points straight at that image."
+},
+"id": "cg-045",
+"number": "45"
+},
+{
+"difficulty": 4,
+"topics": [
+"Reflection & images"
+],
+"type": "Find the value",
+"text": "Find the point $B$ on $3x + 4y = 3$ for which $AB + BC$ is minimum, where $A = (1,2)$ and $C = (4,4)$. Hence find the maximum value of $|AB - BC|$.",
+"solution": {
+"steps": [
+{
+"title": "Same side",
+"text": "$L(A) = 8 \\gt 0$ and $L(C) = 25 \\gt 0$ — both on the same side, so reflect $C$: $C'(-2,-4)$"
+},
+{
+"title": "Minimum sum",
+"text": "$AB + BC = AB + BC' \\ge AC' = \\sqrt{9 + 36} = 3\\sqrt5$, at $B\\left(\\frac3{11}, \\frac6{11}\\right)$ (as in the light-ray problem)"
+},
+{
+"title": "Maximum difference",
+"text": "$|AB - BC| \\le AC = \\sqrt{13}$ (triangle inequality), reached when $B$ is on line $AC$: $2x - 3y + 4 = 0$"
+},
+{
+"title": "That B",
+"text": "Solve with $3x + 4y = 3$: $B = \\left(-\\frac7{17}, \\frac{18}{17}\\right)$"
+}
+],
+"answer": "Min $AB + BC = 3\\sqrt5$ at $\\left(\\frac3{11},\\frac6{11}\\right)$; max $|AB - BC| = \\sqrt{13}$ at $\\left(-\\frac7{17},\\frac{18}{17}\\right)$",
+"tip": "Same side: reflect one point for the minimum sum; join them directly for the maximum difference. (Opposite sides: the other way round.)"
+},
+"id": "cg-046",
+"number": "46"
+},
+{
+"difficulty": 3,
+"topics": [
+"Distance & foot of perpendicular",
+"Triangle centres"
+],
+"type": "Find the value",
+"text": "The perpendicular bisectors $x + y + 2 = 0$ and $x - y - 1 = 0$ of sides $AB$ and $AC$ of $\\triangle ABC$ meet them at $(-1,-1)$ and $(2,1)$. If $P$ is the mid-point of $BC$, find $PH$ where $H$ is the orthocentre.",
+"solution": {
+"steps": [
+{
+"title": "Sides",
+"text": "$AB \\perp x + y + 2 = 0$ through $(-1,-1)$: $y = x$. $AC \\perp x - y - 1 = 0$ through $(2,1)$: $x + y = 3$"
+},
+{
+"title": "Vertices",
+"text": "$A = \\left(\\frac32, \\frac32\\right)$; $B = 2(-1,-1) - A = \\left(-\\frac72, -\\frac72\\right)$; $C = 2(2,1) - A = \\left(\\frac52, \\frac12\\right)$"
+},
+{
+"title": "Right angle at A",
+"text": "Slopes 1 and −1 ⇒ $\\angle A = 90^\\circ$, so $H = A$ and $P$ (mid-point of hypotenuse) is the circumcentre $\\left(-\\frac12, -\\frac32\\right)$"
+},
+{
+"title": "Distance",
+"text": "$PH = \\sqrt{4 + 9}$"
+}
+],
+"answer": "$\\sqrt{13}$"
+},
+"id": "cg-047",
+"number": "47"
+},
+{
+"difficulty": 2,
+"topics": [
+"Distance & foot of perpendicular"
+],
+"type": "Find the value",
+"text": "Find:<ol class='parts'><li>the radius of the circle to which $3x + 4y = 7$ and $6x + 8y + 9 = 0$ are tangents</li><li>the fourth side of a square whose three sides are $x + 2y + 3 = 0$, $x + 2y - 7 = 0$ and $2x - y - 4 = 0$</li></ol>",
+"solution": {
+"steps": [
+{
+"title": "Parallel lines",
+"text": "Distance between $ax + by + c_1 = 0$ and $ax + by + c_2 = 0$ is $\\frac{|c_1 - c_2|}{\\sqrt{a^2+b^2}}$ (make $a, b$ match first)"
+},
+{
+"title": "(i)",
+"text": "$6x + 8y - 14 = 0$ and $6x + 8y + 9 = 0$: diameter $\\frac{23}{10}$"
+},
+{
+"title": "(ii) side length",
+"text": "$\\frac{|3 + 7|}{\\sqrt5} = 2\\sqrt5$"
+},
+{
+"title": "(ii) fourth side",
+"text": "$2x - y + c = 0$ with $\\frac{|c + 4|}{\\sqrt5} = 2\\sqrt5 \\Rightarrow c = 6$ or $-14$"
+}
+],
+"answer": "(i) $\\frac{23}{20}$ (ii) $2x - y + 6 = 0$ or $2x - y - 14 = 0$"
+},
+"id": "cg-048",
+"number": "48"
+},
+{
+"difficulty": 2,
+"topics": [
+"Position & angle bisectors"
+],
+"type": "Find the value",
+"text": "Find:<ol class='parts'><li>whether $P(2,-5)$ is on the origin side of $3x - y + 2 = 0$</li><li>the range of $a$ if $P(a, a^2)$ lies between the lines $x + y - 2 = 0$ and $4x + 4y - 3 = 0$</li></ol>",
+"solution": {
+"steps": [
+{
+"title": "Sign test",
+"text": "$P, Q$ are on the same side of $L = 0$ iff $L(P)$ and $L(Q)$ have the same sign."
+},
+{
+"title": "(i)",
+"text": "$L(O) = 2 \\gt 0$, $L(P) = 6 + 5 + 2 = 13 \\gt 0$ — same side"
+},
+{
+"title": "(ii)",
+"text": "Between the parallel lines: $a + a^2 - 2 \\lt 0$ and $4a + 4a^2 - 3 \\gt 0$"
+},
+{
+"title": "(ii) solve",
+"text": "$(a + 2)(a - 1) \\lt 0$ and $(2a + 3)(2a - 1) \\gt 0$"
+}
+],
+"answer": "(i) yes (ii) $a \\in \\left(-2, -\\frac32\\right) \\cup \\left(\\frac12, 1\\right)$"
+},
+"id": "cg-049",
+"number": "49"
+},
+{
+"difficulty": 4,
+"topics": [
+"Position & angle bisectors"
+],
+"type": "Find the value",
+"text": "Find $\\alpha$ for which $P(\\alpha, \\alpha^2)$ lies inside the triangle formed by $2x - 3y - 1 = 0$, $x + 2y - 3 = 0$ and $5x - 6y + 1 = 0$. Hence state whether the triangle is acute- or obtuse-angled.",
+"solution": {
+"steps": [
+{
+"title": "Vertices",
+"text": "$A(1,1)$ (from $L_2, L_3$), $B\\left(-3, -\\frac73\\right)$ (from $L_1, L_3$), $C\\left(\\frac{11}{7}, \\frac57\\right)$ (from $L_1, L_2$)"
+},
+{
+"title": "Inside ⇔ same side as the opposite vertex",
+"text": "$L_1(P)$ with $L_1(A) \\lt 0$; $L_2(P)$ with $L_2(B) \\lt 0$; $L_3(P)$ with $L_3(C) \\gt 0$"
+},
+{
+"title": "Inequalities",
+"text": "$2\\alpha - 3\\alpha^2 - 1 \\lt 0$ (always true); $2\\alpha^2 + \\alpha - 3 \\lt 0 \\Rightarrow -\\frac32 \\lt \\alpha \\lt 1$; $6\\alpha^2 - 5\\alpha - 1 \\lt 0 \\Rightarrow -\\frac16 \\lt \\alpha \\lt 1$"
+},
+{
+"title": "Angle at A",
+"text": "$\\tan A = \\frac{m_2 - m_3}{1 + m_2m_3} = \\frac{-\\frac12 - \\frac56}{1 - \\frac5{12}} \\lt 0$ (taken in order) — angle $A$ is obtuse"
+}
+],
+"answer": "$\\alpha \\in \\left(-\\frac16, 1\\right)$; the triangle is obtuse-angled",
+"tip": "Don't use $L_1L_2L_3 \\gt 0$ — compare each line's sign at $P$ with its sign at the opposite vertex."
+},
+"id": "cg-050",
+"number": "50"
+},
+{
+"difficulty": 3,
+"topics": [
+"Position & angle bisectors"
+],
+"type": "Find the value",
+"text": "Find the angle bisectors of $4x + 3y - 7 = 0$ and $24x + 7y - 31 = 0$, and identify the acute (AAB) and obtuse (OAB) angle bisectors.",
+"solution": {
+"steps": [
+{
+"title": "Bisectors",
+"text": "$\\frac{4x + 3y - 7}{5} = \\pm\\frac{24x + 7y - 31}{25}$"
+},
+{
+"title": "Simplify",
+"text": "$+$: $x - 2y + 1 = 0$; $\\ -$: $2x + y - 3 = 0$"
+},
+{
+"title": "Identify (method 3)",
+"text": "Make both constants positive: $-4x - 3y + 7$ and $-24x - 7y + 31$. Then $a_1a_2 + b_1b_2 = 96 + 21 \\gt 0$, so the '+' bisector is the OAB."
+},
+{
+"title": "Check (method 1)",
+"text": "Angle between $x - 2y + 1 = 0$ (slope $\\frac12$) and the first line (slope $-\\frac43$): $\\tan = \\frac{11/6}{1/3} \\gt 1$ ⇒ obtuse ✓"
+}
+],
+"answer": "AAB: $2x + y - 3 = 0$; OAB: $x - 2y + 1 = 0$",
+"tip": "Constants positive: if $a_1a_2 + b_1b_2 \\gt 0$, the '+' bisector is obtuse; if $\\lt 0$, the '+' bisector is acute. The '+' bisector always contains the origin."
+},
+"id": "cg-051",
+"number": "51"
+},
+{
+"difficulty": 3,
+"topics": [
+"Position & angle bisectors"
+],
+"type": "Find the value",
+"text": "Find the bisector of the angle between $3x - 4y + 1 = 0$ and $5x + 12y - 17 = 0$ containing (i) the origin (ii) the point $(2,1)$.",
+"solution": {
+"steps": [
+{
+"title": "Rule",
+"text": "The bisector of the region containing $P$: $\\frac{L_1}{\\sqrt{\\cdot}} = \\pm\\frac{L_2}{\\sqrt{\\cdot}}$ with the sign of $L_1(P)L_2(P)$."
+},
+{
+"title": "(i)",
+"text": "$L_1(O) = 1 \\gt 0,\\ L_2(O) = -17 \\lt 0$: $\\frac{3x - 4y + 1}{5} = -\\frac{5x + 12y - 17}{13}$"
+},
+{
+"title": "(ii)",
+"text": "$L_1 = 3 \\gt 0,\\ L_2 = 5 \\gt 0$: $\\frac{3x - 4y + 1}5 = +\\frac{5x + 12y - 17}{13}$"
+}
+],
+"answer": "(i) $8x + y - 9 = 0$ (ii) $x - 8y + 7 = 0$"
+},
+"id": "cg-052",
+"number": "52"
+},
+{
+"difficulty": 4,
+"topics": [
+"Position & angle bisectors",
+"Reflection & images"
+],
+"type": "Find the value",
+"text": "One angle bisector of $L_1: 2x - 3y + 1 = 0$ and $L_2$ is $B: 14x - 2y + 3 = 0$. Find $L_2$.",
+"solution": {
+"steps": [
+{
+"title": "Idea",
+"text": "$L_2$ is the mirror image of $L_1$ in $B$: it passes through $L_1 \\cap B$ and through the image of any point of $L_1$."
+},
+{
+"title": "Intersection",
+"text": "$L_1 \\cap B = \\left(-\\frac7{38}, \\frac4{19}\\right)$"
+},
+{
+"title": "Image of (1,1) ∈ L₁",
+"text": "$\\frac{x - 1}{14} = \\frac{y - 1}{-2} = -\\frac{2\\cdot15}{200} \\Rightarrow \\left(-\\frac{11}{10}, \\frac{13}{10}\\right)$"
+},
+{
+"title": "Line through both",
+"text": "Slope $-\\frac{69}{58}$; check: $\\tan$ of the angle to $B$ is $\\frac{19}{17}$ for both lines ✓"
+}
+],
+"answer": "$138x + 116y + 1 = 0$"
+},
+"id": "cg-053",
+"number": "53"
+},
+{
+"difficulty": 2,
+"topics": [
+"Position & angle bisectors"
+],
+"type": "MCQ",
+"text": "The line $3x + 2y = 6$ divides the quadrilateral formed by $x + y = 5$, $y - 2x = 8$, $3y + 2x = 0$ and $4y - x = 0$ into<div class='opts'><span>(a) two quadrilaterals</span><span>(b) one pentagon and one triangle</span><span>(c) two triangles</span><span>(d) none of these</span></div>",
+"solution": {
+"steps": [
+{
+"title": "Vertices",
+"text": "$D(0,0),\\ A(4,1),\\ B(-1,6),\\ C(-3,2)$"
+},
+{
+"title": "Signs of L = 3x + 2y − 6",
+"text": "$L(D) \\lt 0,\\ L(A) \\gt 0,\\ L(B) \\gt 0,\\ L(C) \\lt 0$"
+},
+{
+"title": "Conclude",
+"text": "The line cuts sides $DA$ and $BC$, separating $\\{A, B\\}$ from $\\{C, D\\}$ — two four-sided pieces."
+}
+],
+"answer": "(a) two quadrilaterals"
+},
+"id": "cg-054",
+"number": "54"
+},
+{
+"difficulty": 2,
+"topics": [
+"Family & concurrency"
+],
+"type": "Proof",
+"text": "If the lines $p_ix + q_iy + 1 = 0$ ($i = 1,2,3$) are concurrent, prove that $(p_1,q_1), (p_2,q_2), (p_3,q_3)$ are collinear.",
+"solution": {
+"steps": [
+{
+"title": "Concurrency",
+"text": "$\\begin{vmatrix}p_1&q_1&1\\\\p_2&q_2&1\\\\p_3&q_3&1\\end{vmatrix} = 0$"
+},
+{
+"title": "Read it as an area",
+"text": "The same determinant is $2\\times$ the area of the triangle with those three points, so the area is 0 ∎"
+}
+],
+"answer": "Proved"
+},
+"id": "cg-055",
+"number": "55"
+},
+{
+"difficulty": 3,
+"topics": [
+"Family & concurrency"
+],
+"type": "Find the value",
+"text": "Show that each family passes through a fixed point and find it:<ol class='parts'><li>$y = ax - 2x - 3$</li><li>$x(a + 3b) + y(2a - b) - (5a + b) = 0$</li><li>$ax + by + c = 0$ where $3a + 2b + 6c = 0$</li></ol>",
+"solution": {
+"steps": [
+{
+"title": "Method",
+"text": "Write the line as $L_1 + \\lambda L_2 = 0$; it always passes through $L_1 = 0 \\cap L_2 = 0$."
+},
+{
+"title": "(i)",
+"text": "$(2x + y + 3) - ax = 0$: $x = 0,\\ 2x + y + 3 = 0$"
+},
+{
+"title": "(ii)",
+"text": "$a(x + 2y - 5) + b(3x - y - 1) = 0$: $x = 1, y = 2$"
+},
+{
+"title": "(iii)",
+"text": "$c = -\\frac{3a + 2b}{6} \\Rightarrow a\\left(x - \\frac12\\right) + b\\left(y - \\frac13\\right) = 0$"
+}
+],
+"answer": "(i) $(0,-3)$ (ii) $(1,2)$ (iii) $\\left(\\frac12, \\frac13\\right)$",
+"tip": "A linear condition $pa + qb + rc = 0$ on $ax + by + c = 0$ means the line passes through $\\left(\\frac pr, \\frac qr\\right)$."
+},
+"id": "cg-056",
+"number": "56"
+},
+{
+"difficulty": 4,
+"topics": [
+"Family & concurrency",
+"Locus"
+],
+"type": "Proof",
+"text": "A variable line through the intersection of $\\frac xa + \\frac yb = 1$ and $\\frac xb + \\frac ya = 1$ meets the axes at $A$ and $B$. Show that the locus of the mid-point of $AB$ is $2xy(a+b) = ab(x+y)$.",
+"solution": {
+"steps": [
+{
+"title": "Fixed point",
+"text": "By symmetry the intersection is $x = y = \\frac{ab}{a+b}$."
+},
+{
+"title": "Variable line",
+"text": "Mid-point $(h,k)$ ⇒ intercepts $2h, 2k$: $\\frac{x}{2h} + \\frac{y}{2k} = 1$"
+},
+{
+"title": "Through the fixed point",
+"text": "$\\frac{ab}{a+b}\\left(\\frac1{2h} + \\frac1{2k}\\right) = 1 \\Rightarrow ab(h + k) = 2hk(a + b)$ ∎"
+}
+],
+"answer": "Proved"
+},
+"id": "cg-057",
+"number": "57"
+},
+{
+"difficulty": 2,
+"topics": [
+"Family & concurrency"
+],
+"type": "MCQ",
+"text": "If $A(x_1,y_1), B(x_2,y_2), C(x_3,y_3)$ are vertices of a triangle, the equation $\\begin{vmatrix}x&y&1\\\\x_1&y_1&1\\\\x_2&y_2&1\\end{vmatrix} + \\begin{vmatrix}x&y&1\\\\x_1&y_1&1\\\\x_3&y_3&1\\end{vmatrix} = 0$ represents<div class='opts'><span>(a) the median through A</span><span>(b) the altitude through A</span><span>(c) the perpendicular bisector of BC</span></div>",
+"solution": {
+"steps": [
+{
+"title": "Add the determinants",
+"text": "They differ only in the last row: $\\begin{vmatrix}x&y&1\\\\x_1&y_1&1\\\\x_2+x_3&y_2+y_3&2\\end{vmatrix} = 0$"
+},
+{
+"title": "Divide the row by 2",
+"text": "Points $(x,y)$ collinear with $A$ and the mid-point of $BC$"
+}
+],
+"answer": "(a) the median through A"
+},
+"id": "cg-058",
+"number": "58"
+},
+{
+"difficulty": 3,
+"topics": [
+"Distance & foot of perpendicular"
+],
+"type": "Find the value",
+"text": "If the sum of the algebraic distances of a variable line from the three vertices of a triangle is 0, show that the line passes through a fixed point.",
+"solution": {
+"steps": [
+{
+"title": "Sum",
+"text": "$\\sum\\frac{ax_i + by_i + c}{\\sqrt{a^2+b^2}} = 0$"
+},
+{
+"title": "Divide by 3",
+"text": "$a\\cdot\\frac{x_1+x_2+x_3}{3} + b\\cdot\\frac{y_1+y_2+y_3}{3} + c = 0$"
+}
+],
+"answer": "It always passes through the centroid"
+},
+"id": "cg-059",
+"number": "59"
+},
+{
+"difficulty": 1,
+"topics": [
+"Shifting & rotating axes"
+],
+"type": "Find the value",
+"text": "If the origin is shifted:<ol class='parts'><li>to $(2,-5)$, find the new coordinates of $(4,7)$ and $(10,-3)$</li><li>to $(2,3)$, find the transformed equation of $2x - 3y + 5 = 0$</li></ol>",
+"solution": {
+"steps": [
+{
+"title": "Rule",
+"text": "New = old − $(h, k)$; equivalently $x = X + h,\\ y = Y + k$"
+},
+{
+"title": "(i)",
+"text": "$(4 - 2, 7 + 5),\\ (10 - 2, -3 + 5)$"
+},
+{
+"title": "(ii)",
+"text": "$2(X + 2) - 3(Y + 3) + 5 = 0$"
+}
+],
+"answer": "(i) $(2, 12)$ and $(8, 2)$ (ii) $2X = 3Y$"
+},
+"id": "cg-060",
+"number": "60"
+},
+{
+"difficulty": 2,
+"topics": [
+"Shifting & rotating axes"
+],
+"type": "Find the value",
+"text": "Find the point to which the origin must be shifted to remove<ol class='parts'><li>the constant term in $y = mx + c$</li><li>the first-degree terms in $x^2 + y^2 - 4x - 6y - 3 = 0$</li></ol>",
+"solution": {
+"steps": [
+{
+"title": "(i)",
+"text": "Any point on the line works, e.g. $(0, c)$: $Y + c = mX + c \\Rightarrow Y = mX$"
+},
+{
+"title": "(ii) complete the squares",
+"text": "$(x - 2)^2 + (y - 3)^2 = 16$, so shift to $(2,3)$"
+}
+],
+"answer": "(i) $(0, c)$ (or any point on the line) (ii) $(2,3)$, giving $X^2 + Y^2 = 16$"
+},
+"id": "cg-061",
+"number": "61"
+},
+{
+"difficulty": 3,
+"topics": [
+"Shifting & rotating axes"
+],
+"type": "Find the value",
+"text": "The line $\\frac xa + \\frac yb = 1$ becomes $\\frac xp + \\frac yq = 1$ when the axes are rotated through $\\theta$. Find a relation between $a, b, p, q$.",
+"solution": {
+"steps": [
+{
+"title": "Invariant",
+"text": "Rotation doesn't move the origin or the line, so the perpendicular distance from the origin is unchanged."
+},
+{
+"title": "Equate",
+"text": "$\\frac{1}{\\sqrt{\\frac1{a^2} + \\frac1{b^2}}} = \\frac1{\\sqrt{\\frac1{p^2} + \\frac1{q^2}}}$"
+}
+],
+"answer": "$\\frac1{a^2} + \\frac1{b^2} = \\frac1{p^2} + \\frac1{q^2}$"
+},
+"id": "cg-062",
+"number": "62"
+},
+{
+"difficulty": 2,
+"topics": [
+"Pair of straight lines"
+],
+"type": "Find the value",
+"text": "Find the combined equation of<ol class='parts'><li>$2x - y = 0$ and $x + 3y = 0$</li><li>$2x + 3 = y$ and $x + y = 9$</li><li>the $x$-axis, $y$-axis and $x - 2y = 1$</li><li>$x = 0$ and $y = 0$</li><li>the lines joining the origin to $(1,3)$ and $(2,2)$</li></ol>",
+"solution": {
+"steps": [
+{
+"title": "Rule",
+"text": "Joint equation of $L_1 = 0, L_2 = 0$ is $L_1L_2 = 0$"
+},
+{
+"title": "(i), (ii)",
+"text": "$(2x - y)(x + 3y) = 0$; $\\ (2x - y + 3)(x + y - 9) = 0$"
+},
+{
+"title": "(iii)–(v)",
+"text": "$xy(x - 2y - 1) = 0$; $xy = 0$; $(y - 3x)(y - x) = 0$"
+}
+],
+"answer": "(i) $2x^2 + 5xy - 3y^2 = 0$ (ii) $2x^2 + xy - y^2 - 15x + 12y - 27 = 0$ (iii) $xy(x - 2y - 1) = 0$ (iv) $xy = 0$ (v) $3x^2 - 4xy + y^2 = 0$"
+},
+"id": "cg-063",
+"number": "63"
+},
+{
+"difficulty": 2,
+"topics": [
+"Pair of straight lines"
+],
+"type": "Find the value",
+"text": "Find the separate equations of the lines $x^2 - 6xy + 8y^2 = 0$.",
+"solution": {
+"steps": [
+{
+"title": "Factor",
+"text": "$x^2 - 2xy - 4xy + 8y^2 = (x - 2y)(x - 4y)$"
+},
+{
+"title": "Or with m = y/x",
+"text": "$8m^2 - 6m + 1 = 0 \\Rightarrow m = \\frac12, \\frac14$"
+}
+],
+"answer": "$x = 2y$ and $x = 4y$",
+"tip": "For $ax^2 + 2hxy + by^2 = 0$: $m_1 + m_2 = -\\frac{2h}{b},\\ m_1m_2 = \\frac ab$."
+},
+"id": "cg-064",
+"number": "64"
+},
+{
+"difficulty": 3,
+"topics": [
+"Pair of straight lines"
+],
+"type": "Find the value",
+"text": "For the pair $ax^2 + 2hxy + by^2 = 0$, find the condition that<ol class='parts'><li>one line is $2x + 3y = 0$</li><li>the slope of one line is double the other</li><li>the slope of one line is the square of the other</li></ol>",
+"solution": {
+"steps": [
+{
+"title": "(i) substitute",
+"text": "$y = -\\frac23x$: $a - \\frac{4h}3 + \\frac{4b}9 = 0$"
+},
+{
+"title": "(ii)",
+"text": "$m + 2m = -\\frac{2h}b,\\ 2m^2 = \\frac ab \\Rightarrow 2\\cdot\\frac{4h^2}{9b^2} = \\frac ab$"
+},
+{
+"title": "(iii)",
+"text": "$m + m^2 = -\\frac{2h}{b},\\ m^3 = \\frac ab$. Cube the sum: $m^3 + m^6 + 3m^3(m + m^2) = -\\frac{8h^3}{b^3}$"
+},
+{
+"title": "(iii) simplify",
+"text": "$\\frac ab + \\frac{a^2}{b^2} - \\frac{6ah}{b^2} = -\\frac{8h^3}{b^3}$"
+}
+],
+"answer": "(i) $9a + 4b = 12h$ (ii) $8h^2 = 9ab$ (iii) $ab^2 + a^2b + 8h^3 = 6abh$"
+},
+"id": "cg-065",
+"number": "65"
+},
+{
+"difficulty": 3,
+"topics": [
+"Pair of straight lines",
+"Triangle centres"
+],
+"type": "Find the value",
+"text": "Find the centroid of the triangle formed by<ol class='parts'><li>$2x - 3y = 4$ and $12x^2 - 20xy + 7y^2 = 0$</li><li>$ax^2 + 2hxy + by^2 = 0$ and $lx + my = 1$</li></ol>",
+"solution": {
+"steps": [
+{
+"title": "(i) factor",
+"text": "$12x^2 - 20xy + 7y^2 = (2x - y)(6x - 7y)$: lines $y = 2x$ and $y = \\frac67x$"
+},
+{
+"title": "(i) vertices",
+"text": "$(0,0),\\ (-1,-2),\\ (-7,-6)$"
+},
+{
+"title": "(ii) substitute y",
+"text": "$(am^2 - 2hlm + bl^2)x^2 + 2(hm - bl)x + b = 0$ (after multiplying by $m^2$), so $x_1 + x_2 = \\frac{2(bl - hm)}{am^2 - 2hlm + bl^2}$; similarly $y_1 + y_2 = \\frac{2(am - hl)}{am^2 - 2hlm + bl^2}$"
+},
+{
+"title": "(ii) centroid",
+"text": "$\\left(\\frac{x_1 + x_2}{3}, \\frac{y_1 + y_2}{3}\\right)$ since the third vertex is the origin"
+}
+],
+"answer": "(i) $\\left(-\\frac83, -\\frac83\\right)$ (ii) $\\left(\\frac{2(bl - hm)}{3(am^2 - 2hlm + bl^2)},\\ \\frac{2(am - hl)}{3(am^2 - 2hlm + bl^2)}\\right)$"
+},
+"id": "cg-066",
+"number": "66"
+},
+{
+"difficulty": 4,
+"topics": [
+"Pair of straight lines"
+],
+"type": "MCQ",
+"text": "The lines joining the origin to the points of intersection of $ax^2 + 2hxy + by^2 + 2gx = 0$ and $a'x^2 + 2h'xy + b'y^2 + 2g'x = 0$ are perpendicular if<div class='opts'><span>(a) $g(a' - b') = g'(a + b)$</span><span>(b) $g(a' + b') = g'(a + b)$</span><span>(c) $g(a' + b') = g'(a - b)$</span><span>(d) $g(a' - b') = g'(a - b)$</span></div>",
+"solution": {
+"steps": [
+{
+"title": "Homogenise",
+"text": "Eliminate the $x$ term: $g'(\\text{first}) - g(\\text{second})$ gives $(ag' - a'g)x^2 + 2(hg' - h'g)xy + (bg' - b'g)y^2 = 0$ — a pair through the origin"
+},
+{
+"title": "Perpendicular",
+"text": "Coefficient of $x^2$ + coefficient of $y^2 = 0$: $g'(a + b) = g(a' + b')$"
+}
+],
+"answer": "(b)",
+"tip": "A pair $ax^2 + 2hxy + by^2 = 0$ is perpendicular iff $a + b = 0$."
+},
+"id": "cg-067",
+"number": "67"
+},
+{
+"difficulty": 4,
+"topics": [
+"Pair of straight lines"
+],
+"type": "MCQ",
+"text": "The area of the parallelogram formed by the pairs $6x^2 + 6y^2 + ax + ay - 13xy - a^2 = 0$ and $6x^2 + 6y^2 - 13xy + 5ax - 6a^2 = 0$ is<div class='opts'><span>(a) $\\frac{4a^2}{7}$</span><span>(b) $\\frac25a^2$</span><span>(c) $\\frac32a^2$</span><span>(d) none of these</span></div>",
+"solution": {
+"steps": [
+{
+"title": "Factor the quadratic part",
+"text": "$6x^2 - 13xy + 6y^2 = (3x - 2y)(2x - 3y)$"
+},
+{
+"title": "First pair",
+"text": "$(3x - 2y - a)(2x - 3y + a) = 0$ (match $x$, $y$ and constant terms)"
+},
+{
+"title": "Second pair",
+"text": "$(3x - 2y - 2a)(2x - 3y + 3a) = 0$"
+},
+{
+"title": "Area formula",
+"text": "$\\frac{|c_1 - d_1||c_2 - d_2|}{|a_1b_2 - a_2b_1|} = \\frac{a\\cdot 2a}{|{-9} + 4|}$"
+}
+],
+"answer": "(b) $\\frac25a^2$",
+"tip": "Parallelogram with sides on $a_1x + b_1y + c_1 = 0, d_1$ and $a_2x + b_2y + c_2 = 0, d_2$: area $= \\frac{|(c_1 - d_1)(c_2 - d_2)|}{|a_1b_2 - a_2b_1|}$."
+},
+"id": "cg-068",
+"number": "68"
+},
+{
+"difficulty": 4,
+"topics": [
+"Pair of straight lines"
+],
+"type": "Proof",
+"text": "If $ax^2 + 2hxy + by^2 + 2gx + 2fy + c = 0$ represents a pair of parallel lines, find the condition and show the distance between them is $2\\sqrt{\\frac{g^2 - ac}{a(a+b)}}$.",
+"solution": {
+"steps": [
+{
+"title": "Parallel",
+"text": "Both lines have the same slope, so the quadratic part is a perfect square: $h^2 = ab$. (Also $af^2 = bg^2$ for it to factor.)"
+},
+{
+"title": "Write the lines",
+"text": "$\\sqrt ax + \\sqrt by + c_1 = 0$ and $\\sqrt ax + \\sqrt by + c_2 = 0$ with $c_1 + c_2 = \\frac{2g}{\\sqrt a}$, $c_1c_2 = c$"
+},
+{
+"title": "Distance",
+"text": "$\\frac{|c_1 - c_2|}{\\sqrt{a+b}} = \\frac{\\sqrt{(c_1 + c_2)^2 - 4c_1c_2}}{\\sqrt{a+b}} = \\frac{\\sqrt{\\frac{4g^2}{a} - 4c}}{\\sqrt{a+b}}$ ∎"
+}
+],
+"answer": "$h^2 = ab$ (with $af^2 = bg^2$); distance $2\\sqrt{\\frac{g^2 - ac}{a(a+b)}}$"
+},
+"id": "cg-069",
+"number": "69"
+}
+]
+},
+{
+"id": "circles",
+"number": 10,
+"title": "Circles",
+"questions": [
+{
+"difficulty": 1,
+"topics": [
+"Circle basics"
+],
+"type": "Find the value",
+"text": "Find the centre and radius of<ol class='parts'><li>$x^2 + y^2 + 8x - 14y + 49 = 0$</li><li>$x^2 + y^2 + 2gx + 2fy + c = 0$</li></ol>",
+"solution": {
+"steps": [
+{
+"title": "(i) complete squares",
+"text": "$(x + 4)^2 + (y - 7)^2 = 16 + 49 - 49 = 16$"
+},
+{
+"title": "(ii) general form",
+"text": "$(x + g)^2 + (y + f)^2 = g^2 + f^2 - c$"
+}
+],
+"answer": "(i) centre $(-4, 7)$, radius 4 (ii) centre $(-g, -f)$, radius $\\sqrt{g^2 + f^2 - c}$",
+"tip": "$g^2 + f^2 - c \\gt 0$: real circle; $= 0$: point circle; $\\lt 0$: no real circle."
+},
+"id": "ci-001",
+"number": "1"
+},
+{
+"difficulty": 2,
+"topics": [
+"Circle basics"
+],
+"type": "Find the value",
+"text": "Find $a$ and $b$ if $2x^2 + (3 + a)xy - by^2 + 2bx + 4ay - 12 = 0$ is a circle, and find its centre and radius.",
+"solution": {
+"steps": [
+{
+"title": "Conditions for a circle",
+"text": "Coefficients of $x^2$ and $y^2$ equal; no $xy$ term: $-b = 2,\\ 3 + a = 0$"
+},
+{
+"title": "Substitute",
+"text": "$2x^2 + 2y^2 - 4x - 12y - 12 = 0 \\Rightarrow x^2 + y^2 - 2x - 6y - 6 = 0$"
+},
+{
+"title": "Centre & radius",
+"text": "$(1, 3)$, $r = \\sqrt{1 + 9 + 6}$"
+}
+],
+"answer": "$a = -3,\\ b = -2$; centre $(1,3)$, radius 4"
+},
+"id": "ci-002",
+"number": "2"
+},
+{
+"difficulty": 2,
+"topics": [
+"Equation of a circle"
+],
+"type": "Find the value",
+"text": "Find the circle concentric with $x^2 + y^2 - 2x - 6y - 6 = 0$ which<ol class='parts'><li>has radius 5</li><li>passes through $A(2,3)$</li></ol>",
+"solution": {
+"steps": [
+{
+"title": "Concentric",
+"text": "Same $g, f$: $x^2 + y^2 - 2x - 6y + \\lambda = 0$"
+},
+{
+"title": "(i)",
+"text": "Centre $(1,3)$, radius 5"
+},
+{
+"title": "(ii)",
+"text": "$4 + 9 - 4 - 18 + \\lambda = 0 \\Rightarrow \\lambda = 9$"
+}
+],
+"answer": "(i) $(x-1)^2 + (y-3)^2 = 25$ (ii) $x^2 + y^2 - 2x - 6y + 9 = 0$",
+"tip": "Concentric circles differ only in the constant term."
+},
+"id": "ci-003",
+"number": "3"
+},
+{
+"difficulty": 2,
+"topics": [
+"Equation of a circle"
+],
+"type": "Find the value",
+"text": "Find the circle<ol class='parts'><li>with $(2x - 3y - 5)(3x + 4y + 1) = 0$ as diameters and perimeter $10\\pi$</li><li>with centre $(4,3)$ touching $12y - 5x + 10 = 0$</li></ol>",
+"solution": {
+"steps": [
+{
+"title": "(i) centre = intersection of diameters",
+"text": "$2x - 3y = 5,\\ 3x + 4y = -1 \\Rightarrow (1, -1)$; $2\\pi r = 10\\pi \\Rightarrow r = 5$"
+},
+{
+"title": "(ii) radius = distance to tangent",
+"text": "$r = \\frac{|36 - 20 + 10|}{13} = 2$"
+}
+],
+"answer": "(i) $(x-1)^2 + (y+1)^2 = 25$ (ii) $(x-4)^2 + (y-3)^2 = 4$"
+},
+"id": "ci-004",
+"number": "4"
+},
+{
+"difficulty": 2,
+"topics": [
+"Equation of a circle"
+],
+"type": "Find the value",
+"text": "Find the circle which passes through<ol class='parts'><li>$A(-1,2)$ and $B(3,-2)$ with centre on $y = 2x$</li><li>$(2,3)$ with centre on the $x$-axis and radius 5</li></ol>",
+"solution": {
+"steps": [
+{
+"title": "(i) CA = CB",
+"text": "$(h+1)^2 + (k-2)^2 = (h-3)^2 + (k+2)^2 \\Rightarrow h - k = 1$; with $k = 2h$: $h = -1, k = -2$; $r^2 = 0 + 16$"
+},
+{
+"title": "(ii) centre (h, 0)",
+"text": "$(2 - h)^2 + 9 = 25 \\Rightarrow h - 2 = \\pm4$"
+}
+],
+"answer": "(i) $(x+1)^2 + (y+2)^2 = 16$ (ii) $(x - 6)^2 + y^2 = 25$ or $(x + 2)^2 + y^2 = 25$",
+"tip": "The centre lies on the perpendicular bisector of any chord."
+},
+"id": "ci-005",
+"number": "5"
+},
+{
+"difficulty": 2,
+"topics": [
+"Circle geometry & locus"
+],
+"type": "Find the value",
+"text": "Find the area of the equilateral triangle inscribed in the circle $x^2 + y^2 + 2gx + 2fy + c = 0$.",
+"solution": {
+"steps": [
+{
+"title": "Side from radius",
+"text": "Each side subtends $120^\\circ$ at the centre: half-side $= r\\cos30^\\circ \\Rightarrow$ side $= r\\sqrt3$"
+},
+{
+"title": "Area",
+"text": "$\\frac{\\sqrt3}{4}(r\\sqrt3)^2 = \\frac{3\\sqrt3}{4}r^2$ with $r^2 = g^2 + f^2 - c$"
+}
+],
+"answer": "$\\frac{3\\sqrt3}{4}(g^2 + f^2 - c)$"
+},
+"id": "ci-006",
+"number": "6"
+},
+{
+"difficulty": 3,
+"topics": [
+"Circle geometry & locus"
+],
+"type": "Find the value",
+"text": "The circle $x^2 + y^2 - 2x - 2y + 1 = 0$ rests on the $x$-axis. It completes one revolution rolling along the $x$-axis in the $+x$ direction. Find its equation in the new position.",
+"solution": {
+"steps": [
+{
+"title": "Circle",
+"text": "Centre $(1,1)$, radius 1 — it touches the $x$-axis"
+},
+{
+"title": "Rolling without slipping",
+"text": "One revolution moves the centre by the circumference $2\\pi$"
+}
+],
+"answer": "$(x - 1 - 2\\pi)^2 + (y - 1)^2 = 1$"
+},
+"id": "ci-007",
+"number": "7"
+},
+{
+"difficulty": 3,
+"topics": [
+"Circle geometry & locus"
+],
+"type": "Find the value",
+"text": "Let $A(-2,2)$ and $B(2,2)$. $AB$ subtends an angle of $45^\\circ$ at a point $P$. Find the locus of $P$.",
+"solution": {
+"steps": [
+{
+"title": "Inscribed angle",
+"text": "$\\angle APB = 45^\\circ$ ⇒ $AB$ subtends $90^\\circ$ at the centre, so $r = \\frac{AB}{\\sqrt2} = 2\\sqrt2$"
+},
+{
+"title": "Centre",
+"text": "On the perpendicular bisector $x = 0$ at distance 2 from $AB$: $(0, 4)$ or $(0, 0)$"
+},
+{
+"title": "Which arc",
+"text": "The $45^\\circ$ angle is on the major arc: above $AB$ for centre $(0,4)$, below for centre $(0,0)$"
+}
+],
+"answer": "$x^2 + (y - 4)^2 = 8$ with $y \\gt 2$ (and, on the other side of $AB$, $x^2 + y^2 = 8$ with $y \\lt 2$)"
+},
+"id": "ci-008",
+"number": "8"
+},
+{
+"difficulty": 1,
+"topics": [
+"Equation of a circle"
+],
+"type": "Proof",
+"text": "Find the equation of the circle with $A(x_1,y_1)$ and $B(x_2,y_2)$ as ends of a diameter.",
+"solution": {
+"steps": [
+{
+"title": "Angle in a semicircle",
+"text": "For any $P(x,y)$ on the circle, $\\angle APB = 90^\\circ$: $\\frac{y - y_1}{x - x_1}\\cdot\\frac{y - y_2}{x - x_2} = -1$"
+}
+],
+"answer": "$(x - x_1)(x - x_2) + (y - y_1)(y - y_2) = 0$"
+},
+"id": "ci-009",
+"number": "9"
 }
 ]
 }
